@@ -1,0 +1,21 @@
+{
+  "d": "2025-12-27",
+  "st": "handoff",
+  "r": "architect",
+  "epic": "EP-SAMPLE",
+  "sm": [
+    "Architecture design complete",
+    "Clean Architecture layers defined",
+    "Port/adapter pattern for repository and auth",
+    "No layer violations detected in requirements"
+  ],
+  "nx": [
+    "Create implementation plan",
+    "Define workstreams and task breakdown",
+    "Create testing.md and deployment.md"
+  ],
+  "artifacts": [
+    "docs/examples/sample_epic/architecture.md",
+    "docs/examples/sample_epic/consensus/artifacts/architecture.json"
+  ]
+}

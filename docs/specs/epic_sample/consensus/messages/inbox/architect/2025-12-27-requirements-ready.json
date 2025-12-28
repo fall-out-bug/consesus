@@ -1,0 +1,19 @@
+{
+  "d": "2025-12-27",
+  "st": "handoff",
+  "r": "analyst",
+  "epic": "EP-SAMPLE",
+  "sm": [
+    "Requirements ready for architecture review",
+    "4 user stories defined with acceptance criteria",
+    "Success metrics and risks documented"
+  ],
+  "nx": [
+    "Review requirements for Clean Architecture compliance",
+    "Create architecture.json",
+    "Identify any layer violation risks"
+  ],
+  "artifacts": [
+    "docs/examples/sample_epic/consensus/artifacts/requirements.json"
+  ]
+}

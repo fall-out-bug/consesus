@@ -1,0 +1,81 @@
+{
+  "epic_id": "EP-SAMPLE",
+  "iteration": 1,
+  "version": "1.0",
+  "created_by": "analyst",
+  "created_at": "2025-12-27",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "View own profile",
+      "description": "As a user, I want to view my profile information",
+      "acceptance_criteria": [
+        "GIVEN I am authenticated",
+        "WHEN I request GET /api/users/{my_id}/profile",
+        "THEN I receive my profile with id, email, name, bio, timestamps"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Update own profile",
+      "description": "As a user, I want to update my profile information",
+      "acceptance_criteria": [
+        "GIVEN I am authenticated",
+        "WHEN I request PUT /api/users/{my_id}/profile with valid name and bio",
+        "THEN my profile is updated",
+        "AND I receive the updated profile"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Prevent unauthorized profile access",
+      "description": "As a user, I should not be able to view or edit other users' profiles",
+      "acceptance_criteria": [
+        "GIVEN I am authenticated as user A",
+        "WHEN I request GET /api/users/{user_B_id}/profile",
+        "THEN I receive 403 Forbidden"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Validate profile updates",
+      "description": "As a system, I should validate profile update data",
+      "acceptance_criteria": [
+        "GIVEN a PUT request with name > 100 characters",
+        "THEN I receive 400 Bad Request with validation error",
+        "GIVEN a PUT request with bio > 500 characters",
+        "THEN I receive 400 Bad Request with validation error"
+      ]
+    }
+  ],
+  "success_metrics": [
+    "Response time < 200ms (p95)",
+    "Test coverage >= 80%",
+    "Zero security vulnerabilities",
+    "Zero unhandled exceptions in production"
+  ],
+  "integrations": [
+    "Authentication service (existing)",
+    "User database (existing)"
+  ],
+  "feature_flags": [
+    "profile_api_enabled",
+    "profile_caching"
+  ],
+  "deferred_scope": [
+    "Profile picture upload",
+    "Social media links",
+    "Profile visibility settings",
+    "Activity history"
+  ],
+  "risks": [
+    {
+      "description": "Auth service unavailability",
+      "mitigation": "Fail closed, return 503"
+    },
+    {
+      "description": "Database timeout",
+      "mitigation": "Timeout handling, retry with backoff"
+    }
+  ]
+}
