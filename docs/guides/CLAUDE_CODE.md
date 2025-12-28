@@ -39,15 +39,18 @@ claude --system-prompt prompts/quick/analyst_quick.md
 ### Selecting a Model
 
 ```bash
-# High-tier for Analyst/Architect (see MODELS.md)
+# High tier for Analyst/Architect/Security (see MODELS.md)
 claude --model claude-opus-4-5-20251101 --system-prompt prompts/architect_prompt.md
 
-# Medium-tier for Developer/QA
-claude --model claude-sonnet-4-20250514 --system-prompt prompts/developer_prompt.md
+# Medium tier for Tech Lead, complex refactoring
+claude --model claude-sonnet-4-5-20250929 --system-prompt prompts/tech_lead_prompt.md
 
-# Low-tier for Documentation
-claude --model claude-3-5-haiku-20241022 --system-prompt prompts/quick/documentation_steward_quick.md
+# Standard tier (DEFAULT for 80% of tasks!) - Haiku 4.5
+# Developer, QA, DevOps, SRE, Documentation
+claude --model claude-haiku-4-5-20241022 --system-prompt prompts/developer_prompt.md
 ```
+
+**💡 Tip:** Start with Haiku 4.5 for most tasks (73% SWE-bench score, 4-5x faster, 70% cheaper)!
 
 ## Workflow Patterns
 
@@ -56,17 +59,30 @@ claude --model claude-3-5-haiku-20241022 --system-prompt prompts/quick/documenta
 Run agents one at a time in separate terminal sessions:
 
 ```bash
-# Terminal 1: Analyst
+# Terminal 1: Analyst (High tier)
 claude --model claude-opus-4-5-20251101 \
        --system-prompt prompts/analyst_prompt.md \
        "Analyze docs/specs/epic_XX/epic.md and create requirements"
 
-# Wait for completion, then Terminal 2: Architect
+# Terminal 2: Architect (High tier)
 claude --model claude-opus-4-5-20251101 \
        --system-prompt prompts/architect_prompt.md \
        "Review requirements and create architecture"
 
-# Continue with other agents...
+# Terminal 3: Tech Lead (Medium tier)
+claude --model claude-sonnet-4-5-20250929 \
+       --system-prompt prompts/tech_lead_prompt.md \
+       "Create implementation plan"
+
+# Terminal 4: Developer (Standard tier - Haiku 4.5!)
+claude --model claude-haiku-4-5-20241022 \
+       --system-prompt prompts/quick/developer_quick.md \
+       "Implement workstream 1 with TDD"
+
+# Terminal 5: QA (Standard tier - Haiku 4.5!)
+claude --model claude-haiku-4-5-20241022 \
+       --system-prompt prompts/quick/qa_quick.md \
+       "Verify code quality and run tests"
 ```
 
 ### Pattern 2: Using Claude Code in Project Context
@@ -221,31 +237,53 @@ claude mcp add consensus python mcp_consensus_server.py
 4. Iterate as needed
 
 ```bash
-# Orchestration script
+# Orchestration script (consensus_pipeline.sh)
 #!/bin/bash
 EPIC=$1
 
-echo "=== Starting Consensus for $EPIC ==="
+echo "=== Starting Consensus Pipeline for $EPIC ==="
 
-# Phase 1: Requirements
-echo "Running Analyst..."
+# Phase 1: Requirements (High tier)
+echo "[1/6] Running Analyst (Opus 4.5)..."
 claude --model claude-opus-4-5-20251101 \
        --system-prompt prompts/analyst_prompt.md \
        "Analyze docs/specs/$EPIC/epic.md"
 
 # Check for vetoes
 if ls docs/specs/$EPIC/consensus/messages/inbox/analyst/*veto* 2>/dev/null; then
-    echo "Vetoes found for analyst. Please resolve before continuing."
+    echo "❌ Vetoes found. Resolve before continuing."
     exit 1
 fi
 
-# Phase 2: Architecture
-echo "Running Architect..."
+# Phase 2: Architecture (High tier)
+echo "[2/6] Running Architect (Opus 4.5)..."
 claude --model claude-opus-4-5-20251101 \
        --system-prompt prompts/architect_prompt.md \
        "Review requirements for $EPIC"
 
-# Continue...
+# Phase 3: Planning (Medium tier)
+echo "[3/6] Running Tech Lead (Sonnet 4.5)..."
+claude --model claude-sonnet-4-5-20250929 \
+       --system-prompt prompts/tech_lead_prompt.md \
+       "Create implementation plan for $EPIC"
+
+# Phase 4-6: Implementation (Standard tier - Haiku 4.5!)
+echo "[4/6] Running Developer (Haiku 4.5)..."
+claude --model claude-haiku-4-5-20241022 \
+       --system-prompt prompts/quick/developer_quick.md \
+       "Implement workstream 1 for $EPIC"
+
+echo "[5/6] Running QA (Haiku 4.5)..."
+claude --model claude-haiku-4-5-20241022 \
+       --system-prompt prompts/quick/qa_quick.md \
+       "Verify implementation for $EPIC"
+
+echo "[6/6] Running DevOps (Haiku 4.5)..."
+claude --model claude-haiku-4-5-20241022 \
+       --system-prompt prompts/quick/devops_quick.md \
+       "Create deployment plan for $EPIC"
+
+echo "✅ Pipeline complete!"
 ```
 
 ### Option 2: Automated Pipeline
@@ -357,9 +395,9 @@ See [MODELS.md](../../MODELS.md) for detailed model recommendations.
 - Check model availability
 - Try fallback model (see MODELS.md)
 
-## Example Session
+## Example Sessions
 
-Complete example of running Analyst agent:
+### Example 1: Analyst Agent (High Tier)
 
 ```bash
 $ cd /path/to/project
@@ -388,6 +426,43 @@ Requirements created. Summary:
 
 You> /exit
 ```
+
+### Example 2: Developer Agent (Standard Tier - Haiku 4.5)
+
+```bash
+$ claude --model claude-haiku-4-5-20241022 \
+         --system-prompt prompts/quick/developer_quick.md
+
+Claude Code> I'm the Developer agent. Ready to implement with TDD.
+
+You> Implement the authentication middleware from docs/specs/epic_02_api_gateway/implementation.md
+
+Claude Code> Let me start by reading the implementation plan and searching for existing auth code.
+
+[Reading implementation.md...]
+[Searching codebase for "authentication" and "middleware"...]
+[Found: src/middleware/auth.py - checking for duplication...]
+[Writing failing test: tests/test_auth_middleware.py...]
+[Implementing: src/middleware/api_auth.py...]
+[Running tests... ✅ All passing]
+[Code review: checking SOLID principles...]
+
+Implementation complete:
+- New file: src/middleware/api_auth.py (85 LOC)
+- Tests: tests/test_auth_middleware.py (12 test cases)
+- Coverage: 92%
+- No duplications found
+- Ready for QA review
+
+You> Great! Now send a message to QA's inbox
+
+Claude Code> [Creating message in consensus/messages/inbox/qa/2025-12-29-auth-ready.json...]
+Message sent to QA.
+
+You> /exit
+```
+
+**💡 Notice:** Haiku 4.5 completed full TDD implementation with codebase search, tests, and messaging in under 2 minutes!
 
 ---
 

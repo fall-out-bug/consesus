@@ -110,20 +110,28 @@ Check inbox for any messages.
 VETO if Clean Architecture violations detected.
 ```
 
-### Running Developer
+### Running Developer (Haiku 4.5 - Fast!)
 
 In Developer window chat:
 ```
-@prompts/developer_prompt.md
+Model: claude-haiku-4.5 ⭐
+@prompts/quick/developer_quick.md
 @docs/specs/epic_XX/implementation.md
 @docs/specs/epic_XX/consensus/messages/inbox/developer/
 
-You are the Developer. Implement the plan with TDD.
-Before implementing:
-1. Search codebase for existing implementations
+You are the Developer. Implement workstream 1 with TDD.
+
+Steps:
+1. Search codebase for existing implementations (DRY principle)
 2. Write failing tests first
-3. After each workstream, conduct code review
+3. Implement minimal code to pass tests
+4. Refactor if needed
+5. Send message to QA inbox when done
+
+Use Haiku 4.5 for speed and cost efficiency (73% SWE-bench score).
 ```
+
+**💡 Tip:** Haiku 4.5 completes typical implementation tasks in 1-3 minutes vs 5-10 minutes with Sonnet 4.5!
 
 ## Cursor-Specific Features
 
@@ -161,18 +169,29 @@ Cmd/Ctrl + K → "Add error handling per RULES_COMMON.md"
 
 1. Open Settings (Cmd/Ctrl + ,)
 2. Go to "Cursor Settings" → "Models"
-3. Configure per-role:
+3. Configure per-role (December 2025 recommendations):
 
-| Role | Suggested Model |
-|------|-----------------|
-| Analyst | claude-opus-4 or gpt-4o |
-| Architect | claude-opus-4 or gpt-4o |
-| Developer | claude-sonnet-4 or gpt-4o-mini |
-| QA | claude-sonnet-4 or gpt-4o-mini |
+| Role | Tier | Model | Cost | Notes |
+|------|------|-------|------|-------|
+| **Analyst** | High | `claude-opus-4.5` | $$$ | Requirements analysis |
+| **Architect** | High | `claude-opus-4.5` | $$$ | System design, vetoes |
+| **Tech Lead** | Medium | `claude-sonnet-4.5` | $$ | Planning, code review |
+| **Developer** | **Standard** | **`claude-haiku-4.5`** ⭐ | **$** | **TDD, implementation (73% SWE-bench!)** |
+| **QA** | **Standard** | **`claude-haiku-4.5`** ⭐ | **$** | **Testing, verification** |
+| **DevOps** | **Standard** | **`claude-haiku-4.5`** ⭐ | **$** | **CI/CD, deployment** |
+| **SRE** | **Standard** | **`claude-haiku-4.5`** ⭐ | **$** | **Observability, runbooks** |
+| **Security** | High | `claude-opus-4.5` | $$$ | Threat modeling |
+
+**💡 Key insight:** Use Haiku 4.5 for 80% of tasks - it matches Sonnet 4 performance at 70% lower cost and 4-5x speed!
 
 ### Per-Chat Model Selection
 
 Use model selector in chat window to switch models mid-conversation.
+
+**Recommended defaults:**
+- Set Haiku 4.5 as default for most work
+- Switch to Opus 4.5 only for strategic decisions
+- Use Sonnet 4.5 for complex multi-file refactoring
 
 ## Workspace Configuration
 
@@ -180,11 +199,20 @@ Use model selector in chat window to switch models mid-conversation.
 
 ```json
 {
-  "chat.defaultModel": "claude-sonnet-4-20250514",
+  "chat.defaultModel": "claude-haiku-4-5-20241022",
   "chat.contextFiles": [
     "CLAUDE.md",
     "RULES_COMMON.md"
   ],
+  "chat.modelOverrides": {
+    "analyst": "claude-opus-4-5-20251101",
+    "architect": "claude-opus-4-5-20251101",
+    "tech_lead": "claude-sonnet-4-5-20250929",
+    "developer": "claude-haiku-4-5-20241022",
+    "qa": "claude-haiku-4-5-20241022",
+    "devops": "claude-haiku-4-5-20241022",
+    "security": "claude-opus-4-5-20251101"
+  },
   "indexing.include": [
     "docs/specs/**",
     "prompts/**"
@@ -195,6 +223,8 @@ Use model selector in chat window to switch models mid-conversation.
   ]
 }
 ```
+
+**Note:** Default is now Haiku 4.5 for maximum efficiency. Use modelOverrides for role-specific models.
 
 ### Custom Rules per Role
 
@@ -290,21 +320,38 @@ find docs/specs/epic_XX/consensus/messages -name "*.json" \
 
 ## Tips and Best Practices
 
-### 1. Keep Context Focused
+### 1. Start with Haiku 4.5 (NEW!)
+
+**Default workflow:**
+```
+1. Set Haiku 4.5 as default model in Cursor settings
+2. Use it for Developer, QA, DevOps, SRE tasks
+3. Escalate to Sonnet 4.5 only if:
+   - Multiple iterations without progress
+   - Complex multi-file refactoring (5+ files)
+   - Cross-epic analysis needed
+4. Reserve Opus 4.5 for strategic decisions only
+```
+
+**Why:** 70% cost reduction, 4-5x speed, same quality (73% SWE-bench)
+
+### 2. Keep Context Focused
 
 Each agent window should only see relevant files:
 - Analyst: epic.md, requirements context
 - Developer: implementation.md, source code
 - QA: test files, test results
 
-### 2. Use Codebase Search
+### 3. Use Codebase Search
 
 Before implementing, always:
 ```
 Search the codebase for existing implementations of [feature]
 ```
 
-### 3. Verify Message Format
+With Haiku 4.5, codebase search is fast enough to do on every task!
+
+### 4. Verify Message Format
 
 Before saving messages:
 ```
@@ -313,7 +360,7 @@ Verify this message follows the JSON format with compact keys:
 - All text in English
 ```
 
-### 4. Incremental Code Review
+### 5. Incremental Code Review
 
 After each workstream:
 ```
@@ -325,12 +372,24 @@ Conduct code review for the changes in this workstream:
 5. Missing timeouts on external calls
 ```
 
-### 5. Use Git for Checkpoints
+### 6. Use Git for Checkpoints
 
 ```bash
 # After each agent completes
 git add docs/specs/epic_XX/
 git commit -m "Consensus: [Agent] completed [phase]"
+```
+
+### 7. Model Switching Strategy
+
+```
+Development flow:
+1. Start Developer task with Haiku 4.5
+2. If blocked after 2 iterations → switch to Sonnet 4.5
+3. If architectural question → switch to Opus 4.5
+4. Resume with Haiku 4.5 once unblocked
+
+This minimizes cost while maintaining quality.
 ```
 
 ## Troubleshooting
