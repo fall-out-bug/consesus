@@ -8,7 +8,7 @@ This is the **Consensus Workflow** - a file-based multi-agent coordination frame
 
 The framework also includes optional education roles (Lecture Assistant, Seminar Assistant) for preparing course materials.
 
-**Note:** This repository itself is maintained using the Consensus Workflow with AI models (Claude Opus 4.5 for strategic decisions, Gemini 3 Flash for implementation, Qwen3-Coder for automation). All significant updates follow the analyst → architect → tech lead → developer → qa cycle documented here.
+**Note:** This repository is developed with AI assistance using models like Claude Opus 4.5, Claude Sonnet 4.5, and Gemini 3 Flash as recommended in [MODELS.md](MODELS.md).
 
 ## Core Architecture
 
