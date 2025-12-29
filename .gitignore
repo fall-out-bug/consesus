@@ -49,3 +49,8 @@ node_modules/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Consensus Workflow - Work in Progress
+# Keep epics local during development, commit only completed artifacts
+docs/specs/epic_*/
+!docs/specs/epic_sample/

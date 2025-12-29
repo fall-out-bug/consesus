@@ -94,15 +94,23 @@ cat prompts/meta_orchestrator_prompt.md
 - **Continuous Code Review** – Review after each workstream, not just at epic completion
 - **Veto Power** – Architecture violations and security issues cannot be overridden
 
-## AI-Assisted Development
+## Development Approach
 
-This repository is developed with AI assistance using models recommended in [MODELS.md](MODELS.md):
+This repository is developed using the Consensus Workflow framework itself (dogfooding):
 
-- **Research & strategic decisions**: Claude Opus 4.5, Claude Sonnet 4.5
-- **Documentation & implementation**: Gemini 3 Flash, Claude Sonnet 4.5
-- **Code examples & automation**: Various models based on task complexity
+- **GitHub Issues**: Track epics and discussions publicly
+- **Local Development**: Work on epics locally (gitignored)
+- **Consensus Protocol**: Follow full agent workflow (Analyst → Architect → Tech Lead → Developer → QA → DevOps)
+- **Commit Artifacts**: Push only completed epics with all consensus artifacts
 
-The framework's multi-model recommendations are based on real-world usage and SWE-bench data.
+See [WORKFLOW.md](WORKFLOW.md) for detailed development process.
+
+### Models Used
+
+Per [MODELS.md](MODELS.md) recommendations:
+- **Strategic decisions** (Analyst, Architect, Security): Claude Opus 4.5
+- **Implementation** (Tech Lead, Developer, QA): Gemini 3 Flash
+- **Automation** (DevOps): Qwen3-Coder (open source via Ollama)
 
 ## Contributing
 
