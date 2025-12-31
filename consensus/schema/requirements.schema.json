@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "consensus://schema/requirements",
+  "title": "Requirements Artifact",
+  "description": "Analyst deliverable defining epic requirements (UPC Protocol v2.0)",
+  "type": "object",
+  "required": ["epic_id", "iteration", "stories", "acceptance_criteria", "success_metrics"],
+  "properties": {
+    "epic_id": {
+      "type": "string",
+      "description": "Epic identifier"
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Requirements iteration number"
+    },
+    "stories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "priority": { "type": "string", "enum": ["must", "should", "could", "wont"] }
+        }
+      },
+      "minItems": 1,
+      "description": "User stories or requirements"
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Criteria for epic completion"
+    },
+    "success_metrics": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Measurable success indicators"
+    },
+    "integrations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "External systems to integrate with"
+    },
+    "feature_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Feature flags to use"
+    },
+    "deferred_scope": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Items explicitly out of scope"
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question"],
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string" },
+          "answer": { "type": "string" },
+          "answered_by": { "type": "string" }
+        }
+      },
+      "description": "Questions requiring clarification"
+    }
+  },
+  "additionalProperties": false
+}
+

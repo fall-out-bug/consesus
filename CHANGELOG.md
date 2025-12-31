@@ -1,58 +1,57 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the Consensus Protocol.
 
-## [2.0.0] - 2024-12-31
+## [2.0.0] - 2025-12-31
 
 ### Added
-- **Three-mode architecture**: Solo, Structured, Multi-Agent modes for different project sizes
-- **Solo mode** (`modes/solo/`)
-  - README with workflow guide
-  - CLAUDE.md.example template
-  - Prompt examples for common tasks
-- **Structured mode** (`modes/structured/`)
-  - Four-phase workflow (Analyze → Design → Implement → Review)
-  - Phase-specific prompts with templates
-  - CLAUDE.md.example for structured projects
-- **Multi-Agent mode** (`modes/multi-agent/`)
-  - README explaining full consensus protocol
-  - References existing prompts/
-- **Concepts documentation** (`concepts/`)
-  - Roles in software development
-  - Artifacts guide (specs, designs, ADRs, reports)
-  - ADR templates and examples
-  - Clean Architecture explanation
-- **Worked examples** (`examples/`)
-  - Solo bug fix example
-  - Structured feature example (password reset)
-  - Multi-Agent epic example (notification system)
-- **CONCEPTS.md** - Overview of core concepts
+- **Unified Progressive Consensus (UPC) Protocol** - Complete rewrite
+- **Three Protocol Tiers**: Starter, Standard, Enterprise
+- **Three Execution Modes**: full, fast_track, hotfix
+- **JSON Schemas** for all artifacts (`consensus/schema/`)
+- **Centralized state** (`status.json`) as single source of truth
+- **Workstreams** for micro-task tracking (merged from kanban concept)
+- **Universal agent prompts** (`consensus/prompts/`)
+- **Validation scripts** (`consensus/scripts/validate.py`)
+- **Epic initialization** (`consensus/scripts/init.py`)
+- **ADR-0004** documenting the unified protocol design
 
 ### Changed
-- **README.md** - Complete rewrite with mode selection guide
-- **CLAUDE.md** - Simplified, removed fabricated model claims
-- **MODELS.md** - Rewritten with principle-based recommendations (removed unverified benchmarks)
-- **docs/guides/CLAUDE_CODE.md** - Simplified, clarified Claude-only limitation
-- **docs/guides/CURSOR.md** - Simplified, removed fabricated settings
+- Protocol now **schema-driven** (JSON Schema is law)
+- **Phase transitions** are explicit and validated
+- **Agent prompts** are now portable Markdown (work with any LLM)
+- **Directory structure** simplified and standardized
 
 ### Removed
-- Fabricated SWE-bench percentages from documentation
-- Non-existent model names (Gemini 3 Flash, Kimi K2 Thinking, etc.)
-- Fabricated Cursor settings and multi-provider claims
-- Over-complicated configuration examples
+- Legacy `modes/` directory (archived to `archive/v1.2/`)
+- Legacy `prompts/` directory (archived to `archive/v1.2/`)
+- Legacy `WORKFLOW.md`, `CONCEPTS.md` (archived)
+- Implicit state management (replaced by `status.json`)
 
-### Fixed
-- Documentation now reflects actual tool capabilities
-- Model recommendations based on principles, not fabricated benchmarks
+### Migration
+See [PROTOCOL.md](PROTOCOL.md) for migration instructions from v1.2.
 
-## [1.2.0] - Previous
+## [1.2.0] - 2024-12-29
 
 ### Added
 - Continuous code review after each workstream
 - Duplication prevention rules
 - Early quality gates
 - Cross-epic code review
+- Strict code review at epic completion
+- No error-hiding fallbacks rule
 
----
+## [1.1.0] - 2024-11-XX
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+### Added
+- JSON format for inbox messages (compact keys)
+- Per-epic directory structure
+- Decision logs in Markdown
+
+## [1.0.0] - 2024-11-XX
+
+### Added
+- Initial file-based consensus protocol
+- Agent roles and responsibilities
+- Veto protocol
+- Clean Architecture enforcement

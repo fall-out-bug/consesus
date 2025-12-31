@@ -1,0 +1,13 @@
+{
+  "epic_id": "epic_sample",
+  "tier": "standard",
+  "phase": "planning",
+  "mode": "full",
+  "iteration": 1,
+  "approvals": ["analyst", "architect"],
+  "blockers": [],
+  "workstreams": [],
+  "updated_at": "2025-12-27T12:00:00Z",
+  "updated_by": "architect"
+}
+

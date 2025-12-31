@@ -1,148 +1,148 @@
 # Consensus Workflow
 
-An educational framework for AI-assisted software development. Learn to work effectively with AI coding assistants through structured approaches that scale with project complexity.
+A file-based multi-agent coordination framework for AI-assisted software development.
 
-## Choose Your Mode
+## What is Consensus?
 
-| Mode | Complexity | Time | Use When |
-|------|------------|------|----------|
-| [**Solo**](modes/solo/) | Low | <2h | Bug fixes, small features |
-| [**Structured**](modes/structured/) | Medium | 2-8h | Features needing documentation |
-| [**Multi-Agent**](modes/multi-agent/) | High | Days/Weeks | Large projects, teams |
+Consensus enables autonomous AI agents (Analyst, Architect, Developer, QA, etc.) to collaborate on software projects through structured JSON messages and shared artifacts. It works with **any AI coding tool** (Cursor, Claude Code, Aider, etc.) and **any LLM** (Claude, GPT, Gemini, etc.).
 
-### Quick Decision Guide
-
+**Core Principle:**
 ```
-Task < 2 hours and < 10 files?
-├─ Yes → Solo Mode
-└─ No  → Need documentation or ADRs?
-         ├─ Yes → Structured Mode
-         └─ No  → Parallel work or audit trail?
-                  ├─ Yes → Multi-Agent Mode
-                  └─ No  → Structured Mode
+Files are the only required interface.
+No special APIs, no vendor lock-in.
 ```
 
 ## Quick Start
 
-### Solo Mode (Start Here)
+### 1. Initialize an Epic
+
 ```bash
-# 1. Add CLAUDE.md to your project
-cp modes/solo/CLAUDE.md.example your-project/CLAUDE.md
+# Create a new feature epic (Standard tier)
+python consensus/scripts/init.py EP-AUTH-001 --title "User Authentication" --tier standard
 
-# 2. Start AI assistant and describe your task
-"Fix the bug where users can't login with + in email"
-
-# 3. Iterate until done
+# Or a quick bug fix (Starter tier)
+python consensus/scripts/init.py EP-FIX-001 --title "Fix login bug" --tier starter --mode fast_track
 ```
-See [modes/solo/](modes/solo/) for guide and prompts.
 
-### Structured Mode
+### 2. Run Agents
+
+Open your AI tool (Cursor, Claude Code, etc.) and give it the agent prompt:
+
+```
+Read consensus/prompts/analyst.md and apply it to docs/specs/EP-AUTH-001/
+```
+
+Each agent:
+1. Reads `status.json` to check phase
+2. Performs its work
+3. Creates artifacts
+4. Updates `status.json`
+5. Sends messages to next agent
+
+### 3. Validate
+
 ```bash
-# 1. Phase 1 - Analyze requirements
-"Create specification for password reset feature"
-
-# 2. Phase 2 - Design solution
-"Create technical design and ADR"
-
-# 3. Phase 3 - Implement
-"Implement following the design, TDD approach"
-
-# 4. Phase 4 - Review
-"Verify implementation meets all requirements"
+python consensus/scripts/validate.py docs/specs/EP-AUTH-001
 ```
-See [modes/structured/](modes/structured/) for phase prompts.
 
-### Multi-Agent Mode
-```bash
-# Run specialized agents sequentially
-# Each agent has dedicated prompts in prompts/
+## Protocol Tiers
 
-Analyst    → requirements.md
-Architect  → architecture.md (may veto)
-Tech Lead  → implementation.md
-Developer  → code + tests
-QA         → test-report.md
-DevOps     → deployment.md
-```
-See [modes/multi-agent/](modes/multi-agent/) for full protocol.
+| Tier | Best For | Validation |
+|------|----------|------------|
+| **Starter** | Bug fixes, prototypes | JSON syntax only |
+| **Standard** | Features, typical work | Full schema validation |
+| **Enterprise** | Large systems | Schema + custom rules |
 
-## Learn the Concepts
+## Execution Modes
 
-| Concept | What You'll Learn |
-|---------|-------------------|
-| [Roles](concepts/roles/) | What Analyst, Architect, Developer do |
-| [Artifacts](concepts/artifacts/) | Specs, designs, ADRs, reports |
-| [ADR](concepts/adr/) | Documenting architectural decisions |
-| [Clean Architecture](concepts/clean-architecture/) | Layer separation and dependencies |
+| Mode | Agent Chain | Use When |
+|------|-------------|----------|
+| `full` | analyst → architect → tech_lead → developer → qa → devops | New features |
+| `fast_track` | developer → qa | Bug fixes (≤50 LOC) |
+| `hotfix` | developer → devops | Production emergencies |
 
-See [CONCEPTS.md](CONCEPTS.md) for overview.
+## Agent Roles
 
-## Examples
+| Role | Mission | Deliverable |
+|------|---------|-------------|
+| **Analyst** | Define requirements | `requirements.json` |
+| **Architect** | Design system | `architecture.json` |
+| **Tech Lead** | Plan implementation | `plan.json` |
+| **Developer** | Write code | Implementation |
+| **QA** | Verify quality | `test_results.json` |
+| **DevOps** | Deploy safely | `deployment.json` |
 
-| Example | Mode | Scenario |
-|---------|------|----------|
-| [Bug Fix](examples/solo-bug-fix/) | Solo | Fix email validation bug |
-| [Feature](examples/structured-feature/) | Structured | Add password reset |
-| [Epic](examples/multi-agent-epic/) | Multi-Agent | Build notification system |
-
-## Integration Guides
-
-- [Claude Code](docs/guides/CLAUDE_CODE.md) - Using with Claude Code CLI
-- [Cursor](docs/guides/CURSOR.md) - Using with Cursor IDE
-- [Model Selection](MODELS.md) - Choosing models for different tasks
-
-## Core Principles
-
-These apply to all modes:
-
-- **Clean Architecture** - Dependencies point inward
-- **No Silent Failures** - Errors must be explicit
-- **Test Coverage** - ≥80% for new code
-- **English Only** - All outputs in English
-
-## Multi-Agent Protocol (Advanced)
-
-For full multi-agent workflow:
-
-| Resource | Description |
-|----------|-------------|
-| [PROTOCOL.md](PROTOCOL.md) | Complete protocol specification |
-| [RULES_COMMON.md](RULES_COMMON.md) | Shared rules for all agents |
-| [prompts/](prompts/) | Full agent prompts |
-| [prompts/quick/](prompts/quick/) | Shorter prompts for routine tasks |
-
-### Agent Roles
-
-| Role | Responsibility | Can Veto? |
-|------|----------------|-----------|
-| Analyst | Requirements, scope | No |
-| Architect | System design | Yes |
-| Tech Lead | Planning, code review | Yes |
-| Developer | Implementation, TDD | No |
-| QA | Testing, verification | Yes |
-| DevOps | Deployment | Yes |
-
-Additional roles: Security, SRE, Data/ML, Documentation Steward.
-
-## Repository Structure
+## Directory Structure
 
 ```
-consensus/
-├── modes/              # Three workflow modes
-│   ├── solo/           # Single agent, simple tasks
-│   ├── structured/     # Phased approach with artifacts
-│   └── multi-agent/    # Full consensus protocol
-├── concepts/           # Educational content
-│   ├── roles/          # Development roles explained
-│   ├── artifacts/      # Document types
-│   ├── adr/            # Architecture Decision Records
-│   └── clean-architecture/
-├── examples/           # Complete worked examples
-├── prompts/            # Agent prompts for multi-agent mode
-│   └── quick/          # Shorter versions
-└── docs/
-    ├── guides/         # Tool integration guides
-    └── specs/          # Sample specifications
+docs/specs/{epic}/
+├── epic.md                    # Problem description
+└── consensus/
+    ├── status.json            # State machine
+    ├── artifacts/             # Agent deliverables
+    ├── messages/inbox/{role}/ # Agent communication
+    └── decision_log/          # Audit trail
+```
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| [PROTOCOL.md](PROTOCOL.md) | Full protocol specification |
+| [consensus/prompts/](consensus/prompts/) | Agent instruction files |
+| [consensus/schema/](consensus/schema/) | JSON validation schemas |
+| [consensus/scripts/](consensus/scripts/) | Validation and init tools |
+| [docs/adr/](docs/adr/) | Architecture Decision Records |
+
+## Platform Integration
+
+Works with any AI coding tool:
+
+| Platform | Guide |
+|----------|-------|
+| Cursor | [docs/guides/CURSOR.md](docs/guides/CURSOR.md) |
+| Claude Code | [docs/guides/CLAUDE_CODE.md](docs/guides/CLAUDE_CODE.md) |
+
+## Model Recommendations
+
+See [MODELS.md](MODELS.md) for LLM selection guidance:
+- **Strategic roles** (Analyst, Architect): Most capable model
+- **Implementation roles** (Developer, QA): Faster models work well
+
+## Architecture Principles
+
+The protocol enforces Clean Architecture:
+- Dependencies point **inward**
+- No layer violations
+- Explicit contracts at boundaries
+
+## Example Flow
+
+```
+1. User creates epic.md with problem description
+
+2. Analyst reads epic.md
+   → Creates requirements.json
+   → Updates status.json (phase: architecture)
+
+3. Architect reads requirements.json
+   → Creates architecture.json
+   → Updates status.json (phase: planning)
+
+4. Tech Lead reads architecture.json
+   → Creates plan.json with workstreams
+   → Updates status.json (phase: implementation)
+
+5. Developer executes workstreams
+   → Implements code with TDD
+   → Updates status.json (phase: testing)
+
+6. QA validates acceptance criteria
+   → Creates test_results.json
+   → Updates status.json (phase: deployment)
+
+7. DevOps deploys with rollback plan
+   → Updates status.json (phase: done)
 ```
 
 ## Contributing
@@ -151,4 +151,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+[MIT](LICENSE)
