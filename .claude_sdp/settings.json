@@ -30,10 +30,10 @@
       "Read(*)",
       "Glob(*)",
       "Grep(*)",
-      "Write(tools/hw_checker/*)",
+      "Write(src/*)",
       "Write(.claude/*)",
       "Write(sdp/*)",
-      "Edit(tools/hw_checker/*)",
+      "Edit(src/*)",
       "Edit(.claude/*)",
       "Edit(sdp/*)",
       "WebSearch"

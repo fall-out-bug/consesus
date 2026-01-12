@@ -1,6 +1,6 @@
-# hw_checker Workflow Rules
+# myproject Workflow Rules
 
-Эти правила автоматически применяются при работе с hw_checker проектом.
+Эти правила автоматически применяются при работе с myproject проектом.
 
 ## Slash Commands
 
@@ -20,10 +20,10 @@
 
 ```bash
 # 1. Project Map — архитектурные решения
-cat tools/hw_checker/docs/PROJECT_MAP.md
+cat docs/PROJECT_MAP.md
 
 # 2. INDEX — существующие WS
-cat tools/hw_checker/docs/workstreams/INDEX.md
+cat docs/workstreams/INDEX.md
 ```
 
 ## Автоматические проверки

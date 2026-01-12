@@ -40,13 +40,13 @@ Always decompose in this order:
 
 ```bash
 # 1. Read architecture decisions
-cat tools/hw_checker/docs/PROJECT_MAP.md
+cat docs/PROJECT_MAP.md
 
 # 2. Check existing workstreams
-cat tools/hw_checker/docs/workstreams/INDEX.md
+cat docs/workstreams/INDEX.md
 
 # 3. Find next available WS ID
-grep -oE "WS-[0-9]{3}" tools/hw_checker/docs/workstreams/INDEX.md | sort -u | tail -1
+grep -oE "WS-[0-9]{3}" docs/workstreams/INDEX.md | sort -u | tail -1
 ```
 
 ## WS File Structure

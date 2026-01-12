@@ -19,7 +19,7 @@
 
 ```bash
 # Проверь что все WS фичи approved
-grep -A5 "### Review Results" tools/hw_checker/docs/workstreams/*/WS-060*.md | grep "Verdict"
+grep -A5 "### Review Results" docs/workstreams/*/WS-060*.md | grep "Verdict"
 # Все APPROVED? ✅/❌
 ```
 
@@ -29,11 +29,11 @@ grep -A5 "### Review Results" tools/hw_checker/docs/workstreams/*/WS-060*.md | g
 
 ```bash
 # Проверь что UAT Guide существует
-ls tools/hw_checker/docs/uat/F{XX}-uat-guide.md
+ls docs/uat/F{XX}-uat-guide.md
 # Существует? ✅/❌
 
 # Проверь Sign-off
-grep -A10 "### Sign-off" tools/hw_checker/docs/uat/F{XX}-uat-guide.md | grep "Human Tester"
+grep -A10 "### Sign-off" docs/uat/F{XX}-uat-guide.md | grep "Human Tester"
 # Есть галочка ✅? ✅/❌
 ```
 
@@ -42,7 +42,7 @@ grep -A10 "### Sign-off" tools/hw_checker/docs/uat/F{XX}-uat-guide.md | grep "Hu
 ```markdown
 ⚠️ Требуется Human Verification
 
-UAT Guide: `tools/hw_checker/docs/uat/F{XX}-uat-guide.md`
+UAT Guide: `docs/uat/F{XX}-uat-guide.md`
 
 Человек должен:
 1. Пройти Quick Smoke Test
@@ -166,7 +166,7 @@ services:
           python-version: '3.11'
       - name: Run tests
         run: |
-          cd tools/hw_checker
+          cd tools/myproject
           poetry install
           poetry run pytest tests/ -m "not slow"
 ```
@@ -359,7 +359,7 @@ docker-compose -f docker-compose.prod.yml.backup up -d
 
 ```bash
 # Проверь что все WS approved
-grep -l "APPROVED" tools/hw_checker/docs/workstreams/*/WS-060*.md | wc -l
+grep -l "APPROVED" docs/workstreams/*/WS-060*.md | wc -l
 # Должно равняться количеству WS
 
 # Проверь что ветка актуальна
@@ -376,7 +376,7 @@ git rebase origin/main
 
 # Разреши конфликты если есть
 # После rebase — прогони тесты
-cd tools/hw_checker && poetry run pytest tests/unit/ -m fast -q
+cd tools/myproject && poetry run pytest tests/unit/ -m fast -q
 ```
 
 ### 7.3 Merge в main
@@ -447,15 +447,15 @@ git worktree remove ../msu-ai-{slug}
 
 ```bash
 # Переместить файлы
-mv tools/hw_checker/docs/workstreams/backlog/WS-060-*.md \
-   tools/hw_checker/docs/workstreams/completed/
+mv docs/workstreams/backlog/WS-060-*.md \
+   docs/workstreams/completed/
 
 # Обновить INDEX.md
 # Статус: backlog → completed
 ```
 
 ```bash
-git add tools/hw_checker/docs/workstreams/
+git add docs/workstreams/
 git commit -m "docs: move F{XX} workstreams to completed"
 git push origin main
 ```

@@ -7,7 +7,7 @@
 
 1. **Всегда начинай с интерактивного диалога** (Section 1)
 2. **Никогда не генерируй файлы без подтверждения**
-3. **Создавай draft в `tools/hw_checker/docs/drafts/`**
+3. **Создавай draft в `docs/drafts/`**
 4. **Используй шаблон из Section 3**
 
 ===============================================================================
@@ -80,7 +80,7 @@
 ===============================================================================
 # 2. FILE NAMING
 
-**Путь:** `tools/hw_checker/docs/drafts/idea-{slug}.md`
+**Путь:** `docs/drafts/idea-{slug}.md`
 
 **Slug rules:**
 - lowercase
@@ -212,7 +212,7 @@
 ```markdown
 ## ✅ Draft Created
 
-**Файл:** `tools/hw_checker/docs/drafts/idea-{slug}.md`
+**Файл:** `docs/drafts/idea-{slug}.md`
 
 **Ключевые пункты:**
 1. {пункт 1}
@@ -224,7 +224,7 @@
 - {вопрос 2}
 
 **Следующие шаги:**
-1. Отредактируй draft: `tools/hw_checker/docs/drafts/idea-{slug}.md`
+1. Отредактируй draft: `docs/drafts/idea-{slug}.md`
 2. Ответь на Open Questions
 3. Запусти: `/design idea-{slug}`
 ```

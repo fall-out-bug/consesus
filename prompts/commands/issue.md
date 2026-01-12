@@ -200,7 +200,7 @@ Database connection timeout → API 500 → User can't submit → All submission
 cat error.log | tail -100
 
 # Or check recent logs
-tail -100 tools/hw_checker/logs/app.log
+tail -100 src/logs/app.log
 
 # Look for:
 # - Stack traces
@@ -399,18 +399,18 @@ curl -X POST https://api.hw-checker.ru/submissions \
 
 ```
 Traceback (most recent call last):
-  File "src/hw_checker/api/routes/submissions.py", line 45, in create_submission
+  File "src/src/api/routes/submissions.py", line 45, in create_submission
     result = processor.process(repo_url)
-  File "src/hw_checker/application/submission_processor.py", line 89, in process
+  File "src/src/application/submission_processor.py", line 89, in process
     storage.save(submission)
-  File "src/hw_checker/infrastructure/storage/postgres.py", line 120, in save
+  File "src/src/infrastructure/storage/postgres.py", line 120, in save
     db.execute("INSERT INTO submissions ...")
 psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "submissions_pkey"
 ```
 
 ## Root Cause
 
-**File:** `src/hw_checker/infrastructure/storage/postgres.py:120`
+**File:** `src/src/infrastructure/storage/postgres.py:120`
 
 **Issue:** Duplicate submission ID generation (race condition in ID assignment)
 

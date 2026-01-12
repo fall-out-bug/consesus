@@ -93,7 +93,7 @@ Issues: $issues_count
 
 Status: CHANGES_REQUESTED
 
-Check: \`tools/hw_checker/docs/workstreams/reports/$feature_id-review.md\`"
+Check: \`docs/workstreams/reports/$feature_id-review.md\`"
             ;;
         
         "breaking_changes")

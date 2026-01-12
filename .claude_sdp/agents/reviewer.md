@@ -37,8 +37,8 @@ You are a strict code review specialist for workstream quality assurance.
 
 | # | Check | How to verify |
 |---|-------|---------------|
-| 4 | Linters | `ruff check src/hw_checker/` |
-| 5 | Type hints | `mypy src/hw_checker/` |
+| 4 | Linters | `ruff check src/src/` |
+| 5 | Type hints | `mypy src/src/` |
 | 6 | No TODO/FIXME | `grep -rn "TODO\|FIXME"` |
 | 7 | File size | `wc -l *.py` (all < 200) |
 | 8 | Clean Architecture | No infra imports in domain/ |

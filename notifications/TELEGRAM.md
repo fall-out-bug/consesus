@@ -146,7 +146,7 @@ Issues: 3
 
 Status: CHANGES_REQUESTED
 
-Check: `tools/hw_checker/docs/workstreams/reports/F60-review.md`
+Check: `docs/workstreams/reports/F60-review.md`
 ```
 
 ### breaking_changes

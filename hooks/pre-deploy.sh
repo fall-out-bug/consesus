@@ -14,7 +14,7 @@ fi
 echo "🚀 Running pre-deploy checks for $FEATURE_ID ($ENVIRONMENT)..."
 
 # Change to project root
-cd "$(git rev-parse --show-toplevel)/tools/hw_checker"
+cd "$(git rev-parse --show-toplevel)/tools/myproject"
 
 # 1. E2E Tests (mandatory for deploy)
 echo ""
@@ -67,7 +67,7 @@ fi
 echo ""
 echo "=== 4. Security Scan ==="
 if command -v bandit &> /dev/null; then
-  if bandit -r src/hw_checker/ -ll -q; then
+  if bandit -r src/src/ -ll -q; then
     echo "✅ No security issues found"
   else
     echo "⚠️ Security issues detected (review required)"
@@ -88,7 +88,7 @@ if [[ "$ENVIRONMENT" == "prod" ]]; then
   fi
   
   # Check for print statements (should use logging)
-  if grep -r "print(" src/hw_checker/ | grep -v "# debug:" > /dev/null 2>&1; then
+  if grep -r "print(" src/src/ | grep -v "# debug:" > /dev/null 2>&1; then
     echo "⚠️ print() statements found (should use logging)"
   fi
   

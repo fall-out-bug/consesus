@@ -161,7 +161,7 @@ issue_id: "002"
 
 ### Входные файлы
 
-- `src/hw_checker/infrastructure/git/git_executor.py` — timeout config
+- `src/src/infrastructure/git/git_executor.py` — timeout config
 - `tests/integration/test_git_submissions.py` — add large repo test
 
 ### Шаги
@@ -175,7 +175,7 @@ issue_id: "002"
 ### Код
 
 ```python
-# src/hw_checker/infrastructure/git/git_executor.py
+# src/src/infrastructure/git/git_executor.py
 
 class GitExecutor:
     DEFAULT_TIMEOUT = 1800  # 30 minutes (was 300)
@@ -240,7 +240,7 @@ pytest tests/unit/ -m fast -v
 #### 🚀 Quick Smoke Test
 
 ```bash
-cd tools/hw_checker
+cd tools/myproject
 poetry run hwc grading run --repo https://github.com/large/repo --timeout 1800
 
 # Ожидаемый результат: submission completes, no timeout
@@ -281,7 +281,7 @@ Run: `pytest tests/integration/test_git_submissions.py::test_large_repo -v`
 ### 5.2 Green: Implement Fix
 
 ```python
-# src/hw_checker/infrastructure/git/git_executor.py
+# src/src/infrastructure/git/git_executor.py
 
 - DEFAULT_TIMEOUT = 300  # 5 minutes
 + DEFAULT_TIMEOUT = 1800  # 30 minutes
@@ -316,14 +316,14 @@ pytest tests/unit/test_git_executor.py -v
 pytest tests/integration/test_git_submissions.py -v
 
 # 3. Coverage
-pytest tests/ --cov=hw_checker/infrastructure/git --cov-fail-under=80
+pytest tests/ --cov=src/infrastructure/git --cov-fail-under=80
 
 # 4. Regression
 pytest tests/unit/ -m fast -v
 
 # 5. Linters
-ruff check src/hw_checker/infrastructure/git/
-mypy src/hw_checker/infrastructure/git/ --strict
+ruff check src/src/infrastructure/git/
+mypy src/src/infrastructure/git/ --strict
 ```
 
 All must pass ✅
@@ -360,7 +360,7 @@ EOF
 # 8. COMMIT
 
 ```bash
-git add src/hw_checker/infrastructure/git/git_executor.py
+git add src/src/infrastructure/git/git_executor.py
 git add tests/integration/test_git_submissions.py
 git add docs/issues/002-large-repo-fails.md
 

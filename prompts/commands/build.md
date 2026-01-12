@@ -21,7 +21,7 @@
    sdp/hooks/pre-build.sh {WS-ID}
    
 2. ПРОЧИТАЙ план WS:
-   cat tools/hw_checker/docs/workstreams/backlog/{WS-ID}-*.md
+   cat docs/workstreams/backlog/{WS-ID}-*.md
    
 3. ПРОЧИТАЙ входные файлы (из плана)
 
@@ -48,7 +48,7 @@
 
 ```bash
 # WS файл существует
-ls tools/hw_checker/docs/workstreams/backlog/WS-{ID}-*.md
+ls docs/workstreams/backlog/WS-{ID}-*.md
 
 # Goal определена
 grep "### 🎯 Цель" WS-{ID}-*.md
@@ -156,8 +156,8 @@ import structlog
 from pydantic import BaseModel
 
 # 3. local
-from hw_checker.domain import Entity
-from hw_checker.application import UseCase
+from myproject.domain import Entity
+from myproject.application import UseCase
 ```
 
 ===============================================================================
@@ -184,7 +184,7 @@ pytest tests/unit/test_XXX.py -v
 # Expected: all passed
 
 # 2. Coverage ≥ 80%
-pytest tests/unit/test_XXX.py --cov=hw_checker/module --cov-fail-under=80
+pytest tests/unit/test_XXX.py --cov=src/module --cov-fail-under=80
 # Expected: coverage ≥ 80%
 
 # 3. Regression (fast tests)
@@ -192,20 +192,20 @@ pytest tests/unit/ -m fast -q
 # Expected: all passed
 
 # 4. Linters
-ruff check src/hw_checker/module/
-mypy src/hw_checker/module/ --ignore-missing-imports
+ruff check src/src/module/
+mypy src/src/module/ --ignore-missing-imports
 # Expected: no errors
 
 # 5. No TODO/FIXME
-grep -rn "TODO\|FIXME" src/hw_checker/module/
+grep -rn "TODO\|FIXME" src/src/module/
 # Expected: empty
 
 # 6. File sizes
-wc -l src/hw_checker/module/*.py | awk '$1 > 200 {print "🔴 " $2}'
+wc -l src/src/module/*.py | awk '$1 > 200 {print "🔴 " $2}'
 # Expected: empty
 
 # 7. Import check
-python -c "from hw_checker.module import NewClass"
+python -c "from myproject.module import NewClass"
 # Expected: no errors
 ```
 
@@ -234,7 +234,7 @@ python -c "from hw_checker.module import NewClass"
 
 | Файл | Действие | LOC |
 |------|----------|-----|
-| `src/hw_checker/module/service.py` | создан | 120 |
+| `src/src/module/service.py` | создан | 120 |
 | `tests/unit/test_service.py` | создан | 80 |
 
 #### Выполненные шаги
@@ -249,16 +249,16 @@ python -c "from hw_checker.module import NewClass"
 $ pytest tests/unit/test_service.py -v
 ===== 15 passed in 0.5s =====
 
-$ pytest --cov=hw_checker/module --cov-fail-under=80
+$ pytest --cov=src/module --cov-fail-under=80
 ===== Coverage: 85% =====
 
 $ pytest tests/unit/ -m fast -q
 ===== 150 passed in 2.5s =====
 
-$ ruff check src/hw_checker/module/
+$ ruff check src/src/module/
 All checks passed!
 
-$ grep -rn "TODO\|FIXME" src/hw_checker/module/
+$ grep -rn "TODO\|FIXME" src/src/module/
 (empty - OK)
 ```
 
@@ -297,7 +297,7 @@ git checkout feature/{slug}
 
 ```bash
 # 1. Commit кода (после Green)
-git add src/hw_checker/
+git add src/src/
 git commit -m "feat({feature}): WS-060-01 - implement domain layer
 
 - Add Entity dataclass
@@ -313,7 +313,7 @@ git commit -m "test({feature}): WS-060-01 - add unit tests
 - Coverage: 85%"
 
 # 3. Commit Execution Report
-git add tools/hw_checker/docs/workstreams/
+git add docs/workstreams/
 git commit -m "docs({feature}): WS-060-01 - execution report
 
 Goal achieved: YES
@@ -351,7 +351,7 @@ Goal: achieved"
 - Coverage: XX%
 
 **Files:**
-- `src/hw_checker/module/service.py` (created)
+- `src/src/module/service.py` (created)
 - `tests/unit/test_service.py` (created)
 
 **Self-Check:** ✅ All passed

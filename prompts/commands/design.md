@@ -17,9 +17,9 @@
 
 ```
 1. ПРОЧИТАЙ контекст:
-   cat tools/hw_checker/docs/PROJECT_MAP.md
-   cat tools/hw_checker/docs/workstreams/INDEX.md
-   cat tools/hw_checker/docs/drafts/idea-{slug}.md  # или spec
+   cat docs/PROJECT_MAP.md
+   cat docs/workstreams/INDEX.md
+   cat docs/drafts/idea-{slug}.md  # или spec
 
 2. ОПРЕДЕЛИ scope:
    - Сколько WS нужно?
@@ -45,22 +45,22 @@
 
 ```bash
 # PROJECT MAP (архитектурные решения) — ПЕРВЫМ!
-cat tools/hw_checker/docs/PROJECT_MAP.md
+cat docs/PROJECT_MAP.md
 
 # INDEX (проверка дубликатов)
-cat tools/hw_checker/docs/workstreams/INDEX.md
+cat docs/workstreams/INDEX.md
 
 # Draft или Feature spec
-cat tools/hw_checker/docs/drafts/idea-{slug}.md
+cat docs/drafts/idea-{slug}.md
 # или
-cat tools/hw_checker/docs/specs/feature_XX/feature.md
+cat docs/specs/feature_XX/feature.md
 ```
 
 ### 2.2 Определи следующий WS ID
 
 ```bash
 # Найди максимальный ID в INDEX
-grep -oE "WS-[0-9]{3}" tools/hw_checker/docs/workstreams/INDEX.md | sort -u | tail -1
+grep -oE "WS-[0-9]{3}" docs/workstreams/INDEX.md | sort -u | tail -1
 # Новый ID = max + 10 (с запасом)
 ```
 
@@ -169,14 +169,14 @@ WS-060-05: Integration tests
 pytest tests/unit/test_XXX.py -v
 
 # Coverage ≥ 80%
-pytest --cov=hw_checker/module --cov-fail-under=80
+pytest --cov=src/module --cov-fail-under=80
 
 # Regression
 pytest tests/unit/ -m fast -v
 
 # Linters
-ruff check hw_checker/module/
-mypy hw_checker/module/
+ruff check src/module/
+mypy src/module/
 ```
 
 ### Ограничения
@@ -249,7 +249,7 @@ WS-060-01 → WS-060-02 → WS-060-03 → WS-060-04 → WS-060-05
 
 ```bash
 # Все WS файлы существуют
-ls tools/hw_checker/docs/workstreams/backlog/WS-060-*.md
+ls docs/workstreams/backlog/WS-060-*.md
 ```
 
 ### Качество
@@ -265,7 +265,7 @@ ls tools/hw_checker/docs/workstreams/backlog/WS-060-*.md
 ### INDEX обновлён
 
 ```bash
-grep "WS-060" tools/hw_checker/docs/workstreams/INDEX.md
+grep "WS-060" docs/workstreams/INDEX.md
 ```
 
 ===============================================================================
@@ -329,9 +329,9 @@ echo "✓ Worktree created: ../msu-ai-${FEATURE_SLUG}"
 
 ```bash
 # Stage WS файлы
-git add tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md
-git add tools/hw_checker/docs/workstreams/INDEX.md
-git add tools/hw_checker/docs/drafts/idea-${FEATURE_SLUG}.md
+git add docs/workstreams/backlog/WS-${FEATURE_ID}-*.md
+git add docs/workstreams/INDEX.md
+git add docs/drafts/idea-${FEATURE_SLUG}.md
 
 # Commit
 git commit -m "docs(${FEATURE_SLUG}): create WS specifications for ${FEATURE_ID}
@@ -363,14 +363,14 @@ if command -v gh &> /dev/null; then
   # 1. Create feature meta-issue
   FEATURE_BODY="## Feature Overview
 
-See: \`tools/hw_checker/docs/specs/feature_${FEATURE_ID#F}/feature.md\`
+See: \`docs/specs/feature_${FEATURE_ID#F}/feature.md\`
 
 ## Workstreams
 
 "
   
   # List all WS
-  for WS_FILE in tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md; do
+  for WS_FILE in docs/workstreams/backlog/WS-${FEATURE_ID}-*.md; do
     WS_ID=$(basename "$WS_FILE" .md)
     WS_TITLE=$(grep "^## " "$WS_FILE" | head -1 | sed 's/^## //')
     FEATURE_BODY="${FEATURE_BODY}- [ ] ${WS_ID}: ${WS_TITLE}"$'\n'
@@ -395,7 +395,7 @@ See: \`tools/hw_checker/docs/specs/feature_${FEATURE_ID#F}/feature.md\`
   echo "✓ Created feature issue #${FEATURE_ISSUE}"
   
   # 2. Create issue for each WS
-  for WS_FILE in tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md; do
+  for WS_FILE in docs/workstreams/backlog/WS-${FEATURE_ID}-*.md; do
     WS_ID=$(basename "$WS_FILE" .md)
     WS_TITLE=$(grep "^## " "$WS_FILE" | head -1 | sed 's/^## //' | sed "s/^${WS_ID}: //")
     WS_SIZE=$(grep "^size:" "$WS_FILE" | cut -d':' -f2 | xargs)
@@ -414,7 +414,7 @@ ${WS_GOAL}
 
 ## Details
 
-See: \`tools/hw_checker/docs/workstreams/backlog/${WS_ID}.md\`
+See: \`docs/workstreams/backlog/${WS_ID}.md\`
 
 ---
 🤖 Auto-created by \`/design\` command"
@@ -437,7 +437,7 @@ See: \`tools/hw_checker/docs/workstreams/backlog/${WS_ID}.md\`
   done
   
   # Commit updated WS files with GitHub issue numbers
-  git add tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md
+  git add docs/workstreams/backlog/WS-${FEATURE_ID}-*.md
   git commit -m "chore(${FEATURE_SLUG}): link GitHub issues to WS files
 
 Feature issue: #${FEATURE_ISSUE}
@@ -448,7 +448,7 @@ Workstream issues: created and linked"
   echo ""
   echo "✅ GitHub Project integration complete"
   echo "   Feature: #${FEATURE_ISSUE}"
-  echo "   WS count: $(ls tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)"
+  echo "   WS count: $(ls docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)"
   echo "   View: https://github.com/your-org/your-repo/projects"
 else
   echo "⚠️ GitHub CLI not available, skipping issue creation"

@@ -1,176 +1,169 @@
 # Phase 1: Analyze
 
 ## Mission
-Прочитать спецификации проекта и сформировать карту Workstreams с зависимостями.
+
+Read project specifications and form a Workstream map with dependencies.
 
 ## Input
-- **Иерархия документации** (читай перед анализом):
-  - **L1 (System):** `tools/hw_checker/docs/SYSTEM_OVERVIEW.md` — общий контекст
-  - **L2 (Domain):** `tools/hw_checker/docs/domains/{domain}/DOMAIN_MAP.md` — структура домена
-  - **L3 (Component):** `tools/hw_checker/docs/domains/{domain}/components/{comp}/SPEC.md` — компонент specs
-  - **L4 (Workstream):** `tools/hw_checker/docs/workstreams/INDEX.md` — текущие WS
-- **Product спецификации:**
-  - `tools/hw_checker/docs/specs/PORTAL_VISION.md` — продуктовая стратегия
-  - `tools/hw_checker/docs/specs/RELEASE_PLAN.md` — релизный план
-  - `tools/hw_checker/docs/specs/FEATURE_INDEX.md` — фичи (F01-F99)
-  - `tools/hw_checker/docs/specs/feature_XX/feature.md` — детали конкретной фичи
-- Указание пользователя: какую область/фичу анализировать
+
+- **Documentation hierarchy** (read before analysis):
+  - **L1 (System):** `docs/SYSTEM_OVERVIEW.md` — general context
+  - **L2 (Domain):** `docs/domains/{domain}/DOMAIN_MAP.md` — domain structure
+  - **L3 (Component):** `docs/domains/{domain}/components/{comp}/SPEC.md` — component specs
+  - **L4 (Workstream):** `docs/workstreams/INDEX.md` — current WS
+- **Product specifications:**
+  - `docs/specs/VISION.md` — product strategy
+  - `docs/specs/RELEASE_PLAN.md` — release plan
+  - `docs/specs/FEATURE_INDEX.md` — features (F01-F99)
+  - `docs/specs/feature_XX/feature.md` — specific feature details
+- User instruction: which area/feature to analyze
 
 ## Output
 
-**⚠️ НЕ СОЗДАВАЙ отдельные файлы анализа (типа `WS-XXX-ANALYSIS.md`)!**
+**DO NOT create separate analysis files (like `WS-XXX-ANALYSIS.md`)!**
 
-Результат анализа → **сразу в файлы workstreams** в `workstreams/backlog/`:
+Analysis result → **directly into workstream files** in `workstreams/backlog/`:
 
 ```
 workstreams/backlog/
-├── WS-050-feature-name.md        ← если scope ≤ MEDIUM
-├── WS-051-01-domain-layer.md     ← если scope > MEDIUM, разбить на substreams
+├── WS-050-feature-name.md        ← if scope ≤ MEDIUM
+├── WS-051-01-domain-layer.md     ← if scope > MEDIUM, split into substreams
 ├── WS-051-02-application-layer.md
 └── WS-051-03-infrastructure.md
 ```
 
-**Формат каждого WS файла** (по TEMPLATE.md):
+**Format for each WS file** (per TEMPLATE.md):
 
 ```markdown
 ## WS-{ID}: {Title}
 
-### 🎯 Цель (Goal)
-**Что должно РАБОТАТЬ после завершения WS:**
-- [Конкретная функциональность]
+### Goal
+**What should WORK after WS completion:**
+- [Specific functionality]
 
 **Acceptance Criteria:**
-- [ ] [Проверяемое условие 1]
-- [ ] [Проверяемое условие 2]
+- [ ] [Verifiable condition 1]
+- [ ] [Verifiable condition 2]
 
-### Контекст
-[Почему нужно, текущее состояние]
+### Context
+[Why needed, current state]
 
-### Зависимость
-[WS-XX / Независимый]
+### Dependency
+[WS-XX / Independent]
 
-### Входные файлы
-- `path/to/file.py` — что там
+### Input Files
+- `path/to/file.py` — what's there
 
-### Шаги
-1. [Атомарное действие]
+### Steps
+1. [Atomic action]
 2. ...
 
 ### Scope Estimate
-- Файлов: ~N
-- Строк: ~N (SMALL/MEDIUM/LARGE)
-- Токенов: ~N
+- Files: ~N
+- Lines: ~N (SMALL/MEDIUM/LARGE)
+- Tokens: ~N
 
-### Критерий завершения
+### Completion Criteria
 ```bash
 pytest tests/... -v
 ```
 ```
 
-**Обновить INDEX.md** с новыми WS.
+**Update INDEX.md** with new WS.
 
 ---
 
-### Граф зависимостей (в INDEX.md или отдельной секции)
+### Dependency Graph (in INDEX.md or separate section)
 
 ```
 WS-050 ──→ WS-052
 WS-051-01 ──→ WS-051-02 ──→ WS-051-03
 
-WS-053 (независимый)
+WS-053 (independent)
 ```
 
-### Приоритеты
-1. **Tier 1 (критично):** WS-050, WS-051-01
-2. **Tier 2 (важно):** WS-051-02, WS-052
-3. **Tier 3 (улучшения):** WS-053
+### Priorities
+1. **Tier 1 (critical):** WS-050, WS-051-01
+2. **Tier 2 (important):** WS-051-02, WS-052
+3. **Tier 3 (improvements):** WS-053
 
 ---
 
-## Как формировать Workstreams
+## How to Form Workstreams
 
-### Порядок анализа
+### Analysis Order
 
-1. **L1 (System):** Читай `SYSTEM_OVERVIEW.md` для общего контекста
-2. **L2 (Domain):** Определи релевантный домен, читай `domains/{domain}/DOMAIN_MAP.md`
-3. **L3 (Component):** Если WS затрагивает конкретный компонент, читай его SPEC
-4. **L4 (Workstream):** Проверь `workstreams/INDEX.md` на дубликаты
-5. **Product:** Читай `feature_XX/feature.md` для требований фичи
+1. **L1 (System):** Read `SYSTEM_OVERVIEW.md` for general context
+2. **L2 (Domain):** Identify relevant domain, read `domains/{domain}/DOMAIN_MAP.md`
+3. **L3 (Component):** If WS touches specific component, read its SPEC
+4. **L4 (Workstream):** Check `workstreams/INDEX.md` for duplicates
+5. **Product:** Read `feature_XX/feature.md` for feature requirements
 
-### Размер WS
-- **One-shot выполнимый** — малая модель (Haiku/Flash) должна справиться за один проход
-- **Scope метрики:**
-  - **SMALL**: < 500 строк кода, < 1500 токенов
-  - **MEDIUM**: 500-1500 строк, 1500-5000 токенов
-  - **LARGE**: > 1500 строк → **РАЗБИТЬ** на несколько WS
-- **Атомарный результат** — можно проверить завершение bash-командой
+### WS Size
+- **One-shot executable** — small model (Haiku/Flash) should handle in one pass
+- **Scope metrics:**
+  - **SMALL**: < 500 lines of code, < 1500 tokens
+  - **MEDIUM**: 500-1500 lines, 1500-5000 tokens
+  - **LARGE**: > 1500 lines → **SPLIT** into multiple WS
+- **Atomic result** — completion verifiable by bash command
 
-### AI-Readiness критерии
-WS считается AI-Ready если:
-- [ ] Затрагиваемые файлы < 200 строк (или будут после рефакторинга)
-- [ ] Нет сложных зависимостей между файлами
-- [ ] Чёткие входы и выходы
-- [ ] Можно написать критерий завершения как bash-команду
-- [ ] Coverage ≥ 80% достижим для изменённых файлов
+### AI-Readiness Criteria
+WS is AI-Ready if:
+- [ ] Affected files < 200 lines (or will be after refactoring)
+- [ ] No complex dependencies between files
+- [ ] Clear inputs and outputs
+- [ ] Completion criteria can be a bash command
+- [ ] Coverage ≥ 80% achievable for changed files
 
-### Декомпозиция больших задач
-Если задача слишком большая (> MEDIUM):
-1. **Структура** — создать файлы/директории, protocols, dataclasses
-2. **Логика** — реализовать по частям (commands, steps)
-3. **Интеграция** — orchestrator, обновить существующий код
-4. **Cleanup** — удалить старый код, обновить импорты
+### Decomposing Large Tasks
+If task is too large (> MEDIUM):
+1. **Structure** — create files/directories, protocols, dataclasses
+2. **Logic** — implement in parts (commands, steps)
+3. **Integration** — orchestrator, update existing code
+4. **Cleanup** — remove old code, update imports
 
-### Зависимости
-- **Жёсткие:** WS-02 использует код из WS-01
-- **Мягкие:** WS-02 можно делать параллельно, но лучше после WS-01
-- **Независимые:** Можно делать в любом порядке
-
----
-
-## hw_checker контекст
-
-См. детали в `@sdp/HW_CHECKER_PATTERNS.md`:
-- Clean Architecture слои
-- Типовые паттерны декомпозиции (большой файл, новая фича)
-- Примеры кода для copy-paste
+### Dependencies
+- **Hard:** WS-02 uses code from WS-01
+- **Soft:** WS-02 can be done in parallel, but better after WS-01
+- **Independent:** Can be done in any order
 
 ---
 
-## Чеклист перед завершением Phase 1
+## Checklist Before Completing Phase 1
 
-### Файлы созданы (ОБЯЗАТЕЛЬНО)
+### Files Created (REQUIRED)
 
 ```bash
-# Проверить что ВСЕ WS файлы существуют
-ls tools/hw_checker/docs/workstreams/backlog/WS-*.md
+# Verify ALL WS files exist
+ls docs/workstreams/backlog/WS-*.md
 
-# Если разбивал на substreams — ВСЕ файлы должны существовать
-# Пример: WS-050 разбит на 3 части
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-01-*.md
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-02-*.md
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-03-*.md
+# If split into substreams — ALL files must exist
+# Example: WS-050 split into 3 parts
+ls docs/workstreams/backlog/WS-050-01-*.md
+ls docs/workstreams/backlog/WS-050-02-*.md
+ls docs/workstreams/backlog/WS-050-03-*.md
 ```
 
-### INDEX обновлён
+### INDEX Updated
 
 ```bash
-# Все новые WS добавлены в INDEX
-grep "WS-050" tools/hw_checker/docs/workstreams/INDEX.md
+# All new WS added to INDEX
+grep "WS-050" docs/workstreams/INDEX.md
 ```
 
-### Качество WS
+### WS Quality
 
-- [ ] Каждый WS — one-shot выполнимый (scope ≤ MEDIUM)
-- [ ] Зависимости явно указаны
-- [ ] AI-Readiness оценён
-- [ ] Критерии завершения — bash команды
-- [ ] Приоритеты расставлены
-- [ ] **НЕТ time estimates** (дней/часов/недель) — только scope (LOC, tokens)
-- [ ] **НЕТ отдельных -ANALYSIS.md файлов** — всё сразу в WS файлы
+- [ ] Each WS — one-shot executable (scope ≤ MEDIUM)
+- [ ] Dependencies explicitly stated
+- [ ] AI-Readiness evaluated
+- [ ] Completion criteria — bash commands
+- [ ] Priorities set
+- [ ] **NO time estimates** (days/hours/weeks) — only scope (LOC, tokens)
+- [ ] **NO separate -ANALYSIS.md files** — everything directly in WS files
 
-### ЗАПРЕЩЕНО
+### FORBIDDEN
 
-❌ Создавать `WS-XXX-ANALYSIS.md` (анализ идёт сразу в WS файлы)
-❌ Ссылаться на `WS-XXX-01` без создания файла `WS-XXX-01-*.md`
-❌ Оценки в днях/часах ("0.5 дня", "3 дня")
-❌ Оставлять scope > MEDIUM без разбиения
+- Creating `WS-XXX-ANALYSIS.md` (analysis goes directly to WS files)
+- Referencing `WS-XXX-01` without creating file `WS-XXX-01-*.md`
+- Estimates in days/hours ("0.5 days", "3 days")
+- Leaving scope > MEDIUM without splitting

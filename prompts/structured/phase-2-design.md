@@ -1,225 +1,198 @@
 # Phase 2: Plan
 
 ## Mission
-Взять один Workstream из карты и создать детальный план для one-shot выполнения субагентом.
+
+Take one Workstream from the map and create a detailed plan for one-shot execution.
 
 ## Input
-- Карта workstreams из Phase 1
-- Указание: какой WS планировать
-- **Проектная карта (ОБЯЗАТЕЛЬНО читать):** `tools/hw_checker/docs/PROJECT_MAP.md`
-- **Иерархия документации (для контекста):**
-  - L1: `tools/hw_checker/docs/SYSTEM_OVERVIEW.md`
-  - L2: `tools/hw_checker/docs/domains/{domain}/DOMAIN_MAP.md`
-  - L3: `tools/hw_checker/docs/domains/{domain}/components/{comp}/SPEC.md`
-  - L4: `tools/hw_checker/docs/workstreams/INDEX.md`
-- Feature specs: `tools/hw_checker/docs/specs/feature_XX/feature.md`
+
+- Workstream map from Phase 1
+- Instruction: which WS to plan
+- **Documentation hierarchy (for context):**
+  - L1: `docs/SYSTEM_OVERVIEW.md`
+  - L2: `docs/domains/{domain}/DOMAIN_MAP.md`
+  - L3: `docs/domains/{domain}/components/{comp}/SPEC.md`
+  - L4: `docs/workstreams/INDEX.md`
+- Feature specs: `docs/specs/feature_XX/feature.md`
 
 ## Pre-Flight Checks
 
-**ОБЯЗАТЕЛЬНО перед началом планирования:**
+**REQUIRED before planning:**
 
-### 0. Проверка контекста (L1-L4) + PROJECT_MAP
-
-```bash
-# PROJECT MAP (ВСЕГДА первым!)
-cat tools/hw_checker/docs/PROJECT_MAP.md
-# ↑ Ключевые решения, паттерны, constraints
-
-# L1: System context (всегда)
-cat tools/hw_checker/docs/SYSTEM_OVERVIEW.md
-
-# L2: Domain context (если WS в домене execution/grading/publishing/content)
-cat tools/hw_checker/docs/domains/{domain}/DOMAIN_MAP.md
-
-# L3: Component context (если WS изменяет конкретный компонент)
-cat tools/hw_checker/docs/domains/{domain}/components/{comp}/SPEC.md
-
-# L4: Workstream index (всегда)
-cat tools/hw_checker/docs/workstreams/INDEX.md
-
-# Product: Feature spec
-cat tools/hw_checker/docs/specs/feature_XX/feature.md
-```
-
-**⚠️ PROJECT_MAP содержит:**
-- Все принятые архитектурные решения (ADR)
-- Текущие constraints (AI-Readiness, Clean Architecture, Security)
-- Tech stack и паттерны
-- Deprecated решения (чтобы не повторять ошибки)
-
-### 1. Проверка дубликатов
+### 1. Check for Duplicates
 
 ```bash
-# Прочитай INDEX
+# Read INDEX
 cat docs/workstreams/INDEX.md
 
-# Проверь: WS-{ID} уже существует?
-# - Если в backlog/ → можешь планировать
-# - Если в active/ или completed/ → STOP
-# Уточни у человека: хочет ли он дополнить существующий или создать новый
+# Check: does WS-{ID} already exist?
+# - If in backlog/ → can plan
+# - If in active/ or completed/ → STOP
+# Clarify with human: supplement existing or create new
 ```
 
-### 2. Проверка зависимостей + уточнение требований
+### 2. Check Dependencies + Clarify Requirements
 
-**Зависимости:**
-- Все зависимые WS завершены? (статус в INDEX)
-- Входные файлы существуют? (используй `ls` для проверки)
+**Dependencies:**
+- All dependent WS completed? (status in INDEX)
+- Input files exist? (use `ls` to verify)
 
-**⚠️ Уточнение требований (КРИТИЧЕСКИ ВАЖНО):**
+**Clarifying Requirements (CRITICAL):**
 
-Перед началом планирования, СПРОСИ у пользователя если:
-- 🤔 **Неясна Goal:** "Что именно должно работать после WS?"
-- 🤔 **Acceptance Criteria размыты:** "Как проверить что задача решена?"
-- 🤔 **Несколько вариантов реализации:** "Использовать паттерн X или Y?"
-- 🤔 **Архитектурное решение не очевидно:** "Создать новый компонент или расширить существующий?"
-- 🤔 **Scope слишком большой:** "Разбить на 3 части или сделать минимальный MVP сначала?"
+Before planning, ASK user if:
+- **Goal unclear:** "What exactly should work after WS?"
+- **Acceptance Criteria vague:** "How to verify task is complete?"
+- **Multiple implementation options:** "Use pattern X or Y?"
+- **Architecture decision not obvious:** "Create new component or extend existing?"
+- **Scope too large:** "Split into 3 parts or do minimal MVP first?"
 
-**Формат вопроса:**
+**Question format:**
 ```markdown
-### 🔍 Уточнение требований для WS-{ID}
+### Clarification for WS-{ID}
 
-**Контекст:** [что я понял из спецификации]
+**Context:** [what I understood from specification]
 
-**Вопросы:**
-1. [Конкретный вопрос 1]
-2. [Конкретный вопрос 2]
+**Questions:**
+1. [Specific question 1]
+2. [Specific question 2]
 
-**Варианты (если применимо):**
-- Вариант A: [описание + pros/cons]
-- Вариант B: [описание + pros/cons]
+**Options (if applicable):**
+- Option A: [description + pros/cons]
+- Option B: [description + pros/cons]
 
-**Моя рекомендация:** [если есть preferred вариант]
+**My recommendation:** [if there's a preferred option]
 ```
 
-**Лучше спросить ДО начала, чем переделывать ПОСЛЕ.**
+**Better to ask BEFORE starting than redo AFTER.**
 
-### 3. Проверка scope
+### 3. Check Scope
 
-- Оцени примерный размер задачи (см. "Scope Estimate" ниже)
-- Если видишь что задача > MEDIUM → **ОБЯЗАТЕЛЬНО разбей** (см. ниже)
+- Estimate approximate task size (see "Scope Estimate" below)
+- If task > MEDIUM → **MUST split** (see below)
 
-### 4. Если нужно разбить WS
+### 4. If Need to Split WS
 
-**⚠️ КРИТИЧЕСКИ ВАЖНО: нельзя ссылаться на несуществующие WS!**
+**CRITICAL: cannot reference non-existent WS!**
 
-#### Формат нумерации substreams (СТРОГО)
+#### Substream Numbering Format (STRICT)
 
 ```
 WS-{PARENT}-{SEQ}
 
-- PARENT = 3 цифры (050)
-- SEQ = 2 цифры (01, 02, ... 99)
+- PARENT = 3 digits (050)
+- SEQ = 2 digits (01, 02, ... 99)
 
-Пример: WS-050 → WS-050-01, WS-050-02, WS-050-03
+Example: WS-050 → WS-050-01, WS-050-02, WS-050-03
 ```
 
-**✅ Правильно:** `WS-050-01`, `WS-050-02`, `WS-050-10`, `WS-050-15`
-**❌ Неправильно:** `WS-050-1` (нужно 01), `WS-050-A`, `WS-050-part1`, `WS-24-1`, `24.1`
+**Correct:** `WS-050-01`, `WS-050-02`, `WS-050-10`, `WS-050-15`
+**Wrong:** `WS-050-1` (need 01), `WS-050-A`, `WS-050-part1`, `WS-24-1`, `24.1`
 
-Если scope > MEDIUM, ты ОБЯЗАН:
+If scope > MEDIUM, you MUST:
 
-1. **СНАЧАЛА создать ВСЕ файлы substreams** в `workstreams/backlog/`:
+1. **FIRST create ALL substream files** in `workstreams/backlog/`:
    ```bash
-   # Создаём ВСЕ файлы СРАЗУ, потом заполняем
-   touch tools/hw_checker/docs/workstreams/backlog/WS-050-01-domain-entities.md
-   touch tools/hw_checker/docs/workstreams/backlog/WS-050-02-application-layer.md
-   touch tools/hw_checker/docs/workstreams/backlog/WS-050-03-infrastructure.md
+   # Create ALL files IMMEDIATELY, then fill
+   touch docs/workstreams/backlog/WS-050-01-domain-entities.md
+   touch docs/workstreams/backlog/WS-050-02-application-layer.md
+   touch docs/workstreams/backlog/WS-050-03-infrastructure.md
    ```
 
-2. **ПОТОМ заполнить КАЖДЫЙ substream полностью** (не stub, не "TODO"):
+2. **THEN fill EACH substream completely** (not stub, not "TODO"):
    - Goal + Acceptance Criteria
-   - Контекст, Зависимости, Входные файлы
-   - Шаги (атомарные)
-   - Код (copy-paste ready)
+   - Context, Dependencies, Input files
+   - Steps (atomic)
+   - Code (copy-paste ready)
    - Scope Estimate
-   - Критерии завершения (bash)
+   - Completion criteria (bash)
 
-3. **Обновить INDEX.md** с новыми WS
+3. **Update INDEX.md** with new WS
 
-4. **ПРОВЕРИТЬ что файлы существуют:**
+4. **VERIFY files exist:**
    ```bash
-   # Обязательная проверка перед завершением!
-   ls -la tools/hw_checker/docs/workstreams/backlog/WS-050-*.md
-   # Должен показать ВСЕ substream файлы
+   # Required check before completion!
+   ls -la docs/workstreams/backlog/WS-050-*.md
+   # Should show ALL substream files
    ```
 
-#### ЗАПРЕЩЕНО
+#### FORBIDDEN
 
-❌ "Это будет в WS-050-02" (без создания файла `WS-050-02-*.md`)
-❌ Пустые stubs или заглушки
-❌ "Подробности в следующем WS"
-❌ Формат `24.1`, `WS-24-1`, `WS-050-part1`
-❌ Partial completion ("остальное потом")
-❌ Time estimates ("0.5 дня", "3 дня")
+- "This will be in WS-050-02" (without creating file `WS-050-02-*.md`)
+- Empty stubs or placeholders
+- "Details in next WS"
+- Format `24.1`, `WS-24-1`, `WS-050-part1`
+- Partial completion ("rest later")
+- Time estimates ("0.5 days", "3 days")
 
 ## Output
-Детальный план WS — готовый промпт для исполнителя (Cursor Agent / Claude Code).
+
+Detailed WS plan — ready prompt for executor (Cursor Agent / Claude Code).
 
 ---
 
-## Формат плана
+## Plan Format
 
 ```markdown
 ## WS-{ID}: {Title}
 
-### 🎯 Цель (Goal)
-**Что должно РАБОТАТЬ после завершения WS:**
-- [Конкретная функциональность — что пользователь/система может делать]
-- [Measurable outcome — как проверить]
+### Goal
+**What should WORK after WS completion:**
+- [Specific functionality — what user/system can do]
+- [Measurable outcome — how to verify]
 
-**Acceptance Criteria (критерии приёмки):**
-- [ ] [Проверяемое условие 1 — что работает]
-- [ ] [Проверяемое условие 2]
-- [ ] [Проверяемое условие 3]
+**Acceptance Criteria:**
+- [ ] [Verifiable condition 1 — what works]
+- [ ] [Verifiable condition 2]
+- [ ] [Verifiable condition 3]
 
-**⚠️ Правило:** WS НЕ завершён, пока Goal не достигнута (все AC ✅).
+**Rule:** WS NOT complete until Goal achieved (all AC ✅).
 
 ---
 
-### Контекст
-[Почему эта задача нужна, текущее состояние, проблема]
+### Context
+[Why this task is needed, current state, problem]
 
-### Зависимость
-[WS-XX завершён / Независимый]
+### Dependency
+[WS-XX completed / Independent]
 
-### Входные файлы
-- `path/to/file1.py` — что в нём, зачем читать
-- `path/to/file2.py` — что в нём
+### Input Files
+- `path/to/file1.py` — what's in it, why read
+- `path/to/file2.py` — what's in it
 
-### Шаги
-1. [Атомарное действие с точным путём]
-2. [Следующее действие]
+### Steps
+1. [Atomic action with exact path]
+2. [Next action]
 ...
 
-### Код
+### Code
 ```python
-# Точный код для вставки/создания
-# Полные type hints, docstrings
+# Exact code to insert/create
+# Full type hints, docstrings
 ```
 
-### Ожидаемый результат
-- [Конкретный measurable outcome]
-- [Структура файлов если создаём новые]
+### Expected Result
+- [Specific measurable outcome]
+- [File structure if creating new files]
 
 ### Scope Estimate
-- Файлов: ~N создано + ~M изменено = ~X total
-- Строк кода: ~N (новый: ~X, изменения: ~Y)
-- Тестов: ~N файлов, ~X строк
-- Токенов контекста: ~N (файлов × 500)
+- Files: ~N created + ~M modified = ~X total
+- Lines of code: ~N (new: ~X, changes: ~Y)
+- Tests: ~N files, ~X lines
+- Context tokens: ~N (files × 500)
 
-**Оценка размера:** SMALL / MEDIUM / LARGE
-- **SMALL**: < 500 строк кода, < 1500 токенов
-- **MEDIUM**: 500-1500 строк, 1500-5000 токенов
-- **LARGE**: > 1500 строк → **РАЗБИТЬ НА 2+ WS**
+**Size assessment:** SMALL / MEDIUM / LARGE
+- **SMALL**: < 500 lines of code, < 1500 tokens
+- **MEDIUM**: 500-1500 lines, 1500-5000 tokens
+- **LARGE**: > 1500 lines → **SPLIT INTO 2+ WS**
 
-### Критерий завершения
+### Completion Criteria
 ```bash
-# Команды для проверки
+# Verification commands
 pytest tests/... -x
 
-# Coverage ≥ 80% для изменённых/созданных файлов
+# Coverage ≥ 80% for changed/created files
 pytest tests/unit/test_XXX.py -v \
-  --cov=hw_checker/module \
+  --cov=src/module \
   --cov-report=term-missing \
   --cov-fail-under=80
 
@@ -229,95 +202,80 @@ pytest tests/unit/ -m fast -v
 # Code quality
 ruff check path/to/...
 
-# Type checking (строгая типизация)
-mypy hw_checker/module/ --strict --no-implicit-optional
+# Type checking (strict)
+mypy src/module/ --strict --no-implicit-optional
 
 # Import check
 python -c "from module import Class"
 ```
 
-### Ограничения
-- НЕ делать: [что исполнитель не должен делать]
-- НЕ менять: [что трогать нельзя]
+### Constraints
+- DO NOT: [what executor should not do]
+- DO NOT CHANGE: [what not to touch]
 ```
 
 ---
 
-## Правила генерации
+## Generation Rules
 
-### Атомарность
-❌ "Рефакторить модуль"
-✅ "Создать файл `application/cleanup/states.py` с enum `CleanupState`"
+### Atomicity
+- "Refactor module"
+- "Create file `application/cleanup/states.py` with enum `CleanupState`"
 
-### Точные пути
-❌ "В директории validators"
-✅ "`hw_checker/application/validators/protocol.py`"
+### Exact Paths
+- "In validators directory"
+- "`src/application/validators/protocol.py`"
 
-### Код вместо описаний
-❌ "Создать dataclass для конфигурации"
-✅ См. `@sdp/HW_CHECKER_PATTERNS.md` → копируй готовые структуры
+### Code Instead of Descriptions
+- "Create dataclass for configuration"
+- See `CODE_PATTERNS.md` → copy ready structures
 
-### Полные сигнатуры
-❌ "Метод execute"
-✅ Полная сигнатура с type hints (см. примеры в PATTERNS.md)
+### Full Signatures
+- "Method execute"
+- Full signature with type hints (see examples in CODE_PATTERNS.md)
 
-### Проверяемые критерии
-❌ "Код работает"
-✅ См. `@sdp/HW_CHECKER_PATTERNS.md` → bash команды для проверки
-
----
-
-## hw_checker паттерны
-
-См. `@sdp/HW_CHECKER_PATTERNS.md`:
-- Clean Architecture порядок (Domain → Application → Infrastructure → Presentation)
-- Готовые структуры: State Machine, Context, Protocol, Orchestrator, Logging
-- Bash команды для проверки
-
-**Используй примеры кода из patterns как основу для планов.**
+### Verifiable Criteria
+- "Code works"
+- See `CODE_PATTERNS.md` → bash commands for verification
 
 ---
 
-## Чеклист перед выдачей плана
+## Checklist Before Delivering Plan
 
-### Обязательные проверки
+### Required Checks
 
-- [ ] **WS-{ID} не существует** в INDEX (checked: backlog/active/completed)
-- [ ] **Зависимости доступны** (все зависимые WS завершены)
-- [ ] **Scope оценён**, не превышает MEDIUM (иначе разбить)
-- [ ] **Goal + Acceptance Criteria** явно определены
-- [ ] Каждый шаг — одно действие
-- [ ] Все пути от корня проекта (`hw_checker/...`)
-- [ ] Код готов к copy-paste
-- [ ] Type hints везде
-- [ ] Критерии завершения — bash команды (включая coverage + regression)
-- [ ] Ограничения явно указаны
-- [ ] Нет решений оставленных исполнителю
+- [ ] **WS-{ID} doesn't exist** in INDEX (checked: backlog/active/completed)
+- [ ] **Dependencies available** (all dependent WS completed)
+- [ ] **Scope estimated**, not exceeding MEDIUM (otherwise split)
+- [ ] **Goal + Acceptance Criteria** explicitly defined
+- [ ] Each step — one action
+- [ ] All paths from project root (`src/...`)
+- [ ] Code ready for copy-paste
+- [ ] Type hints everywhere
+- [ ] Completion criteria — bash commands (including coverage + regression)
+- [ ] Constraints explicitly stated
+- [ ] No decisions left to executor
 
-### ЗАПРЕЩЕНО (проверь что НЕТ)
+### FORBIDDEN (verify NOT present)
 
-- [ ] **НЕТ упоминаний времени** (часов/дней/недель)
-  ```bash
-  # Проверка: не должно быть time estimates
-  grep -E "дн[яей]|час[ов]|недел" WS-*.md && echo "ОШИБКА: time estimates!" || echo "OK"
-  ```
-- [ ] **НЕТ tech debt** (нет "сделаем потом", "временное решение", "tech debt")
-- [ ] **НЕТ ссылок на несуществующие WS**
+- [ ] **NO time mentions** (hours/days/weeks)
+- [ ] **NO tech debt** (no "do later", "temporary solution", "tech debt")
+- [ ] **NO references to non-existent WS**
 
-### Если разбивал на substreams
+### If Split into Substreams
 
 ```bash
-# ОБЯЗАТЕЛЬНАЯ ПРОВЕРКА: все файлы substreams существуют
-ls -la tools/hw_checker/docs/workstreams/backlog/WS-{PARENT}-*.md
+# REQUIRED CHECK: all substream files exist
+ls -la docs/workstreams/backlog/WS-{PARENT}-*.md
 
-# Пример для WS-050:
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-01-*.md  # должен существовать
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-02-*.md  # должен существовать
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-03-*.md  # должен существовать
+# Example for WS-050:
+ls docs/workstreams/backlog/WS-050-01-*.md  # must exist
+ls docs/workstreams/backlog/WS-050-02-*.md  # must exist
+ls docs/workstreams/backlog/WS-050-03-*.md  # must exist
 
-# Проверка формата нумерации (2 цифры для SEQ)
-ls tools/hw_checker/docs/workstreams/backlog/ | grep -E "WS-[0-9]{3}-[0-9]{2}-"
-# Должны быть WS-050-01-*, WS-050-02-*, НЕ WS-050-1-*
+# Check numbering format (2 digits for SEQ)
+ls docs/workstreams/backlog/ | grep -E "WS-[0-9]{3}-[0-9]{2}-"
+# Should be WS-050-01-*, WS-050-02-*, NOT WS-050-1-*
 ```
 
-**Если `ls` показывает "No such file" → СНАЧАЛА создай файл, потом ссылайся!**
+**If `ls` shows "No such file" → FIRST create file, then reference!**

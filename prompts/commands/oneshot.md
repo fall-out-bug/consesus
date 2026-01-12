@@ -100,12 +100,12 @@ if command -v gh &> /dev/null; then
     --title "Feature F${FEATURE_ID}: ${FEATURE_TITLE}" \
     --body "## Workstreams
 
-$(ls tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | \
+$(ls docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | \
    xargs -I {} basename {} | sed 's/^/- /')
 
 ## Scope
 
-**Total WS:** $(ls tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
+**Total WS:** $(ls docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
 **Estimated LOC:** ~{total_loc}
 
 ## Execution Plan
@@ -179,7 +179,7 @@ done
 bash sdp/notifications/audit-log.sh command_started "/oneshot" "${FEATURE_ID}"
 
 # Send Telegram notification (if configured)
-WS_COUNT=$(ls tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
+WS_COUNT=$(ls docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
 bash sdp/notifications/telegram.sh oneshot_started "${FEATURE_ID}" "${WS_COUNT}"
 ```
 
@@ -187,13 +187,13 @@ bash sdp/notifications/telegram.sh oneshot_started "${FEATURE_ID}" "${WS_COUNT}"
 
 ```bash
 # Feature spec
-cat tools/hw_checker/docs/specs/feature_60/feature.md
+cat docs/specs/feature_60/feature.md
 
 # Workstreams map
-grep "F60" tools/hw_checker/docs/workstreams/INDEX.md
+grep "F60" docs/workstreams/INDEX.md
 
 # Project context
-cat tools/hw_checker/docs/PROJECT_MAP.md
+cat docs/PROJECT_MAP.md
 ```
 
 ### 2.7 Build Execution Plan
@@ -277,7 +277,7 @@ return review_result
 
 ```bash
 # Найти WS фичи
-grep "| WS-060" tools/hw_checker/docs/workstreams/INDEX.md
+grep "| WS-060" docs/workstreams/INDEX.md
 
 # Проверить зависимости
 # Для каждого WS прочитать секцию "Зависимость"
@@ -419,7 +419,7 @@ START_TIME=$(date +%s)
 ELAPSED=$(($(date +%s) - START_TIME))
 LOC_TOTAL=$(git diff --stat $(git rev-list --max-parents=0 HEAD) | tail -1 | awk '{print $4}')
 WS_COMPLETED=$(ls .oneshot/completed-*.marker 2>/dev/null | wc -l)
-WS_TOTAL=$(ls tools/hw_checker/docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
+WS_TOTAL=$(ls docs/workstreams/backlog/WS-${FEATURE_ID}-*.md | wc -l)
 
 # Update checkpoint with full metrics
 FEATURE_ID="F60"
@@ -563,7 +563,7 @@ bash sdp/notifications/telegram.sh oneshot_completed "F60" "$DURATION_HUMAN"
 
 ### Next Steps
 
-1. Human UAT: `tools/hw_checker/docs/uat/F60-uat-guide.md`
+1. Human UAT: `docs/uat/F60-uat-guide.md`
 2. After sign-off: `/deploy F60`
 
 **Feature ready for human verification.**
@@ -765,7 +765,7 @@ d4e5f6g feat(llm): WS-060-04 - CLI commands
 
 ## UAT Guide
 
-📋 `tools/hw_checker/docs/uat/F60-uat-guide.md`
+📋 `docs/uat/F60-uat-guide.md`
 
 ## Next Steps
 

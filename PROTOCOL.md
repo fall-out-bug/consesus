@@ -1,21 +1,22 @@
-# Spec-Driven Protocol v0.3.0
+# Spec Driven Development v0.3.0
 
-Workstream-driven development для AI-агентов.
+Workstream-driven development for AI agents.
 
 ---
 
-## Навигация
+## Navigation
 
 ```
-Ты здесь?                          →  Иди сюда
+Need to...                            →  Go to
 ─────────────────────────────────────────────────────
-Нужно понять что делать            →  Phase 1: Analyze
-Нужно спланировать WS              →  Phase 2: Plan  
-Нужно выполнить WS                 →  Phase 3: Execute
-Нужно проверить результат          →  Phase 4: Review
-Нужно принять архитектурное решение →  ADR Template
-Нужны примеры кода hw_checker      →  HW_CHECKER_PATTERNS.md
-Непонятно какие правила            →  Guardrails
+Understand what to do                 →  Phase 1: Analyze
+Plan a workstream                     →  Phase 2: Plan
+Execute a workstream                  →  Phase 3: Execute
+Verify the result                     →  Phase 4: Review
+Make an architectural decision        →  ADR Template
+See code patterns                     →  CODE_PATTERNS.md
+Check the rules                       →  Guardrails
+Understand principles                 →  docs/PRINCIPLES.md
 ```
 
 ---
@@ -25,151 +26,153 @@ Workstream-driven development для AI-агентов.
 ```
 ┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
 │  ANALYZE   │───→│    PLAN    │───→│  EXECUTE   │───→│   REVIEW   │
-│  (Sonnet)  │    │  (Sonnet)  │    │   (Auto)   │    │  (Sonnet)  │
+│  (Phase 1) │    │  (Phase 2) │    │  (Phase 3) │    │  (Phase 4) │
 └────────────┘    └────────────┘    └────────────┘    └────────────┘
      │                  │                  │                  │
      ▼                  ▼                  ▼                  ▼
- Карта WS          План WS            Код            APPROVED/FIX
+  WS Map           WS Plan              Code            APPROVED/FIX
 ```
 
-**Промпты:** `@sdp/prompts/structured/phase-{1,2,3,4}-*.md`
+**Prompts:** `prompts/structured/phase-{1,2,3,4}-*.md`
 
 ---
 
-## Терминология
+## Terminology
 
-| Термин | Scope | Размер | Пример |
-|--------|-------|--------|--------|
-| **Release** | Продуктовая веха | 10-30 Features | R1: Submissions E2E |
-| **Feature** | Крупная фича | 5-30 Workstreams | F24: Obsidian Vault |
-| **Workstream** | Атомарная задача | SMALL/MEDIUM/LARGE | WS-140: Vault Domain |
+| Term | Scope | Size | Example |
+|------|-------|------|---------|
+| **Release** | Product milestone | 10-30 Features | R1: MVP |
+| **Feature** | Large capability | 5-30 Workstreams | F1: User Auth |
+| **Workstream** | Atomic task | SMALL/MEDIUM/LARGE | WS-001: Domain entities |
 
-**Scope метрики для Workstream:**
+**Scope metrics for Workstream:**
 - **SMALL**: < 500 LOC, < 1500 tokens
-- **MEDIUM**: 500-1500 LOC, 1500-5000 tokens  
-- **LARGE**: > 1500 LOC → разбить на 2+ WS
+- **MEDIUM**: 500-1500 LOC, 1500-5000 tokens
+- **LARGE**: > 1500 LOC → split into 2+ WS
 
-### ⚠️ Важно: NO TIME-BASED ESTIMATES
+### NO TIME-BASED ESTIMATES
 
-**ЗАПРЕЩЕНО использовать время для оценки:**
-- ❌ "Это займёт 2 часа"
-- ❌ "Нужно 3 дня"
-- ❌ "Не успеваю за неделю"
-- ❌ "Времени нет"
-- ❌ "Это долго"
+**FORBIDDEN to use time for estimation:**
+- "This will take 2 hours"
+- "Need 3 days"
+- "Won't finish this week"
+- "No time for this"
+- "This takes too long"
 
-**ИСПОЛЬЗУЙ scope метрики:**
-- ✅ "Это MEDIUM workstream (1000 LOC, 3000 tokens)"
-- ✅ "Scope превышен, нужно разбить на 2 WS"
-- ✅ "По scope это SMALL задача"
+**USE scope metrics:**
+- "This is MEDIUM workstream (1000 LOC, 3000 tokens)"
+- "Scope exceeded, need to split into 2 WS"
+- "By scope this is SMALL task"
 
-#### ✅ Разрешённые упоминания времени (исключения)
+#### Permitted Time References (Exceptions)
 
-Время **разрешено** только в следующих случаях (и **не является оценкой scope**):
+Time **is allowed** only in these cases (and **is not a scope estimate**):
 
-- **Telemetry / измерения**: elapsed time, timestamps в логах, метрики выполнения (например, `"elapsed": "1h 23m"`).
-- **SLA / операционные цели**: hotfix/bugfix target windows (например, “P0 hotfix: <2h”, “P1/P2 bugfix: <24h”).
-- **Human Verification (UAT)**: ориентиры для человека (“Smoke test: 30 sec”, “Scenarios: 5–10 min”).
+- **Telemetry / measurements**: elapsed time, timestamps in logs, execution metrics (e.g., `"elapsed": "1h 23m"`)
+- **SLA / operational targets**: hotfix/bugfix target windows (e.g., "P0 hotfix: <2h", "P1/P2 bugfix: <24h")
+- **Human Verification (UAT)**: guidance for human testers ("Smoke test: 30 sec", "Scenarios: 5-10 min")
 
-Во всех остальных контекстах **время запрещено** — используем только LOC/tokens и sizing (SMALL/MEDIUM/LARGE).
+In all other contexts **time is forbidden** — use only LOC/tokens and sizing (SMALL/MEDIUM/LARGE).
 
-**Почему НЕ время:**
-1. AI agents работают с разной скоростью (Sonnet ≠ Haiku ≠ GPT)
-2. Scope объективен (LOC, tokens), время субъективно
-3. Время создаёт ложное давление ("не успеваю" → спешка → баги)
-4. One-shot execution: агент выполняет WS за один проход, независимо от "времени"
+**Why NOT time:**
+1. AI agents work at different speeds (Sonnet ≠ Haiku ≠ GPT)
+2. Scope is objective (LOC, tokens), time is subjective
+3. Time creates false pressure ("running out of time" → rushing → bugs)
+4. One-shot execution: agent completes WS in one pass, regardless of "time"
 
-### Иерархия (Product)
+### Hierarchy (Product)
 
 ```
-PORTAL_VISION.md (продукт)
+VISION.md (product)
     ↓
-RELEASE_PLAN.md (релизы)
+RELEASE_PLAN.md (releases)
     ↓
-Feature (F01-F99) — крупные фичи
+Feature (F01-F99) — large features
     ↓
-Workstream (WS-001-WS-999) — атомарные задачи
+Workstream (WS-001-WS-999) — atomic tasks
 ```
 
-### Устаревшие термины
+### Deprecated Terms
 
-- ~~Epic (EP)~~ → **Feature (F)** (с 2026-01-07)
-- ~~Sprint~~ → не используется
+- ~~Epic (EP)~~ → **Feature (F)** (since 2026-01-07)
+- ~~Sprint~~ → not used
 
 ---
 
 ## Guardrails
 
-### AI-Readiness (БЛОКИРУЮЩИЕ)
+### AI-Readiness (BLOCKING)
 
-| Правило | Порог | Проверка |
-|---------|-------|----------|
+| Rule | Threshold | Check |
+|------|-----------|-------|
 | File size | < 200 LOC | `wc -l` |
 | Complexity | CC < 10 | `ruff --select=C901` |
 | Type hints | 100% public | Visual |
 | Nesting | ≤ 3 levels | Visual |
 
-### Clean Architecture (БЛОКИРУЮЩИЕ)
+### Clean Architecture (BLOCKING)
 
 ```
-Domain      →  НЕ импортирует ничего из других слоёв
-Application →  НЕ импортирует infrastructure напрямую
+Domain      →  Does NOT import from other layers
+Application →  Does NOT import infrastructure directly
 ```
 
 ```bash
-# Проверка
-grep -r "from hw_checker.infrastructure" hw_checker/domain/ hw_checker/application/
-# Должно быть пусто
+# Check for violations
+grep -r "from infrastructure" domain/ application/
+# Should be empty
 ```
 
-### Error Handling (БЛОКИРУЮЩИЕ)
+**See**: [docs/PRINCIPLES.md](docs/PRINCIPLES.md) | [docs/concepts/clean-architecture/](docs/concepts/clean-architecture/README.md)
+
+### Error Handling (BLOCKING)
 
 ```python
-# ЗАПРЕЩЕНО
+# FORBIDDEN
 except:
     pass
 
 except Exception:
     return None
 
-# ОБЯЗАТЕЛЬНО
+# REQUIRED
 except SpecificError as e:
     log.error("operation.failed", error=str(e), exc_info=True)
     raise
 ```
 
-### Security (для DinD)
+### Security
 
-- [ ] Нет `privileged: true`
-- [ ] Нет `/var/run/docker.sock` mounts
-- [ ] Resource limits заданы
-- [ ] Нет string interpolation в shell commands
+- [ ] No `privileged: true`
+- [ ] No `/var/run/docker.sock` mounts
+- [ ] Resource limits defined
+- [ ] No string interpolation in shell commands
 
 ---
 
 ## Quality Gates
 
 ### Gate 1: Analyze → Plan
-- [ ] Карта WS сформирована
-- [ ] Зависимости указаны
-- [ ] AI-Readiness оценён для каждого WS
+- [ ] WS map formed
+- [ ] Dependencies identified
+- [ ] AI-Readiness estimated for each WS
 
 ### Gate 2: Plan → Execute
-- [ ] **WS не существует** в INDEX (проверено)
-- [ ] **Scope оценён**, не превышает MEDIUM
-- [ ] Все пути файлов указаны
-- [ ] Код готов к copy-paste
-- [ ] Критерии завершения включают: tests + coverage + regression
-- [ ] Ограничения явные
-- [ ] **НЕТ временных оценок** (часов/дней)
+- [ ] **WS does not exist** in INDEX (verified)
+- [ ] **Scope estimated**, not exceeding MEDIUM
+- [ ] All file paths specified
+- [ ] Code ready for copy-paste
+- [ ] Completion criteria include: tests + coverage + regression
+- [ ] Constraints explicit
+- [ ] **NO time estimates** (hours/days)
 
 ### Gate 3: Execute → Review
-- [ ] Все шаги выполнены
-- [ ] Критерии завершения пройдены
-- [ ] **Coverage ≥ 80%** для изменённых файлов
+- [ ] All steps completed
+- [ ] Completion criteria passed
+- [ ] **Coverage ≥ 80%** for changed files
 - [ ] **Regression passed** (fast tests)
-- [ ] **Нет TODO/Later** в коде
-- [ ] Отчёт сформирован
+- [ ] **No TODO/Later** in code
+- [ ] Report generated
 
 ### Gate 4: Review → Done
 - [ ] AI-Readiness: ✅
@@ -177,214 +180,177 @@ except SpecificError as e:
 - [ ] Error Handling: ✅
 - [ ] Tests & Coverage: ✅ (≥80%)
 - [ ] Regression: ✅ (all fast tests)
-- [ ] Review записан **в конец WS файла** (не отдельный файл)
+- [ ] Review recorded **at the end of WS file** (not separate file)
 
 ### Gate 5: Done → Deploy (Human UAT)
 
-**UAT (User Acceptance Testing)** — проверка человеком перед деплоем:
+**UAT (User Acceptance Testing)** — human verification before deploy:
 
-| Шаг | Описание | Время |
-|-----|----------|-------|
-| 1 | Quick Smoke Test | 30 сек |
-| 2 | Detailed Scenarios (happy path + errors) | 5-10 мин |
-| 3 | Red Flags Check | 2 мин |
-| 4 | Sign-off | 1 мин |
+| Step | Description | Time |
+|------|-------------|------|
+| 1 | Quick Smoke Test | 30 sec |
+| 2 | Detailed Scenarios (happy path + errors) | 5-10 min |
+| 3 | Red Flags Check | 2 min |
+| 4 | Sign-off | 1 min |
 
-**UAT Guide создаётся автоматически** после `/review APPROVED`:
+**UAT Guide created automatically** after `/review APPROVED`:
 - Feature-level: `docs/uat/F{XX}-uat-guide.md`
-- WS-level: секция "Human Verification (UAT)" в WS файле
+- WS-level: "Human Verification (UAT)" section in WS file
 
-**Без Sign-off человека → Deploy блокирован.**
+**Without human Sign-off → Deploy blocked.**
 
 ---
 
 ## WS Scope Control
 
-**Метрики размера (вместо времени):**
+**Size metrics (instead of time):**
 
-| Размер | Строк кода | Токенов | Действие |
-|--------|-----------|---------|----------|
-| **SMALL** | < 500 | < 1500 | ✅ Оптимально |
-| **MEDIUM** | 500-1500 | 1500-5000 | ✅ Допустимо |
-| **LARGE** | > 1500 | > 5000 | ❌ **РАЗБИТЬ** |
+| Size | Lines of Code | Tokens | Action |
+|------|---------------|--------|--------|
+| **SMALL** | < 500 | < 1500 | ✅ Optimal |
+| **MEDIUM** | 500-1500 | 1500-5000 | ✅ Acceptable |
+| **LARGE** | > 1500 | > 5000 | ❌ **SPLIT** |
 
-**Правило:** Все WS должны быть SMALL или MEDIUM.
+**Rule:** All WS must be SMALL or MEDIUM.
 
-**Если scope превышен во время Execute:**
-→ STOP, вернуться к Phase 2 для разбиения на WS-XXX-1, WS-XXX-2
+**If scope exceeded during Execute:**
+→ STOP, return to Phase 2 to split into WS-XXX-01, WS-XXX-02
 
 ---
 
 ## Test Coverage Gate
 
-**Минимум:** 80% для изменённых/созданных файлов
+**Minimum:** 80% for changed/created files
 
 ```bash
 pytest tests/unit/test_module.py -v \
-  --cov=hw_checker/module \
+  --cov=src/module \
   --cov-report=term-missing \
   --cov-fail-under=80
 ```
 
-**Если coverage < 80% → CHANGES REQUESTED (HIGH)**
+**If coverage < 80% → CHANGES REQUESTED (HIGH)**
 
 ---
 
 ## Regression Gate
 
-**После каждого WS:**
+**After each WS:**
 
 ```bash
-# Все fast tests ДОЛЖНЫ проходить
+# All fast tests MUST pass
 pytest tests/unit/ -m fast -v
 ```
 
-**Если регресс нарушен → CHANGES REQUESTED (CRITICAL)**
+**If regression broken → CHANGES REQUESTED (CRITICAL)**
 
 ---
 
 ## TODO/Later Gate
 
-**СТРОГО ЗАПРЕЩЕНО в коде:**
+**STRICTLY FORBIDDEN in code:**
 - `# TODO: ...`
 - `# FIXME: ...`
-- Комментарии "оставлю на потом", "временное решение"
+- Comments like "will do later", "temporary solution"
 
-**Исключение:** `# NOTE:` — только для пояснений
+**Exception:** `# NOTE:` — only for clarifications
 
-**Если обнаружено → CHANGES REQUESTED (HIGH)**
-
----
-
-## ⛔ NO TECH DEBT
-
-**Концепция Tech Debt ЗАПРЕЩЕНА в проекте.**
-
-❌ "Это tech debt, сделаем потом"
-❌ "Временное решение, вернёмся позже"
-❌ "Грязный код, но работает"
-❌ "Отложим рефакторинг"
-
-✅ **Правило: всё говно убираем сразу.**
-
-**Если код не соответствует стандартам:**
-1. Исправь в текущем WS
-2. Если scope превышен → разбей на WS (см. ниже)
-3. НЕ оставляй "на потом"
-
-**Философия:** Каждый WS оставляет код в идеальном состоянии. Нет накапливающегося долга.
+**If found → CHANGES REQUESTED (HIGH)**
 
 ---
 
-## 🔀 Substreams: Правила разбиения
+## NO TECH DEBT
 
-**Если WS нужно разбить на части:**
+**The Tech Debt concept is FORBIDDEN in this project.**
 
-### Формат нумерации (СТРОГО)
+- "This is tech debt, we'll do it later"
+- "Temporary solution, will return later"
+- "Dirty code but it works"
+- "Postpone refactoring"
+
+✅ **Rule: fix all issues immediately.**
+
+**If code doesn't meet standards:**
+1. Fix in current WS
+2. If scope exceeded → split into WS (see below)
+3. DO NOT leave "for later"
+
+**Philosophy:** Every WS leaves code in ideal state. No accumulating debt.
+
+---
+
+## Substreams: Splitting Rules
+
+**If WS needs to be split:**
+
+### Numbering Format (STRICT)
 
 ```
 WS-{PARENT_ID}-{SEQ}
 
-Где:
-- PARENT_ID = ID родительского WS (3 цифры, с ведущими нулями)
-- SEQ = порядковый номер substream (2 цифры: 01, 02, ... 99)
+Where:
+- PARENT_ID = parent WS ID (3 digits with leading zeros)
+- SEQ = substream sequence number (2 digits: 01, 02, ... 99)
 ```
 
-**Примеры:**
+**Examples:**
 ```
-WS-050         ← родительский (разбивается)
-├── WS-050-01  ← первый substream
-├── WS-050-02  ← второй substream
-├── WS-050-03  ← третий substream
+WS-050         ← parent (being split)
+├── WS-050-01  ← first substream
+├── WS-050-02  ← second substream
+├── WS-050-03  ← third substream
 ├── ...
-├── WS-050-10  ← десятый (сортировка корректна!)
-└── WS-050-15  ← пятнадцатый
+├── WS-050-10  ← tenth (sorting works!)
+└── WS-050-15  ← fifteenth
 ```
 
-**ЗАПРЕЩЁННЫЕ форматы:**
+**FORBIDDEN formats:**
 ```
-❌ WS-050-A, WS-050-B      (буквы)
-❌ WS-050-part1            (слова)
-❌ WS-050.1, WS-050.2      (точки)
-❌ WS-50-1                 (без ведущих нулей в PARENT)
-❌ WS-050-1                (однозначный SEQ — всегда 01, 02...)
+❌ WS-050-A, WS-050-B      (letters)
+❌ WS-050-part1            (words)
+❌ WS-050.1, WS-050.2      (dots)
+❌ WS-50-1                 (no leading zeros in PARENT)
+❌ WS-050-1                (single-digit SEQ — always 01, 02...)
 ```
 
-### ОБЯЗАТЕЛЬНО при разбиении:
+### REQUIRED when splitting:
 
-1. **Создай ВСЕ файлы substreams** в `workstreams/backlog/`:
+1. **Create ALL substream files** in `workstreams/backlog/`:
    ```
    WS-050-01-domain-entities.md
    WS-050-02-application-layer.md
    WS-050-03-infrastructure.md
    ```
 
-2. **Заполни каждый substream** полностью (не stub):
-   - Контекст
-   - Зависимости (WS-XXX-1 → WS-XXX-2 → ...)
-   - Входные файлы
-   - Шаги
-   - Код
-   - Критерии завершения
+2. **Fill each substream** completely (not stub):
+   - Context
+   - Dependencies (WS-XXX-01 → WS-XXX-02 → ...)
+   - Input files
+   - Steps
+   - Code
+   - Completion criteria
 
-3. **Обнови INDEX.md** с новыми WS
+3. **Update INDEX.md** with new WS
 
-4. **Удали или пометь родительский WS** как "Разбит → WS-XXX-1, WS-XXX-2"
+4. **Delete or mark parent WS** as "Split → WS-XXX-01, WS-XXX-02"
 
-### ЗАПРЕЩЕНО:
+### FORBIDDEN:
 
-❌ Ссылаться на несуществующие WS ("см. WS-050-02" без создания файла)
-❌ Оставлять пустые stubs ("TODO: заполнить")
-❌ Разбивать без создания файлов
-❌ Partial execution ("сделал часть, остальное в другом WS")
-❌ Форматы: `24.1`, `WS-24-1`, `WS-050-1`, `WS-050-part1`
-❌ Time estimates: "0.5 дня", "3 дня" — только LOC/tokens
-❌ Создавать отдельные `-ANALYSIS.md` файлы (анализ → сразу в WS файлы)
-
-### Пример правильного разбиения:
-
-```markdown
-## WS-050: Large Feature → РАЗБИТ
-
-**Статус:** Разбит на substreams
-**Причина:** Scope > MEDIUM (2500 LOC)
-
-**Substreams:** (формат: WS-{PARENT}-{SEQ}, SEQ всегда 2 цифры)
-| ID | Файл | Scope |
-|----|------|-------|
-| WS-050-01 | WS-050-01-domain-entities.md | SMALL (400 LOC) |
-| WS-050-02 | WS-050-02-application-layer.md | MEDIUM (800 LOC) |
-| WS-050-03 | WS-050-03-infrastructure.md | MEDIUM (700 LOC) |
-| WS-050-04 | WS-050-04-presentation.md | SMALL (300 LOC) |
-| WS-050-05 | WS-050-05-integration-tests.md | SMALL (300 LOC) |
-
-Все файлы созданы в backlog/, добавлены в INDEX.md.
-```
-
-### Проверка перед ссылкой на substream
-
-```bash
-# ОБЯЗАТЕЛЬНО перед тем как написать "см. WS-050-02":
-ls tools/hw_checker/docs/workstreams/backlog/WS-050-02-*.md
-
-# Если "No such file" → СНАЧАЛА создай файл!
-
-# Проверка формата нумерации (должны быть 2 цифры для SEQ):
-ls tools/hw_checker/docs/workstreams/backlog/ | grep -E "WS-[0-9]{3}-[0-9]{2}-"
-# ✅ WS-050-01-domain.md, WS-050-02-app.md
-# ❌ WS-050-1-domain.md (SEQ должен быть 01, не 1)
-
-# Проверка на time estimates (должно быть пусто):
-grep -rE "дн[яей]|час[ов]|недел" tools/hw_checker/docs/workstreams/backlog/WS-050*.md
-```
+- Referencing non-existent WS ("see WS-050-02" without creating file)
+- Leaving empty stubs ("TODO: fill in")
+- Splitting without creating files
+- Partial execution ("did part, rest in another WS")
+- Formats: `24.1`, `WS-24-1`, `WS-050-1`, `WS-050-part1`
+- Time estimates: "0.5 days", "3 days" — only LOC/tokens
+- Creating separate `-ANALYSIS.md` files (analysis → directly into WS files)
 
 ---
 
 ## ADR Template
 
-Когда принимаешь архитектурное решение, создай:
+When making an architectural decision, create:
 
-`docs/architecture/adr/YYYY-MM-DD-{title}.md`
+`docs/adr/YYYY-MM-DD-{title}.md`
 
 ```markdown
 # ADR: {Title}
@@ -393,19 +359,19 @@ grep -rE "дн[яей]|час[ов]|недел" tools/hw_checker/docs/workstream
 Proposed / Accepted / Deprecated
 
 ## Context
-[Какая проблема? Какие ограничения?]
+[What is the problem? What constraints?]
 
 ## Decision
-[Что решили делать?]
+[What did we decide to do?]
 
 ## Alternatives Considered
-1. [Альтернатива 1] — почему нет
-2. [Альтернатива 2] — почему нет
+1. [Alternative 1] — why not
+2. [Alternative 2] — why not
 
 ## Consequences
-- [+] Плюс
-- [-] Минус
-- [!] Риск
+- [+] Benefit
+- [-] Drawback
+- [!] Risk
 ```
 
 ---
@@ -415,91 +381,107 @@ Proposed / Accepted / Deprecated
 ```markdown
 ## WS-{ID}: {Title}
 
-### Контекст
-[Почему нужно]
+### Context
+[Why needed]
 
-### Зависимость  
-[WS-XX / Независимый]
+### Dependency
+[WS-XX / Independent]
 
-### Входные файлы
-- `path/to/file.py` — что там
+### Input Files
+- `path/to/file.py` — what's there
 
-### Шаги
-1. [Атомарное действие]
+### Steps
+1. [Atomic action]
 2. ...
 
-### Код
+### Code
 ```python
-# Готовый код
+# Ready code
 ```
 
-### Ожидаемый результат
-- [Что должно быть]
+### Expected Result
+- [What should happen]
 
-### Критерий завершения
+### Completion Criteria
 ```bash
 pytest ...
 ruff check ...
 ```
 
-### Ограничения
-- НЕ делать: ...
+### Constraints
+- DO NOT: ...
 ```
 
 ---
 
-## Иерархия документации (C4-подобная)
+## Documentation Hierarchy (C4-like)
 
 ```
 L1: System      docs/SYSTEM_OVERVIEW.md
-    ↓ Общий контекст системы, границы, основные домены
-    
-L2: Domain      docs/domains/{domain}/DOMAIN_MAP.md  
-    ↓ Структура домена, компоненты, интеграции
-    
+    ↓ General system context, boundaries, main domains
+
+L2: Domain      docs/domains/{domain}/DOMAIN_MAP.md
+    ↓ Domain structure, components, integrations
+
 L3: Component   docs/domains/{domain}/components/{comp}/SPEC.md
-    ↓ Детальная спецификация компонента
-    
+    ↓ Detailed component specification
+
 L4: Workstream  docs/workstreams/WS-XXX.md
-    ↓ Конкретная задача для выполнения
+    ↓ Specific task for execution
 ```
 
 ### Navigation Flow
 
 **Phase 1 (Analyze):**
-1. Читай L1 (`SYSTEM_OVERVIEW.md`) для общего контекста
-2. Выбери релевантный домен, читай L2 (`domains/{domain}/DOMAIN_MAP.md`)
-3. Если затрагиваешь компонент, читай L3 (component SPEC)
-4. Генерируй L4 (workstream map)
+1. Read L1 (`SYSTEM_OVERVIEW.md`) for general context
+2. Choose relevant domain, read L2 (`domains/{domain}/DOMAIN_MAP.md`)
+3. If touching component, read L3 (component SPEC)
+4. Generate L4 (workstream map)
 
 **Phase 2 (Plan):**
-1. Читай L4 (`workstreams/INDEX.md`) — проверь дубликаты
-2. Читай L1/L2/L3 для контекста конкретного WS
-3. Создай детальный план WS
+1. Read L4 (`workstreams/INDEX.md`) — check for duplicates
+2. Read L1/L2/L3 for context of specific WS
+3. Create detailed WS plan
 
 **Phase 3 (Execute):**
-1. Работай по плану WS (L4)
+1. Work according to WS plan (L4)
 
 **Phase 4 (Review):**
-1. Проверь качество кода
-2. Если WS изменил domain boundaries → обновить L2
-3. Если WS изменил component → обновить L3
+1. Check code quality
+2. If WS changed domain boundaries → update L2
+3. If WS changed component → update L3
 
 ### Product vs Architecture Hierarchy
 
-**Product (планирование фичей):**
+**Product (feature planning):**
 ```
-PORTAL_VISION.md → RELEASE_PLAN.md → Feature (F) → Workstream (WS)
+VISION.md → RELEASE_PLAN.md → Feature (F) → Workstream (WS)
 ```
 
-**Architecture (структура кода/документации):**
+**Architecture (code/documentation structure):**
 ```
 L1 (System) → L2 (Domain) → L3 (Component) → L4 (Workstream)
 ```
 
-**Пересечение:**
-- Feature F24 → создаёт/модифицирует L2 (content domain)
-- Workstream WS-140 → создаёт L3 (vault component)
+**Intersection:**
+- Feature F24 → creates/modifies L2 (content domain)
+- Workstream WS-140 → creates L3 (vault component)
+
+---
+
+## Core Principles
+
+All work must follow these principles. See [docs/PRINCIPLES.md](docs/PRINCIPLES.md) for details.
+
+| Principle | Summary |
+|-----------|---------|
+| **SOLID** | SRP, OCP, LSP, ISP, DIP |
+| **DRY** | Don't Repeat Yourself |
+| **KISS** | Keep It Simple, Stupid |
+| **YAGNI** | You Ain't Gonna Need It |
+| **TDD** | Tests first (Red → Green → Refactor) |
+| **Clean Code** | Readable, maintainable, testable |
+| **Clean Architecture** | Dependencies point inward |
 
 ---
 
@@ -507,19 +489,19 @@ L1 (System) → L2 (Domain) → L3 (Component) → L4 (Workstream)
 
 ```bash
 # AI-Readiness check
-find hw_checker -name "*.py" -exec wc -l {} + | awk '$1 > 200'
-ruff check hw_checker --select=C901
+find src -name "*.py" -exec wc -l {} + | awk '$1 > 200'
+ruff check src --select=C901
 
-# Clean Architecture check  
-grep -r "from hw_checker.infrastructure" hw_checker/domain/ hw_checker/application/
+# Clean Architecture check
+grep -r "from infrastructure" domain/ application/
 
 # Error handling check
-grep -rn "except:" hw_checker/
-grep -rn "except Exception" hw_checker/ | grep -v "exc_info"
+grep -rn "except:" src/
+grep -rn "except Exception" src/ | grep -v "exc_info"
 
 # Test coverage (≥80%)
 pytest tests/unit/test_module.py -v \
-  --cov=hw_checker/module \
+  --cov=src/module \
   --cov-report=term-missing \
   --cov-fail-under=80
 
@@ -527,11 +509,11 @@ pytest tests/unit/test_module.py -v \
 pytest tests/unit/ -m fast -v
 
 # TODO/Later check
-grep -rn "TODO\|FIXME" hw_checker/ --include="*.py" | grep -v "# NOTE"
+grep -rn "TODO\|FIXME" src/ --include="*.py" | grep -v "# NOTE"
 
 # Full test suite
 pytest -m fast -x --tb=short
-pytest --cov=hw_checker --cov-report=term-missing
+pytest --cov=src --cov-report=term-missing
 ```
 
 ---
@@ -552,7 +534,7 @@ export TELEGRAM_CHAT_ID="..."
 #         deploy_success, hotfix_deployed
 ```
 
-See: `sdp/notifications/TELEGRAM.md`
+See: `notifications/TELEGRAM.md`
 
 ### Audit Log
 
@@ -560,18 +542,18 @@ Centralized logging of all workflow events:
 
 ```bash
 # Configuration
-export AUDIT_LOG_FILE="/var/log/consensus-audit.log"
+export AUDIT_LOG_FILE="/var/log/sdp-audit.log"
 
 # Format: ISO8601|EVENT_TYPE|USER|GIT_BRANCH|EVENT_DATA
 # Example:
 # 2026-01-11T00:30:15+03:00|WS_START|user|feature/lms|ws=WS-060-01
 
 # Query
-grep "feature=F60" /var/log/consensus-audit.log
-grep "WS_FAILED" /var/log/consensus-audit.log
+grep "feature=F60" /var/log/sdp-audit.log
+grep "WS_FAILED" /var/log/sdp-audit.log
 ```
 
-See: `sdp/notifications/AUDIT_LOG.md`
+See: `notifications/AUDIT_LOG.md`
 
 ### Breaking Changes Detection
 
@@ -586,7 +568,19 @@ python scripts/detect_breaking_changes.py --staged
 # - MIGRATION_GUIDE.md (template)
 ```
 
-See: `tools/hw_checker/scripts/detect_breaking_changes.py`
+---
+
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| [docs/PRINCIPLES.md](docs/PRINCIPLES.md) | SOLID, DRY, KISS, YAGNI, Clean Code |
+| [docs/concepts/](docs/concepts/README.md) | Clean Architecture, Artifacts, Roles |
+| [CODE_PATTERNS.md](CODE_PATTERNS.md) | Implementation patterns |
+| [RULES_COMMON.md](RULES_COMMON.md) | Common rules for all work |
+| [prompts/structured/](prompts/structured/) | Phase 1-4 prompts |
 
 ---
 
+**Version:** 0.3.0
+**Last Updated:** 2026-01-12

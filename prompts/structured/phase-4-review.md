@@ -1,25 +1,28 @@
 # Phase 4: Review
 
 ## Mission
-Проверить выполненный Workstream на качество, безопасность, соответствие стандартам.
+
+Review the completed Workstream for quality, safety, and standards compliance.
 
 ## Input
-- Execution Report из Phase 3
-- Изменённые файлы
-- **Goal + Acceptance Criteria из плана WS**
-- Критерии завершения из плана
-- `tools/hw_checker/docs/PROJECT_MAP.md` (для проверки соответствия решениям)
+
+- Execution Report from Phase 3
+- Changed files
+- **Goal + Acceptance Criteria from WS plan**
+- Completion criteria from plan
 
 ## Output
-Review записывается **напрямую в WS файл** (append в конец):
+
+Review is recorded **directly in the WS file** (append to end):
 
 ```markdown
 ### Review Results
 
 #### 2026-01-06 | reviewer_name
-**Вердикт:** APPROVED / CHANGES REQUESTED
+**Verdict:** APPROVED / CHANGES REQUESTED
 
-**Критерии завершения:** ✅ / ❌
+**Goal Achieved:** ✅ / ❌
+**Completion Criteria:** ✅ / ❌
 **AI-Readiness:** ✅ / ❌
 **Clean Architecture:** ✅ / ❌
 **Tests & Coverage:** ✅ (XX%) / ❌
@@ -27,305 +30,252 @@ Review записывается **напрямую в WS файл** (append в �
 **No Tech Debt:** ✅ / ❌
 **100% Complete:** ✅ / ❌
 
-**Если CHANGES REQUESTED — список проблем:**
-- [CRITICAL/HIGH/MEDIUM/LOW] Описание → как исправить
+**If CHANGES REQUESTED — issue list:**
+- [CRITICAL/HIGH/MEDIUM/LOW] Description → how to fix
 ```
 
-**НЕ создавать отдельный файл для review.**
-**Нет "Notes" секции — всё либо ✅, либо исправляется.**
+**DO NOT create a separate file for review.**
+**No "Notes" section — everything is either ✅ or gets fixed.**
 
 ---
 
-## Чеклист ревью
+## Review Checklist
 
-### 0. 🎯 Goal Achievement (БЛОКИРУЮЩИЙ)
+### 0. Goal Achievement (BLOCKING)
 
-**ПЕРВАЯ проверка — Goal достигнута?**
+**FIRST check — is the Goal achieved?**
 
 ```bash
-# Запусти команды из Acceptance Criteria (если есть bash команды)
-# Проверь вручную каждый AC
+# Run commands from Acceptance Criteria (if there are bash commands)
+# Manually verify each AC
 
-# Пример AC:
-# - [ ] API endpoint /api/runs/{id} возвращает статус run
+# Example AC:
+# - [ ] API endpoint /api/runs/{id} returns run status
 #   → curl http://localhost:8000/api/runs/test-id
-#   → Должен вернуть 200 + JSON с полями
+#   → Should return 200 + JSON with fields
 
 # - [ ] Coverage ≥ 80%
-#   → pytest --cov (уже проверено в Execute)
+#   → pytest --cov (already checked in Execute)
 ```
 
-**Проверка каждого Acceptance Criterion:**
-- [ ] AC1 ✅ (работает как ожидается)
+**Check each Acceptance Criterion:**
+- [ ] AC1 ✅ (works as expected)
 - [ ] AC2 ✅
 - [ ] AC3 ✅
 
-**Если ХОТЯ БЫ ОДИН AC ❌ → CHANGES REQUESTED (CRITICAL)**
+**If AT LEAST ONE AC ❌ → CHANGES REQUESTED (CRITICAL)**
 
-**Запрещённые отмазки:**
-❌ "Код написан, но не работает — закрываю"
-❌ "Основная часть работает"
-❌ "Почти готово"
+**Forbidden excuses:**
+- "Code written but doesn't work — closing"
+- "Main part works"
+- "Almost ready"
 
-**Правило:** Если Goal не достигнута → WS НЕ завершён.
+**Rule:** If Goal not achieved → WS NOT complete.
 
 ---
 
-### 1. Критерии завершения
+### 1. Completion Criteria
+
 ```bash
-# Выполни ВСЕ команды из плана
-# Все должны пройти
+# Execute ALL commands from plan
+# All must pass
 ```
 
 ### 2. AI-Readiness
 
-| Проверка | Команда |
-|----------|---------|
-| Файлы < 200 строк | `wc -l {files}` |
+| Check | Command |
+|-------|---------|
+| Files < 200 lines | `wc -l {files}` |
 | Complexity < 10 | `ruff check --select=C901` |
-| Type hints (strict) | `mypy hw_checker/module/ --strict --no-implicit-optional` |
-| Нет глубокой вложенности | Max 3 уровня |
+| Type hints (strict) | `mypy src/module/ --strict --no-implicit-optional` |
+| No deep nesting | Max 3 levels |
 
 ### 3. Clean Architecture
 
 ```bash
-# Domain не импортирует другие слои
-grep -r "from hw_checker.application" hw_checker/domain/
-grep -r "from hw_checker.infrastructure" hw_checker/domain/
-# Должно быть пусто
+# Domain doesn't import other layers
+grep -r "from application" domain/
+grep -r "from infrastructure" domain/
+# Should be empty
 ```
 
 ```bash
-# Application не импортирует infrastructure напрямую
-grep -r "from hw_checker.infrastructure" hw_checker/application/ | grep -v "# noqa"
-# Должно быть пусто (кроме composition root)
+# Application doesn't import infrastructure directly
+grep -r "from infrastructure" application/
+# Should be empty (or only port imports)
 ```
 
 ### 4. Error Handling
 
 ```bash
-# Нет silent failures
-grep -rn "except:" hw_checker/ --include="*.py"
-grep -rn "except Exception" hw_checker/ | grep -v "exc_info"
-# Должно быть пусто или обосновано
+# No bare except
+grep -rn "except:" src/ --include="*.py"
+grep -rn "except Exception:" src/ --include="*.py" | grep -v "exc_info"
+# Should be empty or justified
 ```
 
-### 5. Security (для infrastructure/dind)
-
-- [ ] Нет `privileged: true`
-- [ ] Нет `/var/run/docker.sock`
-- [ ] Resource limits заданы
-- [ ] Нет string interpolation в командах
-
-### 6. Code Quality
-
-- [ ] **DRY** — нет копипасты (нарушение DRY → CHANGES REQUESTED)
-- [ ] **SRP** — классы < 200 строк, функции < 50 строк
-- [ ] **LSP** — подклассы/реализации Protocol не нарушают контракт
-- [ ] **ISP** — Protocol не содержит лишних методов (узкие интерфейсы)
-- [ ] Naming — понятные имена
-- [ ] Docstrings — публичные функции документированы
-
-### 7. Tests & Coverage
+### 5. Tests & Coverage
 
 ```bash
-# Coverage для изменённых файлов ≥ 80%
+# Run tests
+pytest tests/unit/test_XXX.py -v
+
+# Coverage ≥ 80%
 pytest tests/unit/test_XXX.py -v \
-  --cov=hw_checker/module \
+  --cov=src/module \
   --cov-report=term-missing \
   --cov-fail-under=80
-
-# TDD: тесты написаны ДО кода (check git history если нужно)
-# Проверка количества тестов
-find tests/ -name "test_*.py" -exec wc -l {} + | tail -1
-# Должно соответствовать Scope Estimate из плана
 ```
 
-### 8. Regression Suite
+### 6. Regression
 
 ```bash
-# Все fast tests ДОЛЖНЫ проходить
+# All fast tests pass
 pytest tests/unit/ -m fast -v
 
-# Если есть integration тесты (зависит от scope)
-pytest tests/integration/ -m "not dind" -v
+# Zero failures expected
 ```
 
-**Regression нарушен → CHANGES REQUESTED (CRITICAL)**
-
-### 13. 📋 PROJECT_MAP Update
-
-**Если WS добавил/изменил архитектурные решения:**
-
-- [ ] **ADR создан** в `docs/architecture/decisions/YYYY-MM-DD-title.md`
-- [ ] **PROJECT_MAP.md обновлён:**
-  - Добавлена строка в "Ключевые решения"
-  - Обновлён "Current State" если изменилась архитектура
-  - Добавлен deprecated entry если что-то заменили
+### 7. No Tech Debt
 
 ```bash
-# Проверить что ADR создан и корректен
-ls docs/architecture/decisions/ | tail -5
-
-# Проверить что PROJECT_MAP упоминает новый ADR
-grep "ADR-" tools/hw_checker/docs/PROJECT_MAP.md | tail -5
+# No TODO/FIXME
+grep -rn "TODO\|FIXME" src/ --include="*.py" | grep -v "# NOTE"
+# Should be empty
 ```
 
-**Критерии для создания ADR:**
-- Добавлен новый domain/компонент
-- Изменён способ взаимодействия между слоями
-- Выбран новый паттерн/библиотека
-- Изменены constraints (AI-Readiness, Security)
+### 8. 100% Completion
 
-**Если значимое решение без ADR → CHANGES REQUESTED (MEDIUM)**
+- [ ] ALL steps from plan executed
+- [ ] ALL Acceptance Criteria ✅
+- [ ] NO partial completion ("main work done")
+- [ ] NO deferred tasks
 
 ---
 
-### 14. Documentation Updates
+## Severity Levels
 
-- [ ] Если WS изменил domain boundaries → обновить `docs/domains/{domain}/DOMAIN_MAP.md` (L2)
-- [ ] Если WS добавил/изменил компонент → обновить `docs/domains/{domain}/components/{comp}/SPEC.md` (L3)
-- [ ] Если WS добавил новый паттерн → обновить `sdp/HW_CHECKER_PATTERNS.md`
-- [ ] Обновить `tools/hw_checker/docs/workstreams/INDEX.md` (L4) — перенести WS в completed/
-
-### 15. ⛔ No Tech Debt
-
-```bash
-# Поиск tech debt маркеров в коде
-grep -rn "TODO\|FIXME\|XXX\|HACK\|TEMP\|TEMPORARY" hw_checker/ --include="*.py"
-# Должно быть ПУСТО
-
-# Поиск в комментариях
-grep -rn "потом\|later\|временн\|позже\|debt" hw_checker/ --include="*.py"
-# Должно быть ПУСТО
-```
-
-**Если найдено → CHANGES REQUESTED (HIGH)**
-
-**Концепция Tech Debt ЗАПРЕЩЕНА в проекте:**
-❌ "Это tech debt, сделаем потом"
-✅ "Исправляем сейчас или разбиваем WS"
-
-### 16. 🏁 100% Completion Check
-
-**WS считается завершённым ТОЛЬКО когда:**
-- [ ] **Goal достигнута** (все AC ✅) ← САМЫЙ ВАЖНЫЙ
-- [ ] ВСЕ шаги из плана выполнены (не "почти все", не "основное")
-- [ ] ВСЕ файлы из плана созданы/изменены
-- [ ] ВСЕ тесты написаны и проходят
-- [ ] Coverage ≥ 80%
-- [ ] Regression пройден
-- [ ] ZERO TODO/FIXME в коде
-- [ ] **Функциональность РАБОТАЕТ** (не "код есть, но не работает")
-
-**ЗАПРЕЩЕНО принимать:**
-❌ "Основное сделано"
-❌ "90% готово"
-❌ "Мелочи потом"
-❌ "Код написан, но не работает"
-❌ Partial completion
-
-**Если WS не 100% complete → CHANGES REQUESTED**
-
-### 17. 🔀 Substreams Check
-
-**Если WS был разбит на substreams:**
-- [ ] ВСЕ файлы substreams существуют в `workstreams/backlog/`
-- [ ] КАЖДЫЙ substream заполнен полностью (не stub)
-- [ ] INDEX.md обновлён
-- [ ] Родительский WS помечен как "Разбит"
-- [ ] **Формат нумерации:** `WS-{PARENT}-{SEQ}` где SEQ = 2 цифры (01, 02...)
-
-```bash
-# Проверить формат: должен быть WS-XXX-NN (3 цифры + 2 цифры)
-grep -roh "WS-[0-9]\{3\}-[0-9]\{1\}[^0-9]" workstreams/ && echo "❌ SEQ должен быть 2 цифры (01, не 1)!"
-grep -roh "WS-[0-9]*-[^0-9 ]*" workstreams/ && echo "❌ НЕПРАВИЛЬНЫЙ ФОРМАТ!"
-# Должно быть ПУСТО
-
-# Проверить что все ссылки ведут на существующие файлы
-for ws in $(grep -roh "WS-[0-9]\{3\}-[0-9]\{2\}" workstreams/ | sort -u); do
-  ls workstreams/backlog/${ws}*.md workstreams/active/${ws}*.md 2>/dev/null || echo "MISSING: $ws"
-done
-# Должно быть ПУСТО
-```
-
-**Неправильные форматы → CHANGES REQUESTED (HIGH):**
-- ❌ `WS-050-1` (нужно WS-050-01 — SEQ всегда 2 цифры)
-- ❌ `WS-050-A` (буквы)
-- ❌ `WS-050-part1` (слова)
-- ❌ `WS-50-01` (PARENT без ведущих нулей)
-
-**Если есть ссылки на несуществующие WS → CHANGES REQUESTED (CRITICAL)**
+| Level | Description | Example |
+|-------|-------------|---------|
+| **CRITICAL** | Goal not achieved, blocking issue | AC not met, tests fail |
+| **HIGH** | Quality gates violated | Coverage < 80%, TODO in code |
+| **MEDIUM** | Standards violation | Missing type hints, CC > 10 |
+| **LOW** | Style issue | Naming, formatting |
 
 ---
 
-## Вердикты
+## Verdict Rules
 
-**Только ДВА вердикта. Никаких полумер.**
+### APPROVED
 
-### ✅ APPROVED
-Все чеклисты ✅ → готово к следующему WS
+All checks pass:
+- Goal achieved (all AC ✅)
+- Completion criteria ✅
+- AI-Readiness ✅
+- Clean Architecture ✅
+- Tests & Coverage ✅ (≥80%)
+- Regression ✅
+- No Tech Debt ✅
+- 100% Complete ✅
 
-### ❌ CHANGES REQUESTED
-Есть ЛЮБЫЕ проблемы → исправить и повторить Review
+### CHANGES REQUESTED
 
-**~~APPROVED WITH NOTES~~ — НЕ СУЩЕСТВУЕТ**
-
-Почему:
-- "Notes" = tech debt под другим именем
-- "Minor improvements" = говно, которое накапливается
-- Нулевая толерантность = исправляем ВСЁ или не принимаем
-
-**Правило:** Если есть что улучшить — улучшай СЕЙЧАС, потом не существует.
+At least one issue found:
+- Provide specific issue description
+- Provide how to fix
+- Assign severity level
 
 ---
 
-## Quick Commands
+## Review Report Format
 
-См. `@sdp/PROTOCOL.md` → Quick Reference для полного списка
+```markdown
+### Review Results
 
-```bash
-# Ключевые проверки
-wc -l hw_checker/module/*.py  # < 200 строк
-ruff check hw_checker/module/ --select=C901  # CC < 10
-mypy hw_checker/module/ --strict --no-implicit-optional  # Type hints
-pytest tests/unit/test_module.py -v --cov=hw_checker/module --cov-fail-under=80
-pytest tests/unit/ -m fast -v  # Regression
+#### 2026-01-06 | claude
+
+**Verdict:** APPROVED
+
+**Goal Achieved:** ✅
+**Completion Criteria:** ✅
+**AI-Readiness:** ✅
+**Clean Architecture:** ✅
+**Tests & Coverage:** ✅ (87%)
+**Regression:** ✅ (42/42 fast tests)
+**No Tech Debt:** ✅
+**100% Complete:** ✅
+
+WS-{ID} ready for merge.
+```
+
+Or if issues found:
+
+```markdown
+### Review Results
+
+#### 2026-01-06 | claude
+
+**Verdict:** CHANGES REQUESTED
+
+**Goal Achieved:** ❌
+**Completion Criteria:** ✅
+**AI-Readiness:** ✅
+**Clean Architecture:** ❌
+**Tests & Coverage:** ✅ (82%)
+**Regression:** ✅ (42/42 fast tests)
+**No Tech Debt:** ✅
+**100% Complete:** ❌
+
+**Issues:**
+- [CRITICAL] Goal not achieved: API endpoint returns 500 instead of expected data
+  → Debug `service.py:45`, check database connection
+- [HIGH] Clean Architecture violation: `application/service.py` imports `infrastructure/db.py` directly
+  → Use port injection, see CODE_PATTERNS.md Repository pattern
 ```
 
 ---
 
-## Review Decision Flow
+## After Review
 
+### If APPROVED
+
+1. Mark WS as `completed` in INDEX.md
+2. Move WS file to `workstreams/completed/`
+3. Ready for next WS
+
+### If CHANGES REQUESTED
+
+1. Return to Phase 3
+2. Fix issues listed
+3. Re-run Phase 4
+
+---
+
+## Human UAT (After All WS Approved)
+
+After all feature WS are APPROVED, generate UAT Guide:
+
+```markdown
+# UAT Guide: F{XX}
+
+## Quick Smoke Test (30 sec)
+1. [Basic operation check]
+2. [Verify no errors in logs]
+
+## Detailed Scenarios (5-10 min)
+1. Happy Path: [steps]
+2. Error Case: [steps]
+3. Edge Case: [steps]
+
+## Red Flags Check (2 min)
+- [ ] No unhandled exceptions in logs
+- [ ] No performance degradation
+- [ ] No security warnings
+
+## Sign-off
+- [ ] Tested by: ___
+- [ ] Date: ___
+- [ ] Approved: Yes / No
 ```
-1. Запустить ВСЕ проверки из чеклиста (0-17)
-   ↓ Check 0 (Goal) ПЕРВЫМ — это блокер!
-2. Результат:
-   - Всё ✅ → APPROVED
-   - ЛЮБАЯ проблема (CRITICAL/HIGH/MEDIUM/LOW) → CHANGES REQUESTED
-3. Append результаты В КОНЕЦ WS файла (не создавать новый файл)
-```
 
-**Приоритет проверок:**
-1. **Goal Achievement** (Check 0) — самый важный
-2. Regression (Check 8) — нельзя сломать существующее
-3. Coverage + Tests (Check 7) — минимум 80%
-4. Остальные checks
-
-**Нулевая толерантность:**
-- Нет "minor issues"
-- Нет "можно потом"
-- Нет полумер
-- **Goal не достигнута = WS не завершён**
-
-**Если APPROVED:**
-→ Код идеален, можно запускать следующий WS
-
-**Если CHANGES REQUESTED:**
-→ Исполнитель исправляет ВСЁ → повторный Review
-→ Цикл повторяется до APPROVED
-
-**Если scope проблема:**
-→ WS слишком большой → создать дочерние WS (WS-XXX-1, WS-XXX-2)
-→ КАЖДЫЙ substream файл должен существовать
-→ Текущий WS в статус "Разбит → WS-XXX-1, WS-XXX-2"
+**Without human Sign-off → Deploy blocked.**

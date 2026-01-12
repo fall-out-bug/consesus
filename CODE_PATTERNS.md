@@ -1,25 +1,25 @@
-# hw_checker Patterns Reference
+# Code Patterns Reference
 
-> Используется в phase-2 и phase-3 для копирования типовых структур
+> Used in Phase 2 and Phase 3 for copying standard structures
 
 ## Clean Architecture Layers
 
 ```
-Domain (hw_checker/domain/)
+Domain (domain/)
     ↑ Entities, value objects, business rules
-Application (hw_checker/application/)
+Application (application/)
     ↑ Use cases, ports, orchestration
-Infrastructure (hw_checker/infrastructure/)
-    ↑ DB, Redis, Docker, GCP adapters
-Presentation (hw_checker/cli/, presentation/)
+Infrastructure (infrastructure/)
+    ↑ DB, Redis, Docker, external adapters
+Presentation (cli/, api/)
     ↑ CLI (Click), API (FastAPI)
 ```
 
-**Порядок разработки:** Всегда inside-out (Domain → Application → Infrastructure → Presentation)
+**Development order:** Always inside-out (Domain → Application → Infrastructure → Presentation)
 
 ---
 
-## Типовые структуры
+## Standard Structures
 
 ### State Machine
 
@@ -57,7 +57,7 @@ from typing import Protocol
 
 class CleanupCommand(Protocol):
     def execute(
-        self, 
+        self,
         ctx: CleanupContext
     ) -> tuple[CleanupContext, CleanupState]:
         ...
@@ -69,11 +69,11 @@ class CleanupCommand(Protocol):
 # orchestrator.py
 class CleanupOrchestrator:
     def __init__(
-        self, 
+        self,
         commands: dict[CleanupState, CleanupCommand]
     ) -> None:
         self._commands = commands
-    
+
     def run(self, ctx: CleanupContext) -> CleanupResult:
         state = CleanupState.INITIAL
         while state not in (CleanupState.COMPLETED, CleanupState.FAILED):
@@ -96,33 +96,33 @@ log.error("operation.failed", error=str(e), exc_info=True)
 
 ---
 
-## Декомпозиция больших задач
+## Decomposing Large Tasks
 
-### Большой файл (>200 строк)
-
-```
-WS-01: Создать тесты для структуры (TDD: Red)
-WS-02: Создать структуру (states, context, protocol) (TDD: Green)
-WS-03: Извлечь commands/steps + тесты
-WS-04: Создать orchestrator + тесты
-WS-05: Обновить оригинал как thin wrapper + рефакторинг (TDD: Refactor)
-```
-
-### Новая фича (TDD-подход)
+### Large File (>200 lines)
 
 ```
-WS-01: Domain entities — тесты ДО реализации (Red → Green)
-WS-02: Application ports + use case — тесты ДО реализации (Red → Green)
-WS-03: Infrastructure adapter — тесты (может быть integration) (Red → Green)
-WS-04: Presentation (CLI/API) — тесты (Red → Green)
-WS-05: Рефакторинг + regression check (Refactor)
+WS-01: Create tests for structure (TDD: Red)
+WS-02: Create structure (states, context, protocol) (TDD: Green)
+WS-03: Extract commands/steps + tests
+WS-04: Create orchestrator + tests
+WS-05: Update original as thin wrapper + refactoring (TDD: Refactor)
 ```
 
-**Правило TDD:** В каждом WS сначала пишутся тесты (Red), затем минимальная реализация (Green), затем рефакторинг.
+### New Feature (TDD approach)
+
+```
+WS-01: Domain entities — tests BEFORE implementation (Red → Green)
+WS-02: Application ports + use case — tests BEFORE implementation (Red → Green)
+WS-03: Infrastructure adapter — tests (may be integration) (Red → Green)
+WS-04: Presentation (CLI/API) — tests (Red → Green)
+WS-05: Refactoring + regression check (Refactor)
+```
+
+**TDD Rule:** In each WS, write tests first (Red), then minimal implementation (Green), then refactor.
 
 ---
 
-## Дополнительные паттерны
+## Additional Patterns
 
 ### Repository (Infrastructure layer)
 
@@ -133,7 +133,7 @@ from typing import Protocol
 class SubmissionRepository(Protocol):
     def get_by_id(self, submission_id: str) -> Submission | None:
         ...
-    
+
     def save(self, submission: Submission) -> None:
         ...
 
@@ -141,11 +141,11 @@ class SubmissionRepository(Protocol):
 class PostgresSubmissionRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
-    
+
     def get_by_id(self, submission_id: str) -> Submission | None:
         row = self._session.query(SubmissionModel).filter_by(id=submission_id).first()
         return Submission.from_orm(row) if row else None
-    
+
     def save(self, submission: Submission) -> None:
         model = SubmissionModel.from_domain(submission)
         self._session.add(model)
@@ -164,7 +164,7 @@ class ExecutorFactory:
     ) -> None:
         self._config = config
         self._logger = logger
-    
+
     def create(self, executor_type: ExecutorType) -> Executor:
         match executor_type:
             case ExecutorType.DIND:
@@ -180,17 +180,17 @@ class ExecutorFactory:
 ```python
 # adapter.py
 class GCPStorageAdapter:
-    """Адаптирует GCS к интерфейсу StoragePort."""
-    
+    """Adapts GCS to StoragePort interface."""
+
     def __init__(self, client: storage.Client, bucket_name: str) -> None:
         self._client = client
         self._bucket = self._client.bucket(bucket_name)
-    
+
     def upload(self, local_path: Path, remote_path: str) -> str:
         blob = self._bucket.blob(remote_path)
         blob.upload_from_filename(str(local_path))
         return blob.public_url
-    
+
     def download(self, remote_path: str, local_path: Path) -> None:
         blob = self._bucket.blob(remote_path)
         blob.download_to_filename(str(local_path))
@@ -198,51 +198,51 @@ class GCPStorageAdapter:
 
 ---
 
-## Антипаттерны (что НЕ делать)
+## Anti-patterns (What NOT to do)
 
-### ❌ God Object
+### God Object
 ```python
-class HomeworkManager:  # 1500 строк, делает всё
+class HomeworkManager:  # 1500 lines, does everything
     def run(self): ...
     def grade(self): ...
     def publish(self): ...
     def cleanup(self): ...
 ```
-✅ **Вместо этого:** Разбить на Executor, Grader, Publisher, Cleaner (SRP)
+✅ **Instead:** Split into Executor, Grader, Publisher, Cleaner (SRP)
 
-### ❌ Анемичная модель
+### Anemic Model
 ```python
 @dataclass
 class Submission:
     id: str
-    status: str  # просто данные, нет логики
+    status: str  # just data, no logic
 ```
-✅ **Вместо этого:** Добавить domain методы (`submit()`, `fail()`, `complete()`)
+✅ **Instead:** Add domain methods (`submit()`, `fail()`, `complete()`)
 
-### ❌ Leaky Abstraction
+### Leaky Abstraction
 ```python
-# Application слой
+# Application layer
 def process(submission: Submission):
-    sql = f"UPDATE submissions SET status='{submission.status}'"  # SQL в application!
+    sql = f"UPDATE submissions SET status='{submission.status}'"  # SQL in application!
 ```
-✅ **Вместо этого:** Использовать Repository port
+✅ **Instead:** Use Repository port
 
-### ❌ Circular Dependencies
+### Circular Dependencies
 ```python
 # module_a.py
 from module_b import B
 
 # module_b.py
-from module_a import A  # циклический импорт!
+from module_a import A  # circular import!
 ```
-✅ **Вместо этого:** Protocol в отдельном файле, импорт через TYPE_CHECKING
+✅ **Instead:** Protocol in separate file, import via TYPE_CHECKING
 
-### ❌ Implicit Dependencies
+### Implicit Dependencies
 ```python
 def process():
-    db = get_global_db()  # где взялась БД?
+    db = get_global_db()  # where did DB come from?
 ```
-✅ **Вместо этого:** Dependency Injection через конструктор
+✅ **Instead:** Dependency Injection via constructor
 
 ---
 
@@ -250,11 +250,11 @@ def process():
 
 ```bash
 # Import check
-python -c "from hw_checker.module import Class"
+python -c "from myproject.module import Class"
 
 # Tests with coverage
 pytest tests/unit/test_module.py -v \
-  --cov=hw_checker/module \
+  --cov=src/module \
   --cov-report=term-missing \
   --cov-fail-under=80
 
@@ -262,38 +262,38 @@ pytest tests/unit/test_module.py -v \
 pytest tests/unit/ -m fast -v
 
 # Code quality
-ruff check hw_checker/module/ --select=C901
-wc -l hw_checker/module/*.py
+ruff check src/module/ --select=C901
+wc -l src/module/*.py
 
-# Type checking (строгая типизация)
-mypy hw_checker/module/ --strict --no-implicit-optional
+# Type checking (strict typing)
+mypy src/module/ --strict --no-implicit-optional
 ```
 
 ---
 
-## Строгая типизация (Type Hints Guidelines)
+## Strict Typing (Type Hints Guidelines)
 
-### Обязательные правила
+### Required Rules
 
 ```python
-# ✅ Всегда указывай возвращаемый тип (даже для None)
+# ✅ Always specify return type (even for None)
 def process(data: str) -> None:
     print(data)
 
-# ❌ Без type hints
+# ❌ Without type hints
 def process(data):
     print(data)
 
-# ✅ Используй modern syntax (Python 3.10+)
+# ✅ Use modern syntax (Python 3.10+)
 def get_items() -> list[str]:
     return []
 
-# ❌ Старый синтаксис
+# ❌ Old syntax
 from typing import List
 def get_items() -> List[str]:
     return []
 
-# ✅ Union через |
+# ✅ Union via |
 def find(id: str) -> Submission | None:
     ...
 
@@ -302,63 +302,62 @@ from typing import Optional
 def find(id: str) -> Optional[Submission]:
     ...
 
-# ✅ Полные сигнатуры в Protocol
+# ✅ Full signatures in Protocol
 class Repository(Protocol):
     def save(self, item: Submission) -> None:
         ...
 
-# ❌ Неполные сигнатуры
+# ❌ Incomplete signatures
 class Repository(Protocol):
-    def save(self, item):  # нет типов!
+    def save(self, item):  # no types!
         ...
 ```
 
-### Запрещённые конструкции
+### Forbidden Constructs
 
 ```python
-# ❌ Any (кроме обоснованных случаев)
+# ❌ Any (except justified cases)
 from typing import Any
-def process(data: Any) -> Any:  # слишком широко!
+def process(data: Any) -> Any:  # too broad!
     ...
 
-# ✅ Конкретные типы
+# ✅ Specific types
 def process(data: dict[str, int]) -> list[str]:
     ...
 
-# ❌ Неявные Optional
-def get_user(id: str) -> User:  # может вернуть None?
+# ❌ Implicit Optional
+def get_user(id: str) -> User:  # can return None?
     return None  # mypy error!
 
-# ✅ Явный Optional
+# ✅ Explicit Optional
 def get_user(id: str) -> User | None:
     return None  # OK
 ```
 
-### Dataclasses с типами
+### Dataclasses with Types
 
 ```python
-# ✅ Все поля с типами
+# ✅ All fields with types
 @dataclass
 class Config:
     timeout: int
     retries: int = 3
     tags: list[str] = field(default_factory=list)
 
-# ❌ Без типов
+# ❌ Without types
 @dataclass
 class Config:
-    timeout  # что это?
-    retries = 3  # какой тип?
+    timeout  # what is this?
+    retries = 3  # what type?
 ```
 
-### Проверка в CI
+### CI Check
 
 ```bash
-# Добавь в критерии завершения WS
-mypy hw_checker/module/ --strict --no-implicit-optional
+# Add to WS completion criteria
+mypy src/module/ --strict --no-implicit-optional
 
-# Если mypy не проходит → CHANGES REQUESTED
+# If mypy fails → CHANGES REQUESTED
 ```
 
-Полный список: `@sdp/PROTOCOL.md` → Quick Reference
-
+Full list: See `PROTOCOL.md` → Quick Reference

@@ -102,7 +102,7 @@ echo "Check 4: Clean Architecture"
 DOMAIN_FILES=$(echo "$STAGED_FILES" | grep "domain/.*\.py$" || true)
 
 if [ -n "$DOMAIN_FILES" ]; then
-    BAD_IMPORTS=$(git diff --cached -- $DOMAIN_FILES | grep -E "^\+.*from hw_checker\.(infrastructure|presentation)" || true)
+    BAD_IMPORTS=$(git diff --cached -- $DOMAIN_FILES | grep -E "^\+.*from myproject\.(infrastructure|presentation)" || true)
     if [ -n "$BAD_IMPORTS" ]; then
         echo "❌ Domain layer importing from infrastructure/presentation:"
         echo "$BAD_IMPORTS"
@@ -161,8 +161,8 @@ echo "✅ Pre-commit checks PASSED"
 # Check 6: Breaking changes detection
 echo ""
 echo "Check 6: Breaking changes"
-if [ -f "tools/hw_checker/scripts/detect_breaking_changes.py" ]; then
-    cd tools/hw_checker
+if [ -f "src/scripts/detect_breaking_changes.py" ]; then
+    cd tools/myproject
     if python3 scripts/detect_breaking_changes.py --staged; then
         echo "✓ No breaking changes"
         cd - > /dev/null

@@ -2,6 +2,21 @@
 
 All notable changes to the Consensus Protocol.
 
+## [0.3.1] - 2026-01-12
+
+### Added
+- `docs/PRINCIPLES.md` - SOLID, DRY, KISS, YAGNI, TDD principles
+- `docs/concepts/` - Clean Architecture, Artifacts, Roles documentation
+- `README_RU.md` - Russian translation of README
+
+### Removed
+- `archive/` directory - legacy v1.2 materials cleaned up
+- `IMPLEMENTATION_SUMMARY.md` - redundant with PROTOCOL.md
+
+### Changed
+- Simplified README.md with clearer structure
+- Updated CLAUDE.md with links to new docs
+
 ## [2.0.0] - 2025-12-31
 
 ### Added

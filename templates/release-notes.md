@@ -86,7 +86,7 @@ new_function(arg1, arg2, arg3)
 
 ```bash
 # Запуск миграций
-cd tools/hw_checker
+cd tools/myproject
 alembic upgrade head
 ```
 

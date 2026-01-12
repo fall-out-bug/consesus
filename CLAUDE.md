@@ -1,25 +1,26 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with this Spec-Driven Protocol (SDP) repository.
+Guidance for Claude Code when working with this Spec Driven Development (SDD) repository.
 
 ## Quick Start
 
-**Protocol:** Spec-Driven Protocol (SDP) v0.3.0 — Workstream-driven development for AI agents.
+**Protocol:** Spec Driven Development (SDD) v0.3.0 — Workstream-driven development for AI agents.
 
 **First time?** Read [README.md](README.md) and [PROTOCOL.md](PROTOCOL.md).
 
 ## Repository Overview
 
-Spec-Driven Protocol (SDP) framework for AI-assisted software development.
+Spec Driven Development (SDD) framework for AI-assisted software development.
 
 **Key files:**
 - [PROTOCOL.md](PROTOCOL.md) - Full protocol specification
+- [docs/PRINCIPLES.md](docs/PRINCIPLES.md) - SOLID, DRY, KISS, YAGNI, Clean Code
+- [docs/concepts/](docs/concepts/README.md) - Clean Architecture, Artifacts, Roles
+- [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns
 - [RULES_COMMON.md](RULES_COMMON.md) - Common rules for all work
-- [README.md](README.md) - Overview and quick start
 - `prompts/` - Agent instructions for different modes
 - `schema/` - JSON validation schemas
 - `scripts/` - Validation and utility scripts
-- `templates/` - Document templates
 
 ## Terminology
 
@@ -65,7 +66,7 @@ Spec-Driven Protocol (SDP) framework for AI-assisted software development.
 **Multi-Agent Mode (advanced):**
 - Parallel agents (Analyst, Architect, Tech Lead, Developer, QA, DevOps)
 - For complex large-scale changes
-- See `archive/` for v1.2 multi-agent prompts
+- See [docs/concepts/roles/](docs/concepts/roles/README.md) for role definitions
 
 ## Quality Gates (Non-Negotiable)
 
@@ -74,6 +75,20 @@ Spec-Driven Protocol (SDP) framework for AI-assisted software development.
 3. **Error Handling:** No silent failures (`except: pass` forbidden)
 4. **Test Coverage:** ≥80% mandatory
 5. **No TODOs:** All tasks completed or deferred to new WS
+
+## Core Principles
+
+All work follows these principles. See [docs/PRINCIPLES.md](docs/PRINCIPLES.md) for details.
+
+| Principle | Description |
+|-----------|-------------|
+| **SOLID** | SRP, OCP, LSP, ISP, DIP — object-oriented design |
+| **DRY** | Don't Repeat Yourself — single source of truth |
+| **KISS** | Keep It Simple, Stupid — simplest solution wins |
+| **YAGNI** | You Ain't Gonna Need It — build only what's needed |
+| **TDD** | Test-Driven Development — tests first (Red → Green → Refactor) |
+| **Clean Code** | Readable names, small functions, no comments for bad code |
+| **Clean Architecture** | Dependencies point inward (Domain ← App ← Infra ← Presentation) |
 
 ## Commands
 
@@ -126,12 +141,12 @@ python sdp/scripts/validate.py docs/specs/{feature}/consensus/
 sdp/
 ├── PROTOCOL.md                   # Full specification
 ├── RULES_COMMON.md              # Common rules
+├── docs/                         # Concepts, principles, guides
 ├── prompts/
 │   └── structured/              # Phase 1-4 prompts
 ├── schema/                       # JSON Schema validation
 ├── scripts/                      # Validation tools
-├── templates/                    # Document templates
-└── archive/                      # v1.2 materials
+└── templates/                    # Document templates
 ```
 
 ## Integration with Your Project

@@ -1,265 +1,225 @@
 # Phase 3: Execute
 
 ## Mission
-Выполнить план Workstream. Ты — исполнитель, следуй инструкциям точно.
 
-**КРИТИЧЕСКИ ВАЖНО: Goal из плана должна быть достигнута.**
+Execute the Workstream plan. You are the executor — follow instructions exactly.
+
+**CRITICAL: The Goal from the plan must be achieved.**
 
 ## Input
-- Детальный план WS из Phase 2 (включая Goal + Acceptance Criteria)
-- `tools/hw_checker/docs/PROJECT_MAP.md` (для контекста решений)
+
+- Detailed WS plan from Phase 2 (including Goal + Acceptance Criteria)
+- Project context files
 
 ## Output
-- Код по плану
-- **Goal достигнута** (все Acceptance Criteria ✅)
-- Пройденные критерии завершения
-- Execution Report (см. ниже)
+
+- Code per plan
+- **Goal achieved** (all Acceptance Criteria ✅)
+- Passed completion criteria
+- Execution Report (see below)
 
 ---
 
-## Правила выполнения
+## Execution Rules
 
-### 1. Следуй плану буквально
-План содержит точные инструкции. Не добавляй, не улучшай, не "оптимизируй".
+### 1. Follow the Plan Literally
 
-❌ "Я добавил обработку ещё одного edge case"
-✅ "Выполнил шаги 1-5 как указано"
+The plan contains exact instructions. Don't add, improve, or "optimize".
 
-### 2. Читай входные файлы
-Перед изменением файла — прочитай его. Пойми контекст.
+- "I added handling for one more edge case"
+- "Executed steps 1-5 as specified"
 
-### 3. Проверяй критерии
-После каждого шага — запускай проверки из плана.
+### 2. Read Input Files
+
+Before modifying a file — read it. Understand context.
+
+### 3. Check Criteria
+
+After each step — run checks from the plan.
 
 ```bash
-# Из плана
+# From plan
 pytest tests/unit/test_cleanup.py -v
-ruff check hw_checker/application/cleanup/
+ruff check src/application/cleanup/
 ```
 
-### 4. Не принимай архитектурных решений
-Если план неясен или требует решения — СТОП. Вернись к Planner.
+### 4. Don't Make Architectural Decisions
 
-❌ Додумать как лучше сделать
-✅ Спросить: "План говорит X, но я вижу Y. Что делать?"
+If plan is unclear or requires a decision — STOP. Return to Planner.
+
+- Figuring out how to do it better
+- Ask: "Plan says X, but I see Y. What to do?"
 
 ### 5. AI-Readiness
-Соблюдай ограничения:
-- Файлы < 200 строк
-- Функции CC < 10
-- Полные type hints
-- Нет `except: pass`
 
-### 6. Никаких "TODO" и "Later"
+Respect constraints:
+- Files < 200 lines
+- Functions CC < 10
+- Full type hints
+- No `except: pass`
 
-**СТРОГО ЗАПРЕЩЕНО:**
-❌ `# TODO: добавить тесты`
-❌ `# FIXME: временное решение`
-❌ "Оставлю на потом"
-❌ "Сделаю в следующем коммите"
-❌ "Это tech debt"
+### 6. No "TODO" or "Later"
 
-✅ Если шаг из плана невыполним → **STOP**, вернуться к Phase 2
+**STRICTLY FORBIDDEN:**
+- `# TODO: add tests`
+- `# FIXME: temporary solution`
+- "Will do later"
+- "Will do in next commit"
+- "This is tech debt"
 
-**Правило:** Каждый шаг плана ОБЯЗАТЕЛЕН. Нет откладывания. Нет временных решений.
+If a step from the plan is not executable → **STOP**, return to Phase 2
 
-**Исключение:** `# NOTE:` — только для пояснений, не для отложенных задач.
+**Rule:** Every step in the plan is REQUIRED. No postponing. No temporary solutions.
 
-### 7. ⛔ NO TECH DEBT
+**Exception:** `# NOTE:` — only for clarifications, not for postponed tasks.
 
-**Концепция Tech Debt ЗАПРЕЩЕНА.**
+### 7. NO TECH DEBT
 
-❌ "Это tech debt, сделаем потом"
-❌ "Временное решение, вернёмся позже"
-❌ "Грязный код, но работает"
+**The Tech Debt concept is FORBIDDEN.**
 
-✅ **Правило: всё говно убираем сразу.**
+- "This is tech debt, we'll do it later"
+- "Temporary solution, will return later"
+- "Dirty code but it works"
 
-Если код не соответствует стандартам → исправь СЕЙЧАС или STOP для разбиения WS.
+**Rule: fix all issues immediately.**
 
-### 8. 🏁 100% Completion
+If code doesn't meet standards → fix NOW or STOP to split WS.
 
-**WS считается завершённым ТОЛЬКО когда:**
-- ✅ **Goal достигнута** (все Acceptance Criteria пройдены)
-- ✅ ВСЕ шаги из плана выполнены (не "почти все")
-- ✅ ВСЕ тесты написаны (coverage ≥ 80%)
-- ✅ ВСЕ критерии завершения пройдены
-- ✅ ZERO TODO/FIXME в коде
-- ✅ Regression suite прошёл
-- ✅ **Функциональность РАБОТАЕТ** (не "код написан, но не работает")
+### 8. 100% Completion
 
-**ЗАПРЕЩЕНО:**
-❌ "Основное сделано, мелочи потом"
-❌ "90% готово"
-❌ "Почти завершено"
-❌ **"Код написан, но не работает — закрываю WS"** ← НЕТ!
-❌ Partial completion
+**WS is considered complete ONLY when:**
+- **Goal achieved** (all Acceptance Criteria passed)
+- ALL steps from plan executed (not "almost all")
+- ALL tests written (coverage ≥ 80%)
+- ALL completion criteria passed
+- ZERO TODO/FIXME in code
+- Regression suite passed
+- **Functionality WORKS** (not "code written but doesn't work")
 
-**Если Goal не достигнута:**
-- Функциональность не работает → продолжай до РАБОТЫ
-- Acceptance Criteria не пройдены → исправляй до прохождения
-- Не можешь довести до работы → STOP, вернуться к Phase 2
+**FORBIDDEN:**
+- "Main work done, details later"
+- "90% ready"
+- "Almost complete"
+- **"Code written but doesn't work — closing WS"** ← NO!
+- Partial completion
 
-**Если не можешь завершить 100%:**
-→ STOP, вернуться к Phase 2
-→ Разбить WS на части (с созданием ВСЕХ файлов substreams)
+**If Goal not achieved:**
+- Functionality doesn't work → continue until it WORKS
+- Acceptance Criteria not passed → fix until passed
+- Scope exceeded → STOP, split WS
 
 ---
 
-## Порядок выполнения
+## TDD Workflow
 
-```
-1. ПРОЧИТАЙ план полностью
-2. ПРОЧИТАЙ входные файлы
-3. ДЛЯ каждого шага (TDD: Red-Green-Refactor):
-   a. Напиши тест (Red — должен упасть)
-   b. Реализуй минимальный код (Green — тест проходит)
-   c. Рефактор (если нужно)
-   d. Проверь результат
-   e. Если ошибка — исправь или СТОП
-4. ЗАПУСТИ критерии завершения:
-   a. Все команды из плана
-   b. Coverage ≥ 80% для изменённых/созданных файлов:
-      ```bash
-      pytest tests/unit/test_XXX.py -v \
-        --cov=hw_checker/module \
-        --cov-report=term-missing \
-        --cov-fail-under=80
-      ```
-   c. Regression suite (fast tests):
-      ```bash
-      pytest tests/unit/ -m fast -v
-      ```
-   d. Code quality checks:
-      ```bash
-      ruff check hw_checker/module/ --select=C901
-      mypy hw_checker/module/ --strict --no-implicit-optional
-      python -c "from hw_checker.module import Class"
-      ```
-5. ОТЧИТАЙСЯ о результате
+1. **RED**: Write failing test for next feature
+2. **GREEN**: Write minimal code to pass test
+3. **REFACTOR**: Improve code while tests pass
+
+```bash
+# Red: test fails
+pytest tests/unit/test_new_feature.py -v
+
+# Green: make it pass
+# ... write minimal implementation ...
+
+# Verify green
+pytest tests/unit/test_new_feature.py -v
+
+# Refactor
+# ... improve code ...
+pytest tests/unit/test_new_feature.py -v  # still passes
 ```
 
 ---
 
-## Формат отчёта
+## Execution Report Format
 
-**APPEND в конец WS файла (не создавать отдельный):**
+After completion, output the Execution Report:
 
 ```markdown
----
+## Execution Report: WS-{ID}
 
-### Execution Report
+### Goal Achievement
+**Goal:** [state goal from plan]
+**Status:** ACHIEVED / NOT ACHIEVED
 
-**Executed by:** {agent_name}
-**Date:** YYYY-MM-DD
+**Acceptance Criteria:**
+- [x] AC1: [description]
+- [x] AC2: [description]
+- [x] AC3: [description]
 
-#### 🎯 Goal Status
-- [ ] AC1: [Acceptance Criterion 1] — ✅/❌
-- [ ] AC2: [Acceptance Criterion 2] — ✅/❌
-- [ ] AC3: [Acceptance Criterion 3] — ✅/❌
+### Steps Completed
+- [x] Step 1: [description]
+- [x] Step 2: [description]
+...
 
-**Goal Achieved:** ✅ YES / ❌ NO
+### Files Changed
+- `path/to/file1.py` — [what changed]
+- `path/to/file2.py` — [what changed]
 
-#### Изменённые файлы
-- `path/to/file.py` — создан/изменён, N строк
-- `tests/unit/test_xxx.py` — создан, M тестов
+### Tests
+- Created: `tests/unit/test_XXX.py`
+- Coverage: XX% (target: ≥80%)
 
-#### Выполненные шаги
-- [x] Шаг 1: ...
-- [x] Шаг 2: ...
-
-#### Критерии завершения
+### Completion Criteria
 ```bash
-$ pytest tests/unit/test_xxx.py -v
-===== 15 passed in 0.5s =====
-
-$ pytest --cov=hw_checker/module --cov-fail-under=80
-===== Coverage: 85% =====
-
-$ pytest tests/unit/ -m fast -v
-===== 150 passed in 2.5s =====
+pytest tests/... -v  # ✅ Passed
+ruff check ...       # ✅ Passed
+mypy ...             # ✅ Passed
 ```
 
-#### Проблемы
-[Нет / Описание проблем и как решены]
+### Issues Encountered
+- [None / Description of issues and how resolved]
 
-#### ADR (если создан новый)
-- [ADR-XXX](docs/architecture/decisions/YYYY-MM-DD-title.md): {short description}
-```
-
----
-
-## Типичные ошибки
-
-См. `@sdp/HW_CHECKER_PATTERNS.md` → Bash Commands для диагностики
-
-### Импорты
-```bash
-python -c "from hw_checker.application.cleanup import CleanupState"
-```
-
-### Type hints
-```python
-# ✅ Modern Python 3.10+
-list[str]
-dict[str, int]
-str | None
-
-# ✅ Всегда указывай возврат (даже None)
-def process(data: str) -> None:
-    print(data)
-
-# ❌ Старый синтаксис
-List[str]  # нужен import из typing
-Optional[str]
-
-# ❌ Без типа возврата
-def process(data: str):
-    print(data)
-```
-
-См. детали в `@sdp/HW_CHECKER_PATTERNS.md` → Строгая типизация
-
-### Ruff, Coverage, Regression
-```bash
-ruff check --fix hw_checker/module/
-pytest --cov=hw_checker/module --cov-report=term-missing --cov-fail-under=80
-pytest tests/unit/ -m fast -v --tb=short
+### Ready for Review
+- [ ] All steps completed
+- [ ] All tests pass
+- [ ] Coverage ≥ 80%
+- [ ] No TODO/FIXME
+- [ ] Goal achieved
 ```
 
 ---
 
-## Когда останавливаться
+## If Something Goes Wrong
 
-**STOP и вернись к Planner если:**
-- План противоречит существующему коду
-- Нужно изменить файл не из списка входных
-- Шаг требует архитектурного решения
-- Критерий завершения не проходит после 2 попыток
-- **Scope превышен:** задача оказалась больше ожидаемой (> MEDIUM)
-  → Вернуться к Phase 2 для разбиения WS на подзадачи
+### Plan is Unclear
 
-**НЕ используй фразы:**
-❌ "Времени нет"
-❌ "Это долго"
-❌ "Не успеваю"
-❌ "Сделаю быстро"
-
-**Вместо этого:**
-✅ "Scope превышен, нужно разбить WS"
-✅ "План неясен, требуется уточнение"
-✅ "Критерий не проходит, нужна помощь"
-
-**Формат запроса:**
-```markdown
-## WS-{ID}: Требуется уточнение
-
-### Проблема
-[Описание: что не получается / что неясно / scope слишком большой]
-
-### Контекст
-[Что я увидел в коде / какие шаги выполнил]
-
-### Вопрос
-[Конкретный вопрос к Planner]
+STOP. Ask Planner:
 ```
+Step 3 says "create protocol for X".
+But I see there's already a similar protocol in file Y.
+Should I extend Y or create new?
+```
+
+### Scope Exceeded
+
+STOP. Go back to Phase 2 to split WS.
+
+### Test Fails
+
+Debug and fix. Don't skip tests.
+
+### Can't Achieve Goal
+
+STOP. Report what's blocking:
+```
+Cannot achieve Goal "API returns status".
+Blocked by: missing database migration.
+Need: WS for migration first.
+```
+
+---
+
+## Checklist Before Completion
+
+- [ ] **Goal achieved** (all AC ✅)
+- [ ] All steps from plan executed
+- [ ] All files created/modified as planned
+- [ ] Type hints everywhere
+- [ ] Tests written and passing
+- [ ] Coverage ≥ 80%
+- [ ] Regression suite passed
+- [ ] No TODO/FIXME in code
+- [ ] Execution Report prepared

@@ -173,7 +173,7 @@ curl -X POST http://localhost:8000/submissions \
 
 ```bash
 # Commit hotfix
-git add src/hw_checker/infrastructure/storage/postgres.py
+git add src/src/infrastructure/storage/postgres.py
 git add tests/integration/test_submission_concurrency.py
 
 git commit -m "hotfix: fix duplicate submission ID race condition (Issue #001)

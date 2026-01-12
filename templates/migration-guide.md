@@ -32,13 +32,13 @@ Before starting migration:
 
 ```bash
 # Backup database
-pg_dump -h localhost -U postgres hw_checker > backup-$(date +%Y%m%d).sql
+pg_dump -h localhost -U postgres myproject > backup-$(date +%Y%m%d).sql
 ```
 
 ### 1.2 Run Migrations
 
 ```bash
-cd tools/hw_checker
+cd tools/myproject
 
 # Check current version
 poetry run alembic current
@@ -118,7 +118,7 @@ sed -i 's/--repo-url/--repo/g' scripts/*.sh
 
 ### 3.1 Config File Format
 
-**hw_checker.yaml:**
+**myproject.yaml:**
 
 ```yaml
 # Before (v{old})
@@ -168,7 +168,7 @@ def submit_work(repo: str, **kwargs):
 ### 5.1 Smoke Tests
 
 ```bash
-cd tools/hw_checker
+cd tools/myproject
 
 # Run smoke tests
 poetry run pytest tests/smoke/ -v
@@ -217,7 +217,7 @@ curl -X POST https://api/admin/maintenance/enable
 docker-compose -f docker-compose.prod.yml down
 
 # 3. Backup (again, just before upgrade)
-pg_dump -h localhost -U postgres hw_checker > backup-final-$(date +%Y%m%d-%H%M).sql
+pg_dump -h localhost -U postgres myproject > backup-final-$(date +%Y%m%d-%H%M).sql
 
 # 4. Deploy new version
 docker-compose -f docker-compose.prod.yml pull
@@ -261,7 +261,7 @@ If issues occur:
 docker-compose -f docker-compose.prod.yml down
 
 # 2. Restore database
-psql -h localhost -U postgres hw_checker < backup-final-{timestamp}.sql
+psql -h localhost -U postgres myproject < backup-final-{timestamp}.sql
 
 # 3. Deploy old version
 docker tag hw-checker:{new_version} hw-checker:{new_version}-broken
@@ -298,7 +298,7 @@ alembic current
 alembic history
 
 # If stuck, manually fix
-psql hw_checker -c "UPDATE alembic_version SET version_num = '{target}';"
+psql myproject -c "UPDATE alembic_version SET version_num = '{target}';"
 ```
 
 ### Issue 2: API returns 500 errors
@@ -316,10 +316,10 @@ psql hw_checker -c "UPDATE alembic_version SET version_num = '{target}';"
 docker-compose logs api | tail -100
 
 # Check config
-docker-compose exec api cat /app/config/hw_checker.yaml
+docker-compose exec api cat /app/config/myproject.yaml
 
 # Check env vars
-docker-compose exec api env | grep HW_CHECKER
+docker-compose exec api env | grep PROJECT
 ```
 
 ---

@@ -21,7 +21,7 @@
    /review WS-060   → все WS-060-XX
    
 2. НАЙДИ все WS фичи:
-   grep "WS-060" tools/hw_checker/docs/workstreams/INDEX.md
+   grep "WS-060" docs/workstreams/INDEX.md
    
 3. ДЛЯ КАЖДОГО WS:
    a) Check 0: Goal achieved?
@@ -38,10 +38,10 @@
 
 ```bash
 # Найти все WS фичи
-ls tools/hw_checker/docs/workstreams/*/WS-060*.md
+ls docs/workstreams/*/WS-060*.md
 
 # Проверить статус в INDEX
-grep "WS-060" tools/hw_checker/docs/workstreams/INDEX.md
+grep "WS-060" docs/workstreams/INDEX.md
 ```
 
 ===============================================================================
@@ -101,7 +101,7 @@ pytest tests/unit/test_XXX.py -v
 ### Check 2: Tests & Coverage
 
 ```bash
-pytest tests/unit/test_XXX.py --cov=hw_checker/module --cov-report=term-missing
+pytest tests/unit/test_XXX.py --cov=src/module --cov-report=term-missing
 ```
 
 **Metrics:**
@@ -124,10 +124,10 @@ pytest tests/unit/ -m fast -q --tb=short
 
 ```bash
 # Размер файлов
-wc -l src/hw_checker/module/*.py
+wc -l src/src/module/*.py
 
 # Complexity
-ruff check src/hw_checker/module/ --select=C901
+ruff check src/src/module/ --select=C901
 ```
 
 **Metrics:**
@@ -145,11 +145,11 @@ ruff check src/hw_checker/module/ --select=C901
 
 ```bash
 # Domain не импортирует infrastructure
-grep -r "from hw_checker.infrastructure" src/hw_checker/domain/
+grep -r "from myproject.infrastructure" src/src/domain/
 # Пусто? ✅/❌
 
 # Domain не импортирует presentation
-grep -r "from hw_checker.presentation" src/hw_checker/domain/
+grep -r "from myproject.presentation" src/src/domain/
 # Пусто? ✅/❌
 ```
 
@@ -158,11 +158,11 @@ grep -r "from hw_checker.presentation" src/hw_checker/domain/
 ### Check 6: Type Hints
 
 ```bash
-mypy src/hw_checker/module/ --strict --no-implicit-optional
+mypy src/src/module/ --strict --no-implicit-optional
 # No errors? ✅/❌
 
 # Проверь -> None для void
-grep -rn "def.*:" src/hw_checker/module/*.py | grep -v "-> "
+grep -rn "def.*:" src/src/module/*.py | grep -v "-> "
 # Должно быть пусто ✅
 ```
 
@@ -172,11 +172,11 @@ grep -rn "def.*:" src/hw_checker/module/*.py | grep -v "-> "
 
 ```bash
 # Нет except: pass
-grep -rn "except.*:" src/hw_checker/module/ -A1 | grep "pass"
+grep -rn "except.*:" src/src/module/ -A1 | grep "pass"
 # Пусто? ✅/❌
 
 # Нет bare except
-grep -rn "except:" src/hw_checker/module/
+grep -rn "except:" src/src/module/
 # Пусто? ✅/❌
 ```
 
@@ -186,14 +186,14 @@ grep -rn "except:" src/hw_checker/module/
 
 ```bash
 # Нет SQL injection
-grep -rn "execute.*%" src/hw_checker/module/
+grep -rn "execute.*%" src/src/module/
 # Пусто? ✅/❌
 
 # Нет shell injection
-grep -rn "subprocess.*shell=True" src/hw_checker/module/
+grep -rn "subprocess.*shell=True" src/src/module/
 # Пусто? ✅/❌
 
-bandit -r src/hw_checker/module/ -ll
+bandit -r src/src/module/ -ll
 # No issues? ✅/❌
 ```
 
@@ -202,10 +202,10 @@ bandit -r src/hw_checker/module/ -ll
 ### Check 9: No Tech Debt
 
 ```bash
-grep -rn "TODO\|FIXME\|HACK\|XXX" src/hw_checker/module/
+grep -rn "TODO\|FIXME\|HACK\|XXX" src/src/module/
 # Пусто? ✅/❌
 
-grep -rn "tech.debt\|временн\|потом" src/hw_checker/module/
+grep -rn "tech.debt\|временн\|потом" src/src/module/
 # Пусто? ✅/❌
 ```
 
@@ -253,14 +253,14 @@ git log --oneline main..HEAD
 
 ```bash
 # Проверь что модули не зависят циклически
-python -c "from hw_checker.feature import *"
+python -c "from myproject.feature import *"
 # Импортируется? ✅/❌
 ```
 
 ### 4.2 Total Coverage
 
 ```bash
-pytest tests/ --cov=hw_checker/feature --cov-report=term-missing
+pytest tests/ --cov=src/feature --cov-report=term-missing
 # Coverage всей фичи ≥ 80%? ✅/❌
 ```
 
@@ -388,7 +388,7 @@ pytest tests/integration/test_*feature*.py -v
 ### Путь
 
 ```
-tools/hw_checker/docs/uat/F{XX}-uat-guide.md
+docs/uat/F{XX}-uat-guide.md
 ```
 
 ### Шаблон
@@ -421,7 +421,7 @@ tools/hw_checker/docs/uat/F{XX}-uat-guide.md
 ```markdown
 ## UAT Guide Generated
 
-**Path:** `tools/hw_checker/docs/uat/F{XX}-uat-guide.md`
+**Path:** `docs/uat/F{XX}-uat-guide.md`
 
 **Human tester:** Пройди UAT Guide перед approve:
 1. Quick smoke test (30 сек)
@@ -516,7 +516,7 @@ foundation for student enrollment and progress tracking features.
 
 ```bash
 # Count blocking issues
-ISSUES_COUNT=$(grep -c "🔴 BLOCKING" tools/hw_checker/docs/workstreams/reports/F{XX}-review.md)
+ISSUES_COUNT=$(grep -c "🔴 BLOCKING" docs/workstreams/reports/F{XX}-review.md)
 
 # Send notification
 bash sdp/notifications/telegram.sh review_failed "F{XX}" "$ISSUES_COUNT"

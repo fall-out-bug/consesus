@@ -13,7 +13,7 @@ fi
 echo "🧪 Running post-oneshot checks for $FEATURE_ID..."
 
 # Change to project root
-cd "$(git rev-parse --show-toplevel)/tools/hw_checker"
+cd "$(git rev-parse --show-toplevel)/tools/myproject"
 
 # 1. Integration Tests
 echo ""
@@ -53,7 +53,7 @@ fi
 # 4. Coverage check (entire codebase)
 echo ""
 echo "=== 4. Overall Coverage Check ==="
-COVERAGE=$(poetry run pytest tests/ --cov=hw_checker --cov-report=term-missing --cov-fail-under=80 -q | grep "TOTAL" | awk '{print $4}')
+COVERAGE=$(poetry run pytest tests/ --cov=myproject --cov-report=term-missing --cov-fail-under=80 -q | grep "TOTAL" | awk '{print $4}')
 echo "Overall coverage: $COVERAGE"
 
 echo ""

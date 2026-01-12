@@ -16,7 +16,7 @@ fi
 echo "🔍 Post-build checks for $WS_ID"
 echo "================================"
 
-cd tools/hw_checker
+cd tools/myproject
 
 # Check 1: Fast tests (regression)
 echo ""
@@ -26,7 +26,7 @@ if poetry run pytest tests/unit/ -m fast -q --tb=no 2>/dev/null; then
     echo "✓ Regression tests passed ($FAST_COUNT tests)"
 else
     echo "❌ Regression tests failed"
-    echo "   Run: cd tools/hw_checker && poetry run pytest tests/unit/ -m fast -v"
+    echo "   Run: cd tools/myproject && poetry run pytest tests/unit/ -m fast -v"
     exit 1
 fi
 
@@ -35,9 +35,9 @@ echo ""
 echo "Check 2: Linters"
 
 if [ -n "$MODULE" ]; then
-    LINT_PATH="src/hw_checker/$MODULE"
+    LINT_PATH="src/src/$MODULE"
 else
-    LINT_PATH="src/hw_checker/"
+    LINT_PATH="src/src/"
 fi
 
 # Ruff
@@ -58,9 +58,9 @@ fi
 echo ""
 echo "Check 3: No TODO/FIXME"
 if [ -n "$MODULE" ]; then
-    TODO_PATH="src/hw_checker/$MODULE"
+    TODO_PATH="src/src/$MODULE"
 else
-    TODO_PATH="src/hw_checker/"
+    TODO_PATH="src/src/"
 fi
 
 TODO_COUNT=$(grep -rn "TODO\|FIXME\|HACK\|XXX" "$TODO_PATH" 2>/dev/null | wc -l || echo "0")
@@ -87,7 +87,7 @@ fi
 echo ""
 echo "Check 5: Import check"
 if [ -n "$MODULE" ]; then
-    IMPORT_PATH="hw_checker.$MODULE"
+    IMPORT_PATH="myproject.$MODULE"
     if python -c "import $IMPORT_PATH" 2>/dev/null; then
         echo "✓ Module imports successfully"
     else
@@ -103,13 +103,13 @@ echo "Check 6: Coverage"
 if [ -n "$MODULE" ]; then
     TEST_FILE="tests/unit/test_${MODULE}.py"
     if [ -f "$TEST_FILE" ]; then
-        COV_RESULT=$(poetry run pytest "$TEST_FILE" --cov="hw_checker/$MODULE" --cov-report=term-missing --cov-fail-under=80 -q 2>&1)
+        COV_RESULT=$(poetry run pytest "$TEST_FILE" --cov="src/$MODULE" --cov-report=term-missing --cov-fail-under=80 -q 2>&1)
         if echo "$COV_RESULT" | grep -q "PASSED\|passed"; then
             COV_PCT=$(echo "$COV_RESULT" | grep -oE "[0-9]+%" | head -1 || echo "N/A")
             echo "✓ Coverage: $COV_PCT (≥80%)"
         else
             echo "⚠️ Coverage check failed"
-            echo "   Run: pytest $TEST_FILE --cov=hw_checker/$MODULE --cov-fail-under=80"
+            echo "   Run: pytest $TEST_FILE --cov=src/$MODULE --cov-fail-under=80"
         fi
     else
         echo "  Skipped (no test file: $TEST_FILE)"

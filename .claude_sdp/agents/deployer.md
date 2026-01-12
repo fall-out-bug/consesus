@@ -24,11 +24,11 @@ You are a deployment automation specialist.
 
 ```bash
 # 1. Verify all WS approved
-grep "Verdict" tools/hw_checker/docs/workstreams/*/WS-{XXX}*.md
+grep "Verdict" docs/workstreams/*/WS-{XXX}*.md
 # All must show: APPROVED
 
 # 2. Check UAT sign-off
-grep "Human Tester:" tools/hw_checker/docs/uat/F{XX}-uat-guide.md
+grep "Human Tester:" docs/uat/F{XX}-uat-guide.md
 # Must have name filled
 
 # 3. Check branch status

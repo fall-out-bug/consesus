@@ -17,15 +17,15 @@
 Перед тестированием убедись:
 
 - [ ] Docker запущен (`docker ps`)
-- [ ] `poetry install` выполнен в `tools/hw_checker/`
-- [ ] `.env` или `hw_checker.yaml` настроен
+- [ ] `poetry install` выполнен в `src/`
+- [ ] `.env` или `myproject.yaml` настроен
 - [ ] База данных доступна (если нужно)
 - [ ] Redis запущен (если нужно)
 
 ```bash
 # Quick prerequisite check
-cd tools/hw_checker
-poetry run python -c "from hw_checker import __version__; print(f'Version: {__version__}')"
+cd tools/myproject
+poetry run python -c "from myproject import __version__; print(f'Version: {__version__}')"
 ```
 
 ---
@@ -35,7 +35,7 @@ poetry run python -c "from hw_checker import __version__; print(f'Version: {__ve
 ### 1. Smoke Test
 
 ```bash
-cd tools/hw_checker
+cd tools/myproject
 
 # Основная проверка
 poetry run hwc {main_command}
@@ -134,18 +134,18 @@ poetry run hwc {main_command}
 Быстрая проверка что код в порядке:
 
 ```bash
-cd tools/hw_checker
+cd tools/myproject
 
 # 1. Нет TODO/FIXME
-grep -rn "TODO\|FIXME" src/hw_checker/{feature_module}/
+grep -rn "TODO\|FIXME" src/src/{feature_module}/
 # Ожидание: пусто
 
 # 2. Размер файлов разумный
-wc -l src/hw_checker/{feature_module}/*.py
+wc -l src/src/{feature_module}/*.py
 # Ожидание: все < 200 строк
 
 # 3. Clean Architecture соблюдена
-grep -r "from hw_checker.infrastructure" src/hw_checker/domain/
+grep -r "from myproject.infrastructure" src/src/domain/
 # Ожидание: пусто
 
 # 4. Тесты проходят
@@ -153,7 +153,7 @@ poetry run pytest tests/unit/test_{feature}*.py -v
 # Ожидание: все passed
 
 # 5. Coverage достаточный
-poetry run pytest tests/unit/test_{feature}*.py --cov=hw_checker/{feature_module} --cov-report=term-missing
+poetry run pytest tests/unit/test_{feature}*.py --cov=src/{feature_module} --cov-report=term-missing
 # Ожидание: >= 80%
 ```
 

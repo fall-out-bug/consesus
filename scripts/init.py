@@ -123,8 +123,8 @@ def main():
     parser.add_argument(
         "--base-dir",
         type=Path,
-        default=Path("tools/hw_checker/docs/specs"),
-        help="Base directory for epics (default: tools/hw_checker/docs/specs)"
+        default=Path("docs/specs"),
+        help="Base directory for epics (default: docs/specs)"
     )
     parser.add_argument(
         "--tier",

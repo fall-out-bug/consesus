@@ -123,7 +123,7 @@ Next: WS-060-03
 ⚠️ WS-060-02 FAILED (Attempt 1/2)
 
 Error: Import path incorrect
-Fix: Correcting hw_checker.application path
+Fix: Correcting myproject.application path
 Retrying...
 ```
 
@@ -153,9 +153,9 @@ Waiting for input...
 ## Context Files
 
 Always read before starting:
-- `tools/hw_checker/docs/PROJECT_MAP.md` — decisions, constraints
-- `sdp/HW_CHECKER_PATTERNS.md` — code patterns
-- `tools/hw_checker/docs/SYSTEM_OVERVIEW.md` — L1 architecture
+- `docs/PROJECT_MAP.md` — decisions, constraints
+- `sdp/PROJECT_PATTERNS.md` — code patterns
+- `docs/SYSTEM_OVERVIEW.md` — L1 architecture
 - Feature spec — what to build
 - WS files — how to build
 

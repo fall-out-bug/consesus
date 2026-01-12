@@ -59,20 +59,20 @@ pytest tests/unit/test_XXX.py::test_feature_works -v
 pytest tests/unit/test_XXX.py -v
 
 # Coverage >= 80%
-pytest --cov=hw_checker/module --cov-fail-under=80
+pytest --cov=src/module --cov-fail-under=80
 
 # Regression
 pytest tests/unit/ -m fast -q
 
 # Linters
-ruff check src/hw_checker/module/
-mypy src/hw_checker/module/ --ignore-missing-imports
+ruff check src/src/module/
+mypy src/src/module/ --ignore-missing-imports
 
 # No TODO/FIXME
-grep -rn "TODO\|FIXME" src/hw_checker/module/
+grep -rn "TODO\|FIXME" src/src/module/
 
 # File sizes < 200
-wc -l src/hw_checker/module/*.py
+wc -l src/src/module/*.py
 ```
 
 ## Forbidden
