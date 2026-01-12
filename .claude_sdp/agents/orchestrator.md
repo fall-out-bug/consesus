@@ -61,7 +61,7 @@ Input: Feature ID (F60)
   ↓
 2. Loop: While WS remaining
    - Find ready WS (deps satisfied)
-   - Execute WS (phase-3-implement)
+   - Execute WS (/build command)
    - Post-build checks
    - Git commit
    - Update progress

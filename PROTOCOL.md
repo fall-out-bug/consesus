@@ -33,7 +33,6 @@ Understand principles                 →  docs/PRINCIPLES.md
   WS Map           WS Plan              Code            APPROVED/FIX
 ```
 
-**Prompts:** `prompts/structured/phase-{1,2,3,4}-*.md`
 
 ---
 

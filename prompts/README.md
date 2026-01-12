@@ -20,19 +20,6 @@ Use these for one-shot execution:
 
 See `prompts/commands/*.md` for full prompts.
 
-## Structured Workflow (Alternative)
-
-Use 4-phase workflow for step-by-step execution:
-
-```
-@prompts/structured/phase-1-analyze.md   # Form WS map
-@prompts/structured/phase-2-design.md    # Plan single WS
-@prompts/structured/phase-3-implement.md # Execute WS
-@prompts/structured/phase-4-review.md    # Review result
-```
-
-**Note**: Slash commands are recommended. Structured workflow is an alternative approach.
-
 ## When to Use Which Command
 
 | Task | Command | Model |

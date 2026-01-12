@@ -46,7 +46,6 @@ Spec-Driven Protocol (SDP) framework for AI-assisted software development.
 └────────────┘    └────────────┘    └────────────┘    └────────────┘
 ```
 
-**Prompts:** Use `prompts/structured/phase-{1,2,3,4}-*.md`
 
 ## Core Concepts
 
@@ -96,19 +95,6 @@ All work follows these principles. See [docs/PRINCIPLES.md](docs/PRINCIPLES.md) 
 
 ```bash
 # Phase 1: Analyze and decompose
-@prompts/structured/phase-1-analyze.md
-# Create workstream map from feature requirements
-
-# Phase 2: Plan first workstream
-@prompts/structured/phase-2-design.md
-# Detailed implementation plan for WS-001
-
-# Phase 3: Execute workstream
-@prompts/structured/phase-3-implement.md
-# Code, tests, review
-
-# Phase 4: Review and finalize
-@prompts/structured/phase-4-review.md
 # Validation against spec, quality gates
 ```
 

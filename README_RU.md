@@ -38,7 +38,6 @@ Feature → Workstreams → One-shot выполнение → Готово
 └────────────┘    └────────────┘    └────────────┘    └────────────┘
 ```
 
-**Промпты:** `prompts/structured/phase-{1,2,3,4}-*.md`
 
 ## Быстрый старт
 
@@ -61,36 +60,6 @@ Feature → Workstreams → One-shot выполнение → Готово
 ### 2. Фаза 1: Analyze
 
 ```
-@prompts/structured/phase-1-analyze.md
-Декомпозировать feature на workstreams.
-Оценить scope (SMALL/MEDIUM/LARGE).
-Определить зависимости.
-```
-
-### 3. Фаза 2: Plan
-
-```
-@prompts/structured/phase-2-design.md
-Спланировать WS-001: Domain entities
-- Классы/функции
-- Type signatures
-- Тесты
-```
-
-### 4. Фаза 3: Execute
-
-```
-@prompts/structured/phase-3-implement.md
-Реализовать WS-001:
-- Сначала тесты (TDD)
-- Реализация
-- Coverage ≥80%
-```
-
-### 5. Фаза 4: Review
-
-```
-@prompts/structured/phase-4-review.md
 Проверить WS-001:
 - Критерии приёмки выполнены?
 - Код соответствует паттернам?

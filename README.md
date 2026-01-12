@@ -38,7 +38,6 @@ Feature → Workstreams → One-shot execution → Done
 └────────────┘    └────────────┘    └────────────┘    └────────────┘
 ```
 
-**Prompts:** `prompts/structured/phase-{1,2,3,4}-*.md`
 
 ## Quick Start
 
@@ -61,36 +60,6 @@ Users can register and login with email/password.
 ### 2. Phase 1: Analyze
 
 ```
-@prompts/structured/phase-1-analyze.md
-Decompose feature into workstreams.
-Estimate scope (SMALL/MEDIUM/LARGE).
-Identify dependencies.
-```
-
-### 3. Phase 2: Plan
-
-```
-@prompts/structured/phase-2-design.md
-Plan WS-001: Domain entities
-- Classes/functions needed
-- Type signatures
-- Tests needed
-```
-
-### 4. Phase 3: Execute
-
-```
-@prompts/structured/phase-3-implement.md
-Implement WS-001:
-- Write tests first (TDD)
-- Implement
-- Coverage ≥80%
-```
-
-### 5. Phase 4: Review
-
-```
-@prompts/structured/phase-4-review.md
 Review WS-001:
 - Acceptance criteria met?
 - Code follows patterns?
