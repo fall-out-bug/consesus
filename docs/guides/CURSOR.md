@@ -2,6 +2,8 @@
 
 Guide for using Spec-Driven Protocol (SDP) with [Cursor IDE](https://cursor.com).
 
+> **📝 Meta-note:** This guide was written using Cursor IDE and SDP slash commands. The protocol documents itself using its own workflow. Self-referential and proud of it! 🔄
+
 ## Quick Start
 
 Cursor automatically reads `.cursorrules` for project-specific rules and context.

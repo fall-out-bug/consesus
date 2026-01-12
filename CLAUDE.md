@@ -2,6 +2,8 @@
 
 Quick reference for using this Spec-Driven Protocol (SDP) repository with Claude Code.
 
+> **📝 Meta-note:** This guide and the entire SDP protocol were developed using Claude Code with the exact workflow described here. Every skill (`@idea`, `@design`, `@build`, etc.) was used to create itself. Recursion at its finest! 🔄
+
 ## TL;DR
 
 Use **skills** to execute SDP commands:

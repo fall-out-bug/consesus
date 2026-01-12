@@ -2,6 +2,8 @@
 
 Guide for using Spec-Driven Protocol (SDP) with [Claude Code](https://claude.ai/code).
 
+> **📝 Meta-note:** This entire guide and the SDP repository were created using Claude Code skills (`@idea`, `@design`, `@build`, `@review`). We built the protocol while using the protocol. Meta-development at its best! 🔄
+
 ## Quick Start
 
 Use **skills** (@ commands) for SDP workflow:
