@@ -1,6 +1,6 @@
 # Code Patterns Reference
 
-> Used in Phase 2 and Phase 3 for copying standard structures
+> Used in `/design` and `/build` commands for copying standard structures
 
 ## Clean Architecture Layers
 

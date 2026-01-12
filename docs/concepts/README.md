@@ -81,9 +81,9 @@ These concepts are enforced through:
 
 | Gate | Concepts Checked |
 |------|-----------------|
-| Phase 2: Plan | Clean Architecture layers, SOLID |
-| Phase 3: Execute | DRY, KISS, proper roles |
-| Phase 4: Review | All principles, artifact completeness |
+| /design → /build | Clean Architecture layers, SOLID |
+| /build execution | DRY, KISS, proper roles |
+| /review | All principles, artifact completeness |
 | Pre-commit | Layer violations, code quality |
 
 ---

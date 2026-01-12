@@ -197,22 +197,24 @@ AI: [QA] Tests pass, coverage is 85%...
 ```
 
 ### Structured Mode
-You explicitly guide AI through role phases:
+You explicitly guide AI through commands:
 ```
-Phase 1 (Analyst): "Analyze requirements"
-Phase 2 (Architect): "Design the solution"
-Phase 3 (Developer): "Implement it"
-Phase 4 (QA): "Review and verify"
+/idea (Requirements): "Gather requirements interactively"
+/design (Planning): "Design workstreams with architecture decisions"
+/build (Implementation): "Implement with TDD"
+/review (Quality): "Review and verify quality"
 ```
 
-### Multi-Agent Mode
-Different sessions/prompts for different roles:
+### Multi-Agent Mode (Legacy)
+Different sessions/prompts for different roles (deprecated, use slash commands):
 ```
 Session 1: Analyst prompt → requirements.md
 Session 2: Architect prompt → architecture.md
 Session 3: Developer prompt → code
 ...
 ```
+
+**Note:** Current SDP uses slash commands (`/idea`, `/design`, `/build`, `/review`) instead of role-based prompts.
 
 ## Anti-patterns
 
@@ -248,19 +250,21 @@ Tests passing? Edge cases covered?"
 
 ## Practical Tips
 
-1. **Even in solo mode, think in roles**
-   - Before coding, think like Analyst (what do we need?)
-   - Before implementing, think like Architect (how should it work?)
-   - After implementing, think like QA (does it work correctly?)
+1. **Use slash commands for role-based workflow**
+   - `/idea` — Requirements gathering (Analyst role)
+   - `/design` — Architecture planning (Architect role)
+   - `/build` — Implementation (Developer role)
+   - `/review` — Quality verification (QA role)
 
-2. **Switch hats explicitly**
+2. **Each command has role-specific focus**
    ```
-   "Now let's put on the Architect hat. Does this design
-   follow Clean Architecture? Are there any concerns?"
+   /design — Focus on Clean Architecture boundaries
+   /build — Focus on TDD and code quality
+   /review — Focus on acceptance criteria and coverage
    ```
 
-3. **Use role-specific checklists**
-   - Analyst: Are requirements clear and testable?
-   - Architect: Are boundaries respected?
-   - Developer: Are tests written?
-   - QA: Are acceptance criteria met?
+3. **Use command-specific checklists**
+   - /idea: Are requirements clear and testable?
+   - /design: Are boundaries respected? Architecture decisions documented?
+   - /build: Are tests written first? Coverage ≥80%?
+   - /review: Are acceptance criteria met? All quality gates passed?
