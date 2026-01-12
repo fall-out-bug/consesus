@@ -17,8 +17,8 @@ PATTERN="^(feat|fix|docs|test|refactor|style|chore|perf|ci|build)(\([a-z0-9_-]+\
 MERGE_PATTERN="^Merge "
 REVERT_PATTERN="^Revert "
 
-# Get first line of commit message
-FIRST_LINE=$(echo "$COMMIT_MSG" | head -1)
+# Get first line of commit message (ignore Co-authored-by trailers)
+FIRST_LINE=$(echo "$COMMIT_MSG" | grep -v "^Co-authored-by:" | head -1)
 
 # Check patterns
 if echo "$FIRST_LINE" | grep -qE "$PATTERN"; then

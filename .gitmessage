@@ -1,0 +1,9 @@
+# <type>(<scope>): <subject>
+
+# <body>
+
+# Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+# 
+# Type: feat, fix, docs, style, refactor, test, chore
+# Scope: optional, e.g. auth, api, docs
+# Subject: imperative mood, lowercase, no period
