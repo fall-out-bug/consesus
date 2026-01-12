@@ -2,6 +2,10 @@
 
 Workstream-driven development protocol for AI agents with structured, one-shot execution.
 
+[![Built with SDP](https://img.shields.io/badge/Built_with-SDP-blue?style=flat-square)](https://github.com/fall-out-bug/sdp)
+[![Self-Referential](https://img.shields.io/badge/Self--Referential-✓-green?style=flat-square)]()
+[![AI-Assisted](https://img.shields.io/badge/AI--Assisted-Claude_Sonnet_4.5-purple?style=flat-square)]()
+
 [Русская версия](README_RU.md)
 
 ---

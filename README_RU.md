@@ -2,6 +2,10 @@
 
 Протокол разработки на основе воркстримов для AI-агентов с one-shot выполнением.
 
+[![Построено с SDP](https://img.shields.io/badge/Построено_с-SDP-blue?style=flat-square)](https://github.com/fall-out-bug/sdp)
+[![Саморефлексивный](https://img.shields.io/badge/Саморефлексивный-✓-green?style=flat-square)]()
+[![С помощью AI](https://img.shields.io/badge/С_помощью_AI-Claude_Sonnet_4.5-purple?style=flat-square)]()
+
 [English version](README.md)
 
 ---
