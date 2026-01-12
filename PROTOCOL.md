@@ -4,7 +4,7 @@ Workstream-driven development protocol for AI agents with structured, one-shot e
 
 ---
 
-> **📝 Meta-note:** This protocol was built using its own principles. Every feature, refactoring, and documentation update in this repository follows the SDP workflow: `/idea` → `/design` → `/build` → `/review` → `/deploy`. We practice what we preach.
+> **📝 Meta-note:** This protocol was developed through AI-assisted iteration. The workflow described here reflects real experience, not theoretical design.
 
 ---
 
@@ -655,30 +655,3 @@ Install: `python scripts/init.py` (interactive setup)
 **Version:** 0.3.0  
 **Last Updated:** 2026-01-12  
 **Status:** Active
-
----
-
-## 🔄 Dogfooding
-
-This protocol specification was built using SDP itself:
-
-**Development timeline:**
-1. **v0.1.0:** Phase 1-4 workflow (legacy)
-2. **v0.2.0:** Multi-agent consensus protocol
-3. **v0.3.0:** Slash commands workflow (current)
-
-**Workstreams executed:** 150+
-
-**Quality metrics:**
-- Test coverage: N/A (protocol is documentation)
-- Documentation coverage: 100%
-- Consistency checks: Automated (grep, validation scripts)
-- Review gates: Every major change reviewed
-
-**Tools used:**
-- Claude Sonnet 4.5 for design & implementation
-- Cursor IDE for slash commands development
-- Claude Code for skills development
-- Git hooks for quality enforcement
-
-**Fun fact:** The `/build` command that built `/build` command itself was executed using `/build`. Turtles all the way down! 🐢

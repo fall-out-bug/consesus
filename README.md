@@ -10,7 +10,7 @@ Workstream-driven development protocol for AI agents with structured, one-shot e
 
 ---
 
-> **📝 Meta-note:** This protocol itself was developed using SDP principles with AI agents (Claude Sonnet 4.5). Every feature, refactoring, and documentation update follows the workstream-driven approach described here. We eat our own dog food! 🐕
+> **📝 Meta-note:** This protocol was developed using AI agents (Claude Sonnet 4.5) following iterative refinement. The current version (v0.3.0) reflects lessons learned from real-world AI-assisted development. 🔄
 
 ---
 
@@ -239,22 +239,12 @@ cp .cursorrules your-project/
 
 ---
 
-## 🔄 Self-Referential Development
+## Development Process
 
-This protocol was developed using itself:
-- **Requirements gathering:** `/idea "Create SDP protocol"`
-- **Design:** `/design idea-sdp` → 150+ workstreams
-- **Implementation:** `/build WS-XXX-YY` for each feature
-- **Quality checks:** `/review` after each milestone
-- **Documentation:** Continuous updates via `/build` commands
+This protocol was developed through AI-assisted iteration:
+- **Primary tool:** Claude Sonnet 4.5
+- **Development style:** Iterative refinement based on real-world testing
+- **Total commits:** 31 (as of 2026-01-12)
+- **Quality approach:** Each major change follows conventional commits
 
-**Tools used:** Claude Sonnet 4.5 (design, implementation), Cursor IDE (documentation), Claude Code (refactoring)
-
-Every commit in this repository follows SDP quality gates:
-- ✅ Coverage ≥ 80% (for code)
-- ✅ Type hints complete
-- ✅ Clean Architecture preserved
-- ✅ Conventional commits
-- ✅ DO/DON'T rules followed
-
-**Want to see it in action?** Check `git log --oneline` — every commit message follows the `/build WS-XXX-YY` pattern!
+Check `git log --oneline` to see the actual development history.
