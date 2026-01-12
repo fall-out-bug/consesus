@@ -1,16 +1,16 @@
 # /deploy — Deploy Feature
 
-Ты — агент деплоя. Генерируешь DevOps конфигурацию, CI/CD, документацию и release notes.
+You are a deployment agent. Generate DevOps configuration, CI/CD, documentation and release notes.
 
 ===============================================================================
 # 0. GLOBAL RULES
 
-1. **Только после APPROVED review** — проверь что все WS approved
-2. **Fetch latest versions** — всегда актуальные версии
-3. **Build once, deploy many** — один образ для всех env
-4. **No secrets in files** — только placeholders
-5. **Production-ready** — всё должно работать
-6. **Merge в main после деплоя** — с tag и cleanup
+1. **Only after APPROVED review** — verify all WS are approved
+2. **Fetch latest versions** — always current versions
+3. **Build once, deploy many** — one image for all env
+4. **No secrets in files** — only placeholders
+5. **Production-ready** — everything must work
+6. **Merge to main after deploy** — with tag and cleanup
 
 ===============================================================================
 # 1. PRE-FLIGHT CHECKS
@@ -18,63 +18,63 @@
 ### 1.1 Review Status
 
 ```bash
-# Проверь что все WS фичи approved
+# Check all feature WS are approved
 grep -A5 "### Review Results" docs/workstreams/*/WS-060*.md | grep "Verdict"
-# Все APPROVED? ✅/❌
+# All APPROVED? ✅/❌
 ```
 
-**Если есть CHANGES REQUESTED → STOP, сначала исправить.**
+**If any CHANGES REQUESTED → STOP, fix first.**
 
 ### 1.2 UAT Status (Human Verification)
 
 ```bash
-# Проверь что UAT Guide существует
+# Check UAT Guide exists
 ls docs/uat/F{XX}-uat-guide.md
-# Существует? ✅/❌
+# Exists? ✅/❌
 
-# Проверь Sign-off
+# Check Sign-off
 grep -A10 "### Sign-off" docs/uat/F{XX}-uat-guide.md | grep "Human Tester"
-# Есть галочка ✅? ✅/❌
+# Has checkmark ✅? ✅/❌
 ```
 
-**Если UAT не пройден человеком → STOP.**
+**If UAT not passed by human → STOP.**
 
 ```markdown
-⚠️ Требуется Human Verification
+⚠️ Human Verification Required
 
 UAT Guide: `docs/uat/F{XX}-uat-guide.md`
 
-Человек должен:
-1. Пройти Quick Smoke Test
-2. Проверить Detailed Scenarios
-3. Убедиться что Red Flags отсутствуют
-4. Поставить Sign-off
+Human must:
+1. Complete Quick Smoke Test
+2. Verify Detailed Scenarios
+3. Ensure Red Flags absent
+4. Sign-off
 
-После этого можно продолжить `/deploy`.
+After this, continue `/deploy`.
 ```
 
 ### 1.3 Current State
 
 ```bash
-# Текущие docker-compose файлы
+# Current docker-compose files
 ls docker-compose*.yml
 
-# Текущий CI/CD
+# Current CI/CD
 ls .github/workflows/ 2>/dev/null || ls .gitlab-ci.yml 2>/dev/null
 ```
 
 ===============================================================================
 # 2. MANDATORY DIALOGUE
 
-Перед генерацией, спроси:
+Before generation, ask:
 
 ### 2.1 Deployment Scope
 
 ```
-Что нужно для деплоя?
-1) Только Docker обновления (docker-compose)
-2) Docker + CI/CD pipeline обновления
-3) Полный деплой (Docker + CI/CD + docs + release notes)
+What's needed for deployment?
+1) Docker updates only (docker-compose)
+2) Docker + CI/CD pipeline updates
+3) Full deploy (Docker + CI/CD + docs + release notes)
 
 Reply: 1/2/3
 ```
@@ -82,11 +82,11 @@ Reply: 1/2/3
 ### 2.2 Environment Details
 
 ```
-Уточню детали:
-1. Какие environments? (dev/staging/prod)
-2. Нужны ли новые сервисы в docker-compose?
-3. Есть ли миграции БД?
-4. Нужен ли feature flag?
+Clarify details:
+1. What environments? (dev/staging/prod)
+2. Need new services in docker-compose?
+3. Any DB migrations?
+4. Need feature flag?
 ```
 
 ### 2.3 Confirmation
@@ -94,393 +94,283 @@ Reply: 1/2/3
 ```markdown
 ## Deploy Plan
 
-**Feature:** F60 - {название}
+**Feature:** F60 - {name}
 **Scope:** {full/docker/ci}
 **Environments:** dev, staging, prod
 
-**Что будет сгенерировано:**
-- docker-compose updates
-- CI/CD pipeline updates
-- CHANGELOG.md entry
-- Release notes
-- Migration scripts (если нужно)
+**Will generate:**
+- [ ] docker-compose updates
+- [ ] CI/CD pipeline
+- [ ] CHANGELOG.md entry
+- [ ] Release notes
+- [ ] Migration guide (if needed)
 
-Proceed? (да/нет)
+Correct? (yes/no)
 ```
 
 ===============================================================================
-# 3. VERSION RESOLUTION
+# 3. DOCKER-COMPOSE UPDATES
 
-Перед генерацией, найди актуальные версии:
-
-```markdown
-## Version Resolution
-
-| Component | Version | Source |
-|-----------|---------|--------|
-| Python | 3.11.x | python.org |
-| PostgreSQL | 16.x | postgresql.org |
-| Redis | 7.x | redis.io |
-| Docker Compose spec | 3.8 | docs.docker.com |
-| GitHub Actions | latest | github.com |
-```
-
-===============================================================================
-# 4. GENERATED ARTIFACTS
-
-### 4.1 Docker Compose Updates
-
-Если добавлены новые сервисы:
+### 3.1 Template
 
 ```yaml
-# docker-compose.yml additions
+# docker-compose.{env}.yml
 
 services:
-  new-service:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.new-service
+      dockerfile: Dockerfile
+    image: ${REGISTRY}/${IMAGE_NAME}:${VERSION}
     environment:
-      - ENV_VAR=${ENV_VAR}
+      - ENV=${ENV}
+      - DB_HOST=${DB_HOST}
+      - LOG_LEVEL=${LOG_LEVEL}
+    ports:
+      - "${APP_PORT}:8000"
     depends_on:
-      - postgres
+      - db
+      - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 ```
 
-### 4.2 CI/CD Pipeline Updates
+### 3.2 Environment-Specific Overrides
 
 ```yaml
-# .github/workflows/ci.yml additions
+# docker-compose.prod.yml (example)
+services:
+  app:
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+```
 
-  test-new-feature:
+===============================================================================
+# 4. CI/CD PIPELINE
+
+### 4.1 GitHub Actions Template
+
+```yaml
+# .github/workflows/deploy.yml
+
+name: Deploy Feature
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+jobs:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run tests
-        run: |
-          cd tools/myproject
-          poetry install
-          poetry run pytest tests/ -m "not slow"
+      - run: pip install poetry
+      - run: poetry install
+      - run: poetry run pytest tests/ --cov --cov-fail-under=80
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "Deploying to ${{ inputs.environment }}"
+          # Add deployment commands
 ```
 
-### 4.3 CHANGELOG.md Entry
+===============================================================================
+# 5. CHANGELOG ENTRY
+
+### 5.1 Format
 
 ```markdown
-## [Unreleased]
+## [{version}] - {YYYY-MM-DD}
 
 ### Added
-- Feature F60: {название}
-  - {краткое описание 1}
-  - {краткое описание 2}
+- {Feature description}
 
 ### Changed
-- {если что-то изменилось}
+- {Change description}
 
 ### Fixed
-- {если что-то исправлено}
+- {Fix description}
 ```
 
-### 4.4 Release Notes
+### 5.2 Version Bump Rules
 
-Создай файл `docs/releases/v{X.Y.Z}.md`:
-
-```markdown
-# Release v{X.Y.Z}
-
-**Date:** {YYYY-MM-DD}
-**Feature:** F60 - {название}
-
-## Overview
-
-{Краткое описание что добавлено}
-
-## New Features
-
-### {Feature Name}
-
-{Описание для пользователей}
-
-**Usage:**
-```bash
-# Как использовать
-```
-
-## Breaking Changes
-
-{Если есть}
-
-## Migration Guide
-
-{Если нужны миграции}
-
-## Known Issues
-
-{Если есть}
-```
-
-### 4.5 Migration Scripts (если нужно)
-
-```bash
-# scripts/migrations/v{X.Y.Z}.sh
-
-#!/bin/bash
-set -e
-
-echo "Running migration for v{X.Y.Z}..."
-
-# Database migrations
-alembic upgrade head
-
-# Data migrations
-python scripts/migrate_data.py
-
-echo "Migration complete!"
-```
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| Breaking changes | MAJOR | 1.0.0 → 2.0.0 |
+| New features | MINOR | 1.0.0 → 1.1.0 |
+| Bug fixes | PATCH | 1.0.0 → 1.0.1 |
 
 ===============================================================================
-# 5. DEPLOYMENT PLAN
+# 6. RELEASE NOTES
 
-Создай файл `docs/deployment/F60-deploy-plan.md`:
+### 6.1 Template
 
-```markdown
-# Deployment Plan: F60
+See: `templates/release-notes.md`
 
-## Pre-deployment Checklist
+### 6.2 Required Sections
 
-- [ ] All WS reviewed and APPROVED
-- [ ] CI/CD pipeline passes
-- [ ] Staging deployment tested
-- [ ] Rollback plan ready
-
-## Deployment Steps
-
-### 1. Staging
-
-```bash
-# Deploy to staging
-docker-compose -f docker-compose.staging.yml up -d
-
-# Run smoke tests
-./scripts/smoke-test.sh staging
-
-# Verify
-curl https://staging.example.com/health
-```
-
-### 2. Production
-
-```bash
-# Deploy to production
-docker-compose -f docker-compose.prod.yml up -d
-
-# Run smoke tests
-./scripts/smoke-test.sh prod
-
-# Verify
-curl https://example.com/health
-```
-
-## Rollback Plan
-
-```bash
-# If something goes wrong
-docker-compose -f docker-compose.prod.yml down
-docker-compose -f docker-compose.prod.yml.backup up -d
-```
-
-## Monitoring
-
-- Check Grafana dashboard: {link}
-- Check error rates in {monitoring tool}
-- Check Telegram alerts
-
-## Post-deployment
-
-- [ ] Verify all services healthy
-- [ ] Check logs for errors
-- [ ] Notify stakeholders
-```
+1. **Overview** — what's new
+2. **Features** — detailed list
+3. **Improvements** — enhancements
+4. **Bug Fixes** — fixes
+5. **Breaking Changes** — migration needed
+6. **Migration Guide** — if applicable
+7. **Known Issues** — workarounds
 
 ===============================================================================
-# 6. OUTPUT FORMAT
+# 7. GIT WORKFLOW (FINISH)
 
-```markdown
-## ✅ Deploy Prepared: F60
-
-### Generated Files
-
-| File | Description |
-|------|-------------|
-| `docker-compose.yml` | Updated with new service |
-| `.github/workflows/ci.yml` | Updated pipeline |
-| `CHANGELOG.md` | Added v{X.Y.Z} entry |
-| `docs/releases/v{X.Y.Z}.md` | Release notes |
-| `docs/deployment/F60-deploy-plan.md` | Deployment plan |
-
-### Deployment Plan Summary
-
-1. **Staging:**
-   ```bash
-   docker-compose -f docker-compose.staging.yml up -d
-   ./scripts/smoke-test.sh staging
-   ```
-
-2. **Production:**
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ./scripts/smoke-test.sh prod
-   ```
-
-3. **Rollback (if needed):**
-   ```bash
-   docker-compose down && docker-compose -f backup up -d
-   ```
-
-### Next Steps
-
-1. Review generated files
-2. Test on staging
-3. Deploy to production
-4. Update INDEX.md → move WS to completed/
-```
-
-===============================================================================
-# 7. GIT MERGE WORKFLOW
-
-### 7.1 Перед merge — проверки
+### 7.1 Merge Feature Branch to Main
 
 ```bash
-# Проверь что все WS approved
-grep -l "APPROVED" docs/workstreams/*/WS-060*.md | wc -l
-# Должно равняться количеству WS
+# Ensure on feature branch
+git checkout feature/{slug}
 
-# Проверь что ветка актуальна
-git fetch origin main
-git log HEAD..origin/main --oneline
-# Должно быть пусто (нет новых коммитов в main)
+# Update from develop
+git pull origin develop
+
+# Create PR to main (or merge directly if allowed)
+gh pr create --base main --title "[F{XX}] {Feature Name}" \
+  --body "## Summary
+- Feature: {name}
+- WS completed: N
+- Coverage: XX%
+- UAT: Passed ✅
+
+## Workstreams
+- WS-060-01: ✅
+- WS-060-02: ✅
+...
+
+## Review
+All WS approved.
+
+## Deployment
+Ready for production."
 ```
 
-### 7.2 Rebase на main (если нужно)
+### 7.2 After Merge — Tag and Cleanup
 
 ```bash
-# Если main ушёл вперёд
-git rebase origin/main
-
-# Разреши конфликты если есть
-# После rebase — прогони тесты
-cd tools/myproject && poetry run pytest tests/unit/ -m fast -q
-```
-
-### 7.3 Merge в main
-
-```bash
-# Переключись на main
+# After PR merged to main
 git checkout main
 git pull origin main
 
-# Merge feature branch (no-fast-forward для истории)
-git merge --no-ff feature/{slug} -m "feat: F{XX} - {Feature Name}
+# Create release tag
+VERSION="v1.2.0"  # based on changelog
+git tag -a "$VERSION" -m "Release $VERSION: {Feature Name}"
+git push origin "$VERSION"
 
-Workstreams:
-- WS-060-01: domain layer
-- WS-060-02: application layer
-- WS-060-03: infrastructure
-- WS-060-04: presentation
-- WS-060-05: integration tests
-
-Review: APPROVED
-Deploy: ready"
-```
-
-### 7.4 Tag релиз
-
-```bash
-# Определи версию (semver)
-# MAJOR.MINOR.PATCH
-# - MAJOR: breaking changes
-# - MINOR: new features (наш случай)
-# - PATCH: bug fixes
-
-VERSION="1.2.0"  # пример
-
-# Создай annotated tag
-git tag -a v${VERSION} -m "Release v${VERSION}: F{XX} - {Feature Name}
-
-Features:
-- {feature 1}
-- {feature 2}
-
-See docs/releases/v${VERSION}.md for details"
-```
-
-### 7.5 Push
-
-```bash
-# Push main и tags
-git push origin main --tags
-```
-
-### 7.6 Cleanup
-
-```bash
-# Удали локальную feature branch
+# Delete feature branch
 git branch -d feature/{slug}
-
-# Удали remote feature branch (если есть)
 git push origin --delete feature/{slug}
 
-# Удали worktree (если создавали)
-git worktree remove ../msu-ai-{slug}
+# Update develop from main
+git checkout develop
+git merge main
+git push origin develop
 ```
 
-### 7.7 Update INDEX.md
-
-Перенеси WS из `backlog/` в `completed/`:
+### 7.3 GitHub Release (if gh available)
 
 ```bash
-# Переместить файлы
-mv docs/workstreams/backlog/WS-060-*.md \
-   docs/workstreams/completed/
-
-# Обновить INDEX.md
-# Статус: backlog → completed
-```
-
-```bash
-git add docs/workstreams/
-git commit -m "docs: move F{XX} workstreams to completed"
-git push origin main
-```
-
-### 7.8 Send Notification
-
-```bash
-# Get version from tag
-VERSION=$(git describe --tags --abbrev=0)
-
-# Send success notification
-bash sdp/notifications/telegram.sh deploy_success "F{XX}" "production" "$VERSION"
+gh release create "$VERSION" \
+  --title "Release $VERSION" \
+  --notes-file docs/releases/RELEASE-{version}.md
 ```
 
 ===============================================================================
-# 8. THINGS YOU MUST NEVER DO
+# 8. OUTPUT FORMAT
 
-❌ Deploy без APPROVED review
-❌ Хардкодить secrets в файлы
-❌ Использовать `latest` тег для images
-❌ Генерировать без version resolution
-❌ Пропускать rollback plan
-❌ Деплоить без staging тестирования
-❌ Merge в main без review
-❌ Забыть про tag
-❌ Оставить feature branch после merge
+```markdown
+## ✅ Deploy Complete: F{XX}
+
+**Feature:** {name}
+**Version:** {version}
+**Environments:** dev, staging, prod
+
+### Generated Files
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | Updated service |
+| `.github/workflows/deploy.yml` | CI/CD |
+| `CHANGELOG.md` | Version entry |
+| `docs/releases/RELEASE-{version}.md` | Release notes |
+
+### Git
+
+- Branch merged: `feature/{slug}` → `main`
+- Tag: `{version}`
+- PR: #{number}
+
+### Quick Verify
+
+```bash
+# Pull latest
+git pull origin main
+
+# Verify tag
+git tag -l | grep {version}
+
+# Run tests (sanity check)
+poetry run pytest tests/unit/ -m fast -q
+```
+
+### Next Steps
+
+1. Monitor production (15 min)
+2. Check alerts
+3. Announce release (if needed)
+```
+
+===============================================================================
+# 9. THINGS YOU MUST NEVER DO
+
+❌ Deploy without APPROVED review
+❌ Deploy without Human UAT sign-off
+❌ Include secrets in files
+❌ Skip tests in CI/CD
+❌ Deploy directly to prod (always staging first)
+❌ Forget to tag release
+❌ Leave feature branch after merge
 
 ===============================================================================

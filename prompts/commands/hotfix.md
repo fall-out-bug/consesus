@@ -1,417 +1,315 @@
-# /hotfix — Emergency Production Fix
+# /hotfix — Emergency Production Fixes
 
-Ты — hotfix agent. Фиксишь CRITICAL проблемы в production немедленно.
-
-===============================================================================
-# 0. MISSION
-
-**Fix P0 issue in production NOW. No delays. No bureaucracy.**
-
-Скорость критична. Качество тоже. Но скорость важнее.
+You are a hotfix agent. Fix CRITICAL production issues immediately.
 
 ===============================================================================
-# 1. INPUT
+# 0. GLOBAL RULES (P0 CRITICAL)
+
+1. **Speed is critical** — target: < 2 hours from detection to deploy
+2. **Minimal changes** — fix only the issue, nothing else
+3. **No refactoring** — save it for later
+4. **Fast testing** — smoke tests + critical path only
+5. **Backport mandatory** — to develop and all feature branches
+6. **Post-mortem required** — after fix is stable
+
+===============================================================================
+# 1. TRIGGERS
 
 ```bash
-/hotfix "fix duplicate submission ID race condition" --issue-id=001
+# Direct call
+/hotfix "API returns 500 on /users endpoint"
 
-# Или из /issue
-/issue "API 500..." → routes to → /hotfix
+# From /issue (auto-routed)
+/issue "Production down..." → P0 → /hotfix
 ```
 
 ===============================================================================
-# 2. HOTFIX WORKFLOW
+# 2. ALGORITHM (< 2 hours total)
 
 ```
-1. CREATE hotfix branch from main
-2. FIX the issue (minimal changes)
-3. TEST (fast, critical path only)
-4. DEPLOY to production
-5. VERIFY fix works
-6. MERGE to main
-7. BACKPORT to all feature branches
-8. CLOSE issue
-```
+1. ASSESS (5 min)
+   - What's broken?
+   - Impact scope?
+   - Quick hypothesis?
 
-**SLA target window:** < 2 hours from start to production. (Это не оценка scope.)
+2. BRANCH (2 min)
+   git checkout -b hotfix/{issue-id} main
+
+3. FIX (30-60 min)
+   - Minimal change
+   - No refactoring
+   - Type hints required
+
+4. TEST (15-20 min)
+   - Smoke tests
+   - Critical path
+   - No full regression
+
+5. DEPLOY (15-20 min)
+   - To production
+   - Monitor 5 min
+
+6. BACKPORT (10 min)
+   - develop
+   - All active feature/*
+
+7. CLOSE (5 min)
+   - Tag release
+   - Close issue
+   - Notify
+```
 
 ===============================================================================
-# 3. GIT WORKFLOW (Fast Track)
-
-### 3.1 Create hotfix branch
+# 3. HOTFIX BRANCH
 
 ```bash
-# Always from main (production)
+# From main (always!)
 git checkout main
 git pull origin main
 
-# Hotfix branch naming
-ISSUE_ID="001"
-HOTFIX_SLUG="fix-submission-id-race"
+# Create hotfix branch
+git checkout -b hotfix/{issue-id}
 
-git checkout -b hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
-
-echo "✓ Branch: hotfix/${ISSUE_ID}-${HOTFIX_SLUG}"
-```
-
-### 3.2 Create hotfix worktree (optional)
-
-```bash
-# For isolation
-git worktree add ../msu-ai-hotfix-${ISSUE_ID} hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
-cd ../msu-ai-hotfix-${ISSUE_ID}
+# Example: hotfix/001-api-500
 ```
 
 ===============================================================================
-# 4. FIX IMPLEMENTATION
+# 4. MINIMAL FIX
 
-### 4.1 Read Issue
+### 4.1 Rules
 
-```bash
-# Read issue analysis
-cat docs/issues/${ISSUE_ID}-*.md
+- ONE file if possible
+- NO new dependencies
+- NO new abstractions
+- NO refactoring
+- NO "improvements"
 
-# Focus on:
-# - Root cause
-# - Affected files
-# - Fix strategy
-```
-
-### 4.2 Implement Fix
-
-**Principle: Minimal Change**
+### 4.2 Code Changes
 
 ```python
-# ❌ DON'T refactor entire module
-# ❌ DON'T add new features
-# ❌ DON'T change architecture
+# BAD: Refactoring during hotfix
+class UserService:
+    def get_user(self, id: str) -> User | None:
+        # New: added caching
+        if cached := self._cache.get(id):
+            return cached
+        user = self._repo.find(id)
+        self._cache.set(id, user)
+        return user
 
-# ✅ DO minimal fix
-# ✅ DO add safety check
-# ✅ DO add test for bug
+# GOOD: Minimal fix
+class UserService:
+    def get_user(self, id: str) -> User | None:
+        # Fix: handle None from repo
+        user = self._repo.find(id)
+        if user is None:
+            raise UserNotFoundError(id)
+        return user
 ```
 
-**Example:**
+### 4.3 Required
 
-```python
-# Before (bug)
-def save(self, submission: Submission) -> None:
-    submission.id = self._generate_id()  # Race condition!
-    self.db.execute("INSERT INTO submissions ...")
-
-# After (hotfix)
-def save(self, submission: Submission) -> None:
-    with self._id_lock:  # Add lock
-        submission.id = self._generate_id()
-    self.db.execute("INSERT INTO submissions ...")
-```
-
-### 4.3 Add Regression Test
-
-```python
-# tests/integration/test_submission_concurrency.py
-
-def test_concurrent_submissions_no_duplicate_ids():
-    """Regression test for Issue #001."""
-    import concurrent.futures
-    
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(create_submission, f"repo{i}") 
-                   for i in range(100)]
-        results = [f.result() for f in futures]
-    
-    # All IDs should be unique
-    ids = [r.id for r in results]
-    assert len(ids) == len(set(ids)), "Duplicate IDs detected!"
-```
+- Type hints (yes, even in hotfix)
+- Basic error handling
+- Logging of the fix
 
 ===============================================================================
-# 5. TESTING (Fast Path)
+# 5. FAST TESTING
 
-### 5.1 Unit Tests
+### 5.1 Smoke Tests Only
 
 ```bash
-# Run tests for changed module
-pytest tests/unit/test_storage.py -v
+# Critical path only
+pytest tests/unit/test_affected_module.py -v
 
-# Must pass
+# Smoke test
+pytest tests/integration/ -m smoke -v
+
+# NO full regression (too slow)
 ```
 
-### 5.2 Integration Test
+### 5.2 Manual Verification
 
 ```bash
-# Run concurrency test
-pytest tests/integration/test_submission_concurrency.py -v
-
-# Must pass
-```
-
-### 5.3 Smoke Test (Local)
-
-```bash
-# Start services
+# Start local
 docker-compose up -d
 
-# Test affected endpoint
-curl -X POST http://localhost:8000/submissions \
-  -H "Content-Type: application/json" \
-  -d '{"repo_url": "https://github.com/test/repo"}'
-
-# Should return 200 OK
-```
-
-### 5.4 Skip (for speed)
-
-**NOT required for hotfix:**
-- ❌ Full test suite (too slow)
-- ❌ E2E tests (not critical path)
-- ❌ Coverage check (nice to have)
-- ❌ Code review (post-fix)
-
-===============================================================================
-# 6. COMMIT & PUSH
-
-```bash
-# Commit hotfix
-git add src/src/infrastructure/storage/postgres.py
-git add tests/integration/test_submission_concurrency.py
-
-git commit -m "hotfix: fix duplicate submission ID race condition (Issue #001)
-
-Problem:
-- Race condition in ID generation caused duplicate key violations
-- Production API returned 500 for all POST /submissions
-
-Solution:
-- Add distributed lock for ID generation
-- Ensure atomic ID assignment
-
-Impact:
-- Fixes P0 issue (production down)
-- Affects: infrastructure/storage/postgres.py
-
-Tests:
-- Add concurrency integration test
-- Reproduces issue before fix
-- Passes after fix
-
-Issue: #001"
-
-# Push
-git push origin hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
+# Test the fix
+curl -X GET http://localhost:8000/users/123
+# Should return user or proper error
 ```
 
 ===============================================================================
-# 7. DEPLOY TO PRODUCTION
+# 6. DEPLOY TO PRODUCTION
 
-### 7.1 Build & Push Docker Image
+### 6.1 Pre-Deploy Checklist
+
+- [ ] Tests pass
+- [ ] Type hints present
+- [ ] No new dependencies
+- [ ] Logging added
+- [ ] Rollback plan ready
+
+### 6.2 Deploy
 
 ```bash
-# Build
-docker build -t hw-checker:hotfix-${ISSUE_ID} .
+# Build and push
+docker build -t app:hotfix-{issue-id} .
+docker push registry/app:hotfix-{issue-id}
 
-# Tag for production
-docker tag hw-checker:hotfix-${ISSUE_ID} hw-checker:latest
-
-# Push to registry
-docker push hw-checker:latest
+# Deploy
+kubectl set image deployment/app app=registry/app:hotfix-{issue-id}
+# Or via CI/CD
 ```
 
-### 7.2 Deploy
+### 6.3 Monitor (5 min)
 
 ```bash
-# Stop old containers
-docker-compose -f docker-compose.prod.yml down
-
-# Start with new image
-docker-compose -f docker-compose.prod.yml pull
-docker-compose -f docker-compose.prod.yml up -d
-
-# Check health
-docker-compose -f docker-compose.prod.yml ps
-curl https://api.hw-checker.ru/health
-```
-
-### 7.3 Monitor
-
-```bash
-# Watch logs for 5 minutes
-docker-compose -f docker-compose.prod.yml logs -f api | grep -i error
+# Watch logs
+kubectl logs -f deployment/app
 
 # Check metrics
-# - Error rate должен быть 0%
-# - Response time < 200ms
-# - No 500 errors
+# - Error rate should drop
+# - Response time stable
+# - No new errors
 ```
 
 ===============================================================================
-# 8. MERGE STRATEGY
+# 7. BACKPORT
 
-### 8.1 Merge to main
-
-```bash
-# Switch to main
-git checkout main
-
-# Merge hotfix (no-ff to preserve history)
-git merge --no-ff hotfix/${ISSUE_ID}-${HOTFIX_SLUG} -m "Merge hotfix #${ISSUE_ID}: fix submission ID race
-
-Deployed to production: 2026-01-11 11:30 UTC
-Verified: 5 minutes monitoring, no errors
-Issue: #${ISSUE_ID}"
-
-# Tag
-git tag -a hotfix-${ISSUE_ID} -m "Hotfix #${ISSUE_ID}: fix submission ID race condition"
-
-# Push
-git push origin main --tags
-```
-
-### 8.2 Backport to develop
+### 7.1 To Develop
 
 ```bash
-# Merge to develop
 git checkout develop
 git pull origin develop
-
-git merge hotfix/${ISSUE_ID}-${HOTFIX_SLUG} -m "Backport hotfix #${ISSUE_ID} to develop"
-
+git merge hotfix/{issue-id}
 git push origin develop
 ```
 
-### 8.3 Backport to feature branches
+### 7.2 To Feature Branches
 
 ```bash
 # Find active feature branches
 git branch -r | grep "feature/"
 
-# For each active feature
-for BRANCH in $(git branch -r | grep "feature/" | sed 's/origin\///'); do
-  echo "Backporting to $BRANCH"
-  
-  git checkout $BRANCH
-  git pull origin $BRANCH
-  
-  # Cherry-pick hotfix commit
-  git cherry-pick hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
-  
-  # Resolve conflicts if any
-  # ...
-  
-  git push origin $BRANCH
-done
-```
-
-### 8.4 Cleanup
-
-```bash
-# Delete hotfix branch (local & remote)
-git branch -d hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
-git push origin --delete hotfix/${ISSUE_ID}-${HOTFIX_SLUG}
-
-# Remove worktree if created
-git worktree remove ../msu-ai-hotfix-${ISSUE_ID}
+# For each branch
+git checkout feature/{name}
+git merge hotfix/{issue-id}
+git push origin feature/{name}
 ```
 
 ===============================================================================
-# 9. CLOSE ISSUE
+# 8. FINALIZE
 
-Update issue file:
+### 8.1 Merge to Main and Tag
 
 ```bash
-# Calculate hotfix duration
-DURATION=$(($(date +%s) - START_TIME))
-DURATION_HUMAN="$(($DURATION / 60))m"
+git checkout main
+git merge hotfix/{issue-id}
+git tag -a hotfix-{issue-id} -m "Hotfix: {description}"
+git push origin main --tags
+```
 
-# Update status
-cat >> docs/issues/${ISSUE_ID}-*.md <<EOF
+### 8.2 Delete Hotfix Branch
 
----
+```bash
+git branch -d hotfix/{issue-id}
+git push origin --delete hotfix/{issue-id}
+```
 
-## Resolution
+### 8.3 Close Issue
 
-**Fixed by:** hotfix #${ISSUE_ID}
-**Deployed:** 2026-01-11 11:30 UTC
-**Verified:** 2026-01-11 11:35 UTC (5 min monitoring)
-
-**Fix:**
-- Added distributed lock for ID generation
-- Commit: $(git rev-parse hotfix-${ISSUE_ID})
-
-**Results:**
-- Error rate: 0%
-- No 500 errors observed
-- Production stable
-
-**Status:** CLOSED ✅
-EOF
-
-# Send notification
-bash sdp/notifications/telegram.sh hotfix_deployed "${ISSUE_ID}" "$DURATION_HUMAN"
+```bash
+# If GitHub CLI available
+gh issue close {issue-number} -c "Fixed in hotfix-{issue-id}"
 ```
 
 ===============================================================================
-# 10. OUTPUT FORMAT
+# 9. NOTIFICATION
+
+```bash
+# Telegram (if configured)
+bash notifications/telegram.sh "✅ HOTFIX-{ID} deployed. Issue resolved."
+
+# GitHub (if configured)
+gh issue comment {issue-number} -b "Hotfix deployed to production. Monitoring."
+```
+
+===============================================================================
+# 10. POST-MORTEM (within 24h)
+
+### 10.1 Template
 
 ```markdown
-# ✅ Hotfix #001 Complete
+# Post-Mortem: HOTFIX-{ID}
 
-## Issue
+## Summary
+- **Issue:** {what broke}
+- **Impact:** {who affected, duration}
+- **Root Cause:** {why it broke}
+- **Resolution:** {what fixed it}
 
-**#001:** API 500 on /submissions (duplicate ID race condition)
-**Priority:** P0 (CRITICAL)
-**Impact:** Production down, 100% users
+## Timeline
+- {HH:MM} Issue detected
+- {HH:MM} Hotfix started
+- {HH:MM} Fix deployed
+- {HH:MM} Verified stable
 
-## Fix
+## Root Cause Analysis
+{Why did this happen? 5 Whys}
 
-**Branch:** `hotfix/001-fix-submission-id-race`
-**Commit:** `abc123d`
-**Files changed:** 1 file, +5 lines
-**Tests added:** 1 integration test
+## Action Items
+- [ ] Add test for this case
+- [ ] Improve monitoring
+- [ ] Update documentation
 
-## Timeline (telemetry)
-
-| Time | Event |
-|------|-------|
-| 10:30 | Issue detected |
-| 10:35 | Hotfix started |
-| 10:50 | Fix implemented |
-| 11:00 | Tests pass |
-| 11:15 | Deployed to production |
-| 11:20 | Verified (5 min) |
-| 11:25 | Merged to main |
-| 11:30 | Backported to all branches |
-
-**Elapsed (telemetry):** 1 hour
-
-## Deployment
-
-**Production:** ✅ Deployed
-**Status:** Stable (no errors)
-**Monitoring:** 5 minutes, 0 errors
-
-## Git
-
-- `main` ✅ merged, tagged `hotfix-001`
-- `develop` ✅ backported
-- `feature/*` ✅ backported to 3 branches
-
-## Issue
-
-**Status:** CLOSED ✅
-**File:** `docs/issues/001-api-500-submissions.md`
+## Lessons Learned
+{What can we do better?}
 ```
 
 ===============================================================================
-# 11. THINGS YOU MUST NEVER DO
+# 11. OUTPUT FORMAT
 
-❌ Skip tests completely (even for hotfix)
-❌ Deploy without smoke test
-❌ Forget to backport to feature branches
-❌ Refactor code (hotfix = minimal change)
-❌ Add new features (hotfix = fix bug only)
-❌ Skip monitoring after deploy
-❌ Forget to tag the hotfix
-❌ Leave hotfix branch alive
+```markdown
+## ✅ Hotfix Complete: {ISSUE-ID}
+
+**Issue:** {description}
+**Time to Fix:** {X} hours {Y} min
+
+### Changes
+| File | Change |
+|------|--------|
+| `src/module/service.py` | Fixed null check |
+
+### Deployed
+- ✅ Production
+- ✅ Backported to develop
+- ✅ Backported to feature branches
+
+### Git
+- Tag: `hotfix-{issue-id}`
+- Branch: `hotfix/{issue-id}` (deleted)
+
+### Verification
+- ✅ Smoke tests passed
+- ✅ Production monitored 5 min
+- ✅ Error rate normalized
+
+### Next Steps
+1. Full regression (async)
+2. Post-mortem within 24h
+3. Add tests for this case
+```
+
+===============================================================================
+# 12. THINGS YOU MUST NEVER DO
+
+❌ Refactor during hotfix
+❌ Add new features
+❌ Run full regression (too slow)
+❌ Skip backport
+❌ Forget to tag
+❌ Skip post-mortem
+❌ Deploy without monitoring
 
 ===============================================================================

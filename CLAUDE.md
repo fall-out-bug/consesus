@@ -1,16 +1,16 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with this Spec Driven Development (SDD) repository.
+Guidance for Claude Code when working with this Spec-Driven Protocol (SDP) repository.
 
 ## Quick Start
 
-**Protocol:** Spec Driven Development (SDD) v0.3.0 — Workstream-driven development for AI agents.
+**Protocol:** Spec-Driven Protocol (SDP) v0.3.0 — Workstream-driven development for AI agents.
 
 **First time?** Read [README.md](README.md) and [PROTOCOL.md](PROTOCOL.md).
 
 ## Repository Overview
 
-Spec Driven Development (SDD) framework for AI-assisted software development.
+Spec-Driven Protocol (SDP) framework for AI-assisted software development.
 
 **Key files:**
 - [PROTOCOL.md](PROTOCOL.md) - Full protocol specification

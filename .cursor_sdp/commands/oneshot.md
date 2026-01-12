@@ -1,14 +1,14 @@
 # /oneshot — Autonomous Feature Execution
 
-При вызове `/oneshot F{XX}`:
+When calling `/oneshot F{XX}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/oneshot.md`
-2. Создай PR и дождись approval
-3. Выполни все WS feature автономно
-4. Сохраняй checkpoints
-5. Обрабатывай ошибки (auto-fix или escalate)
-6. Запусти `/review` в конце
-7. Выведи summary
+1. Load full prompt: `@prompts/commands/oneshot.md`
+2. Create PR and wait for approval
+3. Execute all feature WS autonomously
+4. Save checkpoints
+5. Handle errors (auto-fix or escalate)
+6. Run `/review` at the end
+7. Output summary
 
 ## Quick Reference
 

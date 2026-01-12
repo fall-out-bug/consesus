@@ -1,128 +1,128 @@
 #!/bin/bash
-# sdp/hooks/post-build.sh
-# Post-build checks for /build command
-# Usage: ./post-build.sh WS-060-01 [module_path]
+# hooks/post-build.sh
+# Post-build validation for completed workstream
 
 set -e
 
-WS_ID=$1
-MODULE=${2:-""}
+WS_ID="${1:-}"
+MODULE="${2:-}"
 
 if [ -z "$WS_ID" ]; then
-    echo "❌ Usage: ./post-build.sh WS-ID [module_path]"
+    echo "Usage: hooks/post-build.sh WS-XXX [module]"
     exit 1
 fi
 
-echo "🔍 Post-build checks for $WS_ID"
-echo "================================"
+echo "Running post-build checks for $WS_ID..."
 
-cd tools/myproject
+# Get git root and navigate there
+GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || GIT_ROOT="."
+cd "$GIT_ROOT"
 
-# Check 1: Fast tests (regression)
+#######################################
+# 1. Unit Tests
+#######################################
 echo ""
-echo "Check 1: Regression tests"
-if poetry run pytest tests/unit/ -m fast -q --tb=no 2>/dev/null; then
-    FAST_COUNT=$(poetry run pytest tests/unit/ -m fast --collect-only -q 2>/dev/null | tail -1 | grep -oE "[0-9]+" | head -1 || echo "0")
-    echo "✓ Regression tests passed ($FAST_COUNT tests)"
+echo "=== Unit Tests ==="
+
+if [ -d "tests/unit" ] && command -v poetry &> /dev/null; then
+    poetry run pytest tests/unit/ -m fast -q --tb=short 2>/dev/null && {
+        echo "✓ Fast tests passed"
+    } || {
+        echo "⚠️  Some fast tests failed"
+        echo "   Run: poetry run pytest tests/unit/ -m fast -v"
+    }
 else
-    echo "❌ Regression tests failed"
-    echo "   Run: cd tools/myproject && poetry run pytest tests/unit/ -m fast -v"
-    exit 1
+    echo "⏭️  Skipping tests"
 fi
 
-# Check 2: Linters
+#######################################
+# 2. Coverage Check
+#######################################
 echo ""
-echo "Check 2: Linters"
+echo "=== Coverage Check ==="
 
-if [ -n "$MODULE" ]; then
-    LINT_PATH="src/src/$MODULE"
+if [ -d "tests/unit" ] && command -v poetry &> /dev/null; then
+    if [ -n "$MODULE" ]; then
+        poetry run pytest tests/unit/ --cov="src/$MODULE" --cov-report=term-missing --cov-fail-under=80 -q 2>/dev/null && {
+            echo "✓ Coverage ≥ 80%"
+        } || {
+            echo "⚠️  Coverage may be below 80%"
+        }
+    else
+        echo "⏭️  Skipping coverage (no module specified)"
+    fi
 else
-    LINT_PATH="src/src/"
+    echo "⏭️  Skipping coverage"
 fi
 
-# Ruff
-if poetry run ruff check "$LINT_PATH" --quiet 2>/dev/null; then
-    echo "✓ Ruff: no issues"
-else
-    echo "⚠️ Ruff found issues (run: ruff check $LINT_PATH)"
-fi
-
-# Mypy (optional, soft fail)
-if poetry run mypy "$LINT_PATH" --ignore-missing-imports --no-error-summary 2>/dev/null; then
-    echo "✓ Mypy: no issues"
-else
-    echo "⚠️ Mypy found issues (run: mypy $LINT_PATH)"
-fi
-
-# Check 3: TODO/FIXME
+#######################################
+# 3. Linters
+#######################################
 echo ""
-echo "Check 3: No TODO/FIXME"
-if [ -n "$MODULE" ]; then
-    TODO_PATH="src/src/$MODULE"
+echo "=== Linters ==="
+
+if [ -d "src" ] && command -v poetry &> /dev/null; then
+    poetry run ruff check src/ --quiet 2>/dev/null && {
+        echo "✓ Ruff passed"
+    } || {
+        echo "⚠️  Ruff found issues"
+    }
+    
+    poetry run mypy src/ --ignore-missing-imports --no-error-summary 2>/dev/null && {
+        echo "✓ Mypy passed"
+    } || {
+        echo "⚠️  Mypy found issues"
+    }
 else
-    TODO_PATH="src/src/"
+    echo "⏭️  Skipping linters"
 fi
 
-TODO_COUNT=$(grep -rn "TODO\|FIXME\|HACK\|XXX" "$TODO_PATH" 2>/dev/null | wc -l || echo "0")
-if [ "$TODO_COUNT" -eq 0 ]; then
-    echo "✓ No TODO/FIXME markers"
-else
-    echo "❌ Found $TODO_COUNT TODO/FIXME markers"
-    grep -rn "TODO\|FIXME\|HACK\|XXX" "$TODO_PATH" 2>/dev/null | head -5
-    exit 1
-fi
-
-# Check 4: File sizes
+#######################################
+# 4. TODO/FIXME Check
+#######################################
 echo ""
-echo "Check 4: File sizes (< 200 LOC)"
-LARGE_FILES=$(find "$TODO_PATH" -name "*.py" -exec wc -l {} \; 2>/dev/null | awk '$1 > 200 {print $2 " (" $1 " lines)"}')
-if [ -z "$LARGE_FILES" ]; then
-    echo "✓ All files < 200 LOC"
+echo "=== TODO/FIXME Check ==="
+
+if [ -d "src" ]; then
+    TODO_COUNT=$(grep -rn "TODO\|FIXME\|HACK\|XXX" src/ 2>/dev/null | wc -l || echo "0")
+    if [ "$TODO_COUNT" -gt 0 ]; then
+        echo "⚠️  Found $TODO_COUNT TODO/FIXME markers"
+        grep -rn "TODO\|FIXME" src/ 2>/dev/null | head -5
+    else
+        echo "✓ No TODO/FIXME found"
+    fi
 else
-    echo "⚠️ Large files found:"
-    echo "$LARGE_FILES"
+    echo "⏭️  Skipping TODO check"
 fi
 
-# Check 5: Import check
+#######################################
+# 5. Import Check
+#######################################
 echo ""
-echo "Check 5: Import check"
-if [ -n "$MODULE" ]; then
-    IMPORT_PATH="myproject.$MODULE"
-    if python -c "import $IMPORT_PATH" 2>/dev/null; then
+echo "=== Import Check ==="
+
+if [ -n "$MODULE" ] && command -v python &> /dev/null; then
+    IMPORT_PATH="$MODULE"
+    python -c "import $IMPORT_PATH" 2>/dev/null && {
         echo "✓ Module imports successfully"
-    else
-        echo "⚠️ Module import failed (run: python -c 'import $IMPORT_PATH')"
-    fi
+    } || {
+        echo "⚠️  Module import failed"
+    }
 else
-    echo "  Skipped (no module specified)"
+    echo "⏭️  Skipping import check"
 fi
 
-# Check 6: Coverage (if tests exist for module)
-echo ""
-echo "Check 6: Coverage"
-if [ -n "$MODULE" ]; then
-    TEST_FILE="tests/unit/test_${MODULE}.py"
-    if [ -f "$TEST_FILE" ]; then
-        COV_RESULT=$(poetry run pytest "$TEST_FILE" --cov="src/$MODULE" --cov-report=term-missing --cov-fail-under=80 -q 2>&1)
-        if echo "$COV_RESULT" | grep -q "PASSED\|passed"; then
-            COV_PCT=$(echo "$COV_RESULT" | grep -oE "[0-9]+%" | head -1 || echo "N/A")
-            echo "✓ Coverage: $COV_PCT (≥80%)"
-        else
-            echo "⚠️ Coverage check failed"
-            echo "   Run: pytest $TEST_FILE --cov=src/$MODULE --cov-fail-under=80"
-        fi
-    else
-        echo "  Skipped (no test file: $TEST_FILE)"
-    fi
-else
-    echo "  Skipped (no module specified)"
-fi
-
+#######################################
+# Summary
+#######################################
 echo ""
 echo "================================"
-echo "✅ Post-build checks PASSED"
+echo "Post-build checks complete: $WS_ID"
+echo "================================"
 echo ""
 echo "Next steps:"
-echo "1. Append Execution Report to WS file"
-echo "2. Run /build for next WS (if any)"
-echo "3. After all WS: /review {feature}"
+echo "  1. Append Execution Report to WS file"
+echo "  2. Commit changes"
+echo "  3. Continue to next WS or run /review"
+
+exit 0

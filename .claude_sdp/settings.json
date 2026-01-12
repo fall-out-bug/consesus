@@ -24,18 +24,18 @@
       "Bash(find:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(bash sdp/hooks/*)",
-      "Bash(./sdp/hooks/*)",
-      "Bash(bash sdp/notifications/*)",
+      "Bash(bash hooks/*)",
+      "Bash(./hooks/*)",
+      "Bash(bash notifications/*)",
       "Read(*)",
       "Glob(*)",
       "Grep(*)",
       "Write(src/*)",
       "Write(.claude/*)",
-      "Write(sdp/*)",
+      "Write(docs/*)",
       "Edit(src/*)",
       "Edit(.claude/*)",
-      "Edit(sdp/*)",
+      "Edit(docs/*)",
       "WebSearch"
     ],
     "deny": [
@@ -54,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/pre-edit-check.sh \"$CLAUDE_FILE_PATH\""
+            "command": "bash hooks/validators/pre-edit-check.sh \"$CLAUDE_FILE_PATH\""
           }
         ]
       }
@@ -65,7 +65,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/post-edit-check.sh \"$CLAUDE_FILE_PATH\""
+            "command": "bash hooks/validators/post-edit-check.sh \"$CLAUDE_FILE_PATH\""
           }
         ]
       }
@@ -76,7 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/session-quality-check.sh"
+            "command": "bash hooks/validators/session-quality-check.sh"
           }
         ]
       }

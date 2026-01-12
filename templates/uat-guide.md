@@ -1,206 +1,194 @@
-# UAT Guide: F{XX} - {Feature Name}
+# UAT Guide: {Feature Name}
 
-**Created:** {YYYY-MM-DD}
 **Feature:** F{XX}
-**Workstreams:** WS-{XX}-01, WS-{XX}-02, ...
+**Version:** {X.Y.Z}
+**Date:** {YYYY-MM-DD}
 
 ---
 
 ## Overview
 
-{Что делает фича в 2-3 предложениях для человека}
+{What the feature does in 2-3 sentences for human tester}
 
 ---
 
 ## Prerequisites
 
-Перед тестированием убедись:
+Before testing, ensure:
 
-- [ ] Docker запущен (`docker ps`)
-- [ ] `poetry install` выполнен в `src/`
-- [ ] `.env` или `myproject.yaml` настроен
-- [ ] База данных доступна (если нужно)
-- [ ] Redis запущен (если нужно)
+- [ ] Docker running (`docker ps`)
+- [ ] `poetry install` executed
+- [ ] Configuration file set up
+- [ ] Database accessible (if needed)
+- [ ] Redis running (if needed)
+
+### Quick Environment Check
 
 ```bash
-# Quick prerequisite check
-cd tools/myproject
-poetry run python -c "from myproject import __version__; print(f'Version: {__version__}')"
+# Verify environment
+poetry run python -c "import project; print(f'Version: {project.__version__}')"
 ```
 
 ---
 
-## Quick Verification (5 минут)
+## Quick Verification (5 minutes)
 
-### 1. Smoke Test
+### Smoke Test
 
 ```bash
-cd tools/myproject
+# Start services
+docker-compose up -d
 
-# Основная проверка
-poetry run hwc {main_command}
+# Basic check
+poetry run app {main_command}
 
-# Ожидаемый результат:
-# {описание что должно быть}
+# Expected result:
+# {description of what should happen}
 ```
 
-### 2. Visual Inspection
+### Visual Check
 
-- [ ] Открой {что открыть: logs/UI/API}
-- [ ] Проверь что {что должно отображаться}
-- [ ] Убедись что {нет ошибок/warnings}
+- [ ] Open {what to open: logs/UI/API}
+- [ ] Verify {what should display}
+- [ ] Ensure {no errors/warnings}
 
 ---
 
-## Detailed Test Scenarios
+## Detailed Scenarios
 
 ### Scenario 1: Happy Path
 
-**Описание:** {основной use case}
+**Description:** {main use case}
 
 **Steps:**
 1. {step 1}
 2. {step 2}
 3. {step 3}
 
-**Expected:**
-- {expectation 1}
-- {expectation 2}
-
-**Actual:** ____________________
-
-**Status:** ⬜ Pass / ⬜ Fail
+**Expected Result:**
+- {outcome 1}
+- {outcome 2}
 
 ---
 
 ### Scenario 2: Error Handling
 
-**Описание:** {как система обрабатывает ошибки}
+**Description:** {how system handles errors}
 
 **Steps:**
 1. {trigger error condition}
 2. {observe response}
 
-**Expected:**
-- Graceful error message (не stack trace)
-- Логирование ошибки
-- Система продолжает работать
-
-**Actual:** ____________________
-
-**Status:** ⬜ Pass / ⬜ Fail
+**Expected Result:**
+- Graceful error message (not stack trace)
+- Error logged
+- System continues working
 
 ---
 
 ### Scenario 3: Edge Cases
 
-**Описание:** {граничные случаи}
+**Description:** {boundary cases}
 
-**Steps:**
-1. {edge case input}
-2. {observe behavior}
-
-**Expected:**
-- {expected handling}
-
-**Actual:** ____________________
-
-**Status:** ⬜ Pass / ⬜ Fail
+**Test Cases:**
+| Input | Expected Output |
+|-------|-----------------|
+| {edge case 1} | {expected} |
+| {edge case 2} | {expected} |
 
 ---
 
-## Red Flags Checklist
+## 🔴 Red Flags
 
-**❌ Если видишь любой из этих признаков — агент накосячил:**
+**❌ If you see any of these — agent made a mistake:**
 
-| # | Red Flag | What to Check | Severity |
-|---|----------|---------------|----------|
-| 1 | Stack trace в output | Logs, stderr | 🔴 HIGH |
-| 2 | Пустой response | API response body | 🔴 HIGH |
+| # | Red Flag | Where to Check | Severity |
+|---|----------|----------------|----------|
+| 1 | Stack trace in output | Logs, stderr | 🔴 HIGH |
+| 2 | Empty response | API response body | 🔴 HIGH |
 | 3 | Timeout (>30s) | Network, DB connection | 🟡 MEDIUM |
-| 4 | Warning в логах | Log files | 🟡 MEDIUM |
-| 5 | Неожиданный формат данных | Response structure | 🟡 MEDIUM |
+| 4 | Warning in logs | Log files | 🟡 MEDIUM |
+| 5 | Unexpected data format | Response structure | 🟡 MEDIUM |
 | 6 | Deprecated warnings | Console output | 🟢 LOW |
 
-**Что делать если нашёл Red Flag:**
-1. Скопируй error message / screenshot
-2. Проверь соответствующий WS Execution Report
-3. Создай issue или вернись к `/review`
+**What to do if Red Flag found:**
+1. Copy error message / screenshot
+2. Check corresponding WS Execution Report
+3. Create issue or return to `/review`
 
 ---
 
 ## Code Sanity Checks
 
-Быстрая проверка что код в порядке:
+Quick check that code is in order:
 
 ```bash
-cd tools/myproject
+# 1. No TODO/FIXME
+grep -rn "TODO\|FIXME" src/{feature_module}/
+# Expected: empty
 
-# 1. Нет TODO/FIXME
-grep -rn "TODO\|FIXME" src/src/{feature_module}/
-# Ожидание: пусто
+# 2. File sizes reasonable
+wc -l src/{feature_module}/*.py
+# Expected: all < 200 lines
 
-# 2. Размер файлов разумный
-wc -l src/src/{feature_module}/*.py
-# Ожидание: все < 200 строк
+# 3. Clean Architecture followed
+grep -r "from project.infrastructure" src/domain/
+# Expected: empty
 
-# 3. Clean Architecture соблюдена
-grep -r "from myproject.infrastructure" src/src/domain/
-# Ожидание: пусто
-
-# 4. Тесты проходят
+# 4. Tests pass
 poetry run pytest tests/unit/test_{feature}*.py -v
-# Ожидание: все passed
+# Expected: all passed
 
-# 5. Coverage достаточный
+# 5. Coverage sufficient
 poetry run pytest tests/unit/test_{feature}*.py --cov=src/{feature_module} --cov-report=term-missing
-# Ожидание: >= 80%
+# Expected: >= 80%
 ```
 
 ---
 
-## Performance Baseline (если применимо)
+## Performance Baseline (if applicable)
 
-| Операция | Expected | Acceptable | Measured |
-|----------|----------|------------|----------|
-| {operation 1} | < 100ms | < 500ms | ___ms |
-| {operation 2} | < 1s | < 5s | ___s |
-| {operation 3} | < 5s | < 30s | ___s |
+| Operation | Expected | Acceptable | Measured |
+|-----------|----------|------------|----------|
+| {operation 1} | < Xms | < Yms | ___ms |
+| {operation 2} | < Xms | < Yms | ___ms |
 
 ---
 
-## Sign-off
+## Sign-off Checklist
 
-### Pre-Sign-off Checklist
+### Tester Checklist
 
-- [ ] Все scenarios пройдены
-- [ ] Red flags отсутствуют
-- [ ] Code sanity checks пройдены
-- [ ] Performance в пределах baseline
+- [ ] All scenarios passed
+- [ ] Red flags absent
+- [ ] Code sanity checks passed
+- [ ] Performance within baseline
 
 ### Approval
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| Developer (агент) | {agent} | {date} | ✅ |
+| Role | Name | Date | Status |
+|------|------|------|--------|
+| Developer (agent) | {agent} | {date} | ✅ |
 | Reviewer | {reviewer} | {date} | ⬜ |
-| **Human Tester** | ____________ | ____________ | ⬜ |
+| Human Tester | ___________ | ___________ | ⬜ |
 
-### Final Verdict
+### Final Decision
 
-⬜ **APPROVED** — готово к deploy
-⬜ **NEEDS WORK** — требуются исправления (см. комментарии ниже)
+⬜ **APPROVED** — ready to deploy
+⬜ **NEEDS WORK** — fixes required (see comments below)
 
-### Comments
+---
+
+## Comments
 
 ```
-{комментарии от человека-тестировщика}
+{comments from human tester}
 ```
 
 ---
 
-## Related
+## Related Documents
 
-- Feature Spec: `docs/specs/feature_{XX}/feature.md`
+- Feature spec: `docs/specs/feature_{XX}/`
 - Workstreams: `docs/workstreams/backlog/WS-{XX}-*.md`
-- Review Results: см. каждый WS файл
+- Review Results: see each WS file

@@ -1,8 +1,8 @@
 # /hotfix — Emergency Production Fixes
 
-При вызове `/hotfix "description" --issue-id=001`:
+When calling `/hotfix "description" --issue-id=001`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/hotfix.md`
+1. Load full prompt: `@prompts/commands/hotfix.md`
 2. Create hotfix branch from `main`
 3. Implement minimal fix (no refactoring!)
 4. Fast testing (smoke + critical path only)

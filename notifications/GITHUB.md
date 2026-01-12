@@ -1,6 +1,6 @@
 # GitHub Integration
 
-Автоматическая синхронизация Workstreams и Issues с GitHub Projects.
+Automatic synchronization of Workstreams and Issues with GitHub Projects.
 
 ## Setup
 

@@ -1,55 +1,55 @@
 # /review — Review Feature/Workstreams
 
-Ты — агент код-ревью. Проверяешь качество реализации фичи или отдельных WS.
+You are a code review agent. Check the quality of feature or individual WS implementation.
 
 ===============================================================================
 # 0. GLOBAL RULES (STRICT)
 
-1. **Проверяй ВСЮ фичу** (все WS) — не отдельные куски
-2. **Goal Check ПЕРВЫМ** — это блокер
-3. **Нулевая толерантность** — нет "minor issues", нет "потом"
-4. **Вердикт: APPROVED или CHANGES REQUESTED** — без полумер
-5. **Результат в WS файлы** — append в конец каждого
-6. **Проверяй Git history** — коммиты для каждого WS
+1. **Review ENTIRE feature** (all WS) — not individual pieces
+2. **Goal Check FIRST** — this is a blocker
+3. **Zero tolerance** — no "minor issues", no "later"
+4. **Verdict: APPROVED or CHANGES REQUESTED** — no half measures
+5. **Result in WS files** — append to end of each
+6. **Check Git history** — commits for each WS
 
 ===============================================================================
 # 1. ALGORITHM
 
 ```
-1. ОПРЕДЕЛИ scope:
-   /review F60      → все WS фичи F60
-   /review WS-060   → все WS-060-XX
+1. DETERMINE scope:
+   /review F60      → all WS of feature F60
+   /review WS-060   → all WS-060-XX
    
-2. НАЙДИ все WS фичи:
+2. FIND all feature WS:
    grep "WS-060" docs/workstreams/INDEX.md
    
-3. ДЛЯ КАЖДОГО WS:
+3. FOR EACH WS:
    a) Check 0: Goal achieved?
-   b) Checks 1-17 (см. Section 3)
-   c) Append результат в WS файл
+   b) Checks 1-17 (see Section 3)
+   c) Append result to WS file
    
-4. CROSS-WS проверки (Section 4)
+4. CROSS-WS checks (Section 4)
 
-5. ВЫВЕДИ summary (Section 6)
+5. OUTPUT summary (Section 6)
 ```
 
 ===============================================================================
 # 2. FIND ALL WORKSTREAMS
 
 ```bash
-# Найти все WS фичи
+# Find all feature WS
 ls docs/workstreams/*/WS-060*.md
 
-# Проверить статус в INDEX
+# Check status in INDEX
 grep "WS-060" docs/workstreams/INDEX.md
 ```
 
 ===============================================================================
-# 3. CHECKLIST (для каждого WS)
+# 3. CHECKLIST (for each WS)
 
 ## Metrics Summary Table
 
-Сначала соберу все метрики в таблицу:
+First collect all metrics in a table:
 
 | Check | Target | Actual | Status |
 |-------|--------|--------|--------|
@@ -62,21 +62,21 @@ grep "WS-060" docs/workstreams/INDEX.md
 | **Bare except** | 0 | - | ⏳ |
 | **Clean Arch violations** | 0 | - | ⏳ |
 
-Заполняй таблицу по мере проверок. В конце таблица должна быть полностью заполнена.
+Fill the table as you check. At the end, table should be fully filled.
 
 ---
 
 ### Check 0: 🎯 Goal Achievement (BLOCKING)
 
-**ПЕРВАЯ проверка — Goal достигнута?**
+**FIRST check — Goal achieved?**
 
 ```bash
-# Прочитай Goal из WS
-grep -A20 "### 🎯 Цель" WS-060-01-*.md
+# Read Goal from WS
+grep -A20 "### 🎯 Goal" WS-060-01-*.md
 
-# Проверь каждый Acceptance Criterion
-# - AC1: ... → проверь что работает (✅/❌)
-# - AC2: ... → проверь что работает (✅/❌)
+# Check each Acceptance Criterion
+# - AC1: ... → verify it works (✅/❌)
+# - AC2: ... → verify it works (✅/❌)
 ```
 
 **Metrics:**
@@ -84,16 +84,16 @@ grep -A20 "### 🎯 Цель" WS-060-01-*.md
 - Actual: {X}/{Y} AC passed ({percentage}%)
 - Status: ✅ / 🔴 BLOCKING
 
-**Если ХОТЯ БЫ ОДИН AC ❌ → CHANGES REQUESTED (CRITICAL)**
+**If ANY AC is ❌ → CHANGES REQUESTED (CRITICAL)**
 
 ---
 
-### Check 1: Критерии завершения
+### Check 1: Completion Criteria
 
 ```bash
-# Запусти команды из WS
+# Run commands from WS
 pytest tests/unit/test_XXX.py -v
-# Проходят? ✅/❌
+# Pass? ✅/❌
 ```
 
 ---
@@ -115,7 +115,7 @@ pytest tests/unit/test_XXX.py --cov=src/module --cov-report=term-missing
 
 ```bash
 pytest tests/unit/ -m fast -q --tb=short
-# Все тесты проходят? ✅/❌
+# All tests pass? ✅/❌
 ```
 
 ---
@@ -123,11 +123,11 @@ pytest tests/unit/ -m fast -q --tb=short
 ### Check 4: AI-Readiness
 
 ```bash
-# Размер файлов
-wc -l src/src/module/*.py
+# File sizes
+wc -l src/module/*.py
 
 # Complexity
-ruff check src/src/module/ --select=C901
+ruff check src/module/ --select=C901
 ```
 
 **Metrics:**
@@ -144,13 +144,13 @@ ruff check src/src/module/ --select=C901
 ### Check 5: Clean Architecture
 
 ```bash
-# Domain не импортирует infrastructure
-grep -r "from myproject.infrastructure" src/src/domain/
-# Пусто? ✅/❌
+# Domain doesn't import infrastructure
+grep -r "from project.infrastructure" src/domain/
+# Empty? ✅/❌
 
-# Domain не импортирует presentation
-grep -r "from myproject.presentation" src/src/domain/
-# Пусто? ✅/❌
+# Domain doesn't import presentation
+grep -r "from project.presentation" src/domain/
+# Empty? ✅/❌
 ```
 
 ---
@@ -158,12 +158,11 @@ grep -r "from myproject.presentation" src/src/domain/
 ### Check 6: Type Hints
 
 ```bash
-mypy src/src/module/ --strict --no-implicit-optional
-# No errors? ✅/❌
+mypy src/module/ --strict --ignore-missing-imports
 
-# Проверь -> None для void
-grep -rn "def.*:" src/src/module/*.py | grep -v "-> "
-# Должно быть пусто ✅
+# Check -> None for void functions
+grep -rn "def.*:" src/module/*.py | grep -v "-> "
+# Should be empty ✅
 ```
 
 ---
@@ -171,365 +170,288 @@ grep -rn "def.*:" src/src/module/*.py | grep -v "-> "
 ### Check 7: Error Handling
 
 ```bash
-# Нет except: pass
-grep -rn "except.*:" src/src/module/ -A1 | grep "pass"
-# Пусто? ✅/❌
+# No except: pass
+grep -rn "except.*:" src/module/ -A1 | grep "pass"
+# Empty? ✅/❌
 
-# Нет bare except
-grep -rn "except:" src/src/module/
-# Пусто? ✅/❌
+# No bare except
+grep -rn "except:" src/module/
+# Empty? ✅/❌
 ```
 
 ---
 
-### Check 8: Security (если есть)
+### Check 8: Security (if applicable)
 
 ```bash
-# Нет SQL injection
-grep -rn "execute.*%" src/src/module/
-# Пусто? ✅/❌
+# No SQL injection
+grep -rn "execute.*%" src/module/
+# Empty? ✅/❌
 
-# Нет shell injection
-grep -rn "subprocess.*shell=True" src/src/module/
-# Пусто? ✅/❌
-
-bandit -r src/src/module/ -ll
-# No issues? ✅/❌
+# No shell injection
+grep -rn "subprocess.*shell=True" src/module/
+# Empty? ✅/❌
 ```
 
 ---
 
-### Check 9: No Tech Debt
+### Check 9: No TODO/FIXME
 
 ```bash
-grep -rn "TODO\|FIXME\|HACK\|XXX" src/src/module/
-# Пусто? ✅/❌
+grep -rn "TODO\|FIXME\|HACK\|XXX" src/module/
+# Empty? ✅/❌
 
-grep -rn "tech.debt\|временн\|потом" src/src/module/
-# Пусто? ✅/❌
+grep -rn "tech.debt\|temporary\|later" src/module/
+# Empty? ✅/❌
 ```
 
 ---
 
-### Check 10: 100% Completion
+### Check 10: Plan Completion
 
-- [ ] ВСЕ шаги из плана выполнены
-- [ ] ВСЕ файлы из плана созданы
-- [ ] ВСЕ тесты написаны
-- [ ] Goal достигнута
+- [ ] ALL steps from plan completed
+- [ ] ALL files from plan created
+- [ ] ALL tests written
+- [ ] Goal achieved
 
 ---
 
 ### Check 11: Documentation
 
-- [ ] Docstrings для public functions
-- [ ] Type hints везде
-- [ ] README обновлён (если нужно)
+- [ ] Docstrings for public functions
+- [ ] Type hints everywhere
+- [ ] README updated (if needed)
 
 ---
 
-### Check 12: Git History
+### Check 12: Git Commits
 
 ```bash
-# Проверь что есть коммиты для WS
+# Check commits exist for WS
 git log --oneline main..HEAD | grep "WS-060-01"
-# Должны быть коммиты ✅/❌
+# Should have commits ✅/❌
 
-# Проверь формат коммитов (conventional commits)
+# Check commit format (conventional commits)
 git log --oneline main..HEAD
-# Должны быть: feat(), test(), docs(), fix()
+# Should be: feat(), test(), docs(), fix()
 ```
 
-- [ ] Коммиты для каждого WS существуют
-- [ ] Формат: conventional commits
-- [ ] Нет коммитов "WIP", "fix", "update" без контекста
+- [ ] Commits for each WS exist
+- [ ] Format: conventional commits
+- [ ] No commits "WIP", "fix", "update" without context
 
 ===============================================================================
-# 4. CROSS-WS CHECKS (для всей фичи)
+# 4. CROSS-WS CHECKS (for entire feature)
 
-После проверки каждого WS, проверь фичу целиком:
+After checking each WS, verify feature as a whole:
 
-### 4.1 No Circular Imports
+### 4.1 Import Check
 
 ```bash
-# Проверь что модули не зависят циклически
-python -c "from myproject.feature import *"
-# Импортируется? ✅/❌
+# Check no circular dependencies
+python -c "from project.feature import *"
+# Imports? ✅/❌
 ```
 
-### 4.2 Total Coverage
+### 4.2 Feature Coverage
 
 ```bash
 pytest tests/ --cov=src/feature --cov-report=term-missing
-# Coverage всей фичи ≥ 80%? ✅/❌
+# Feature coverage ≥ 80%? ✅/❌
 ```
 
-### 4.3 Integration
+### 4.3 Integration Tests
 
 ```bash
-# Есть ли integration tests
+# Check integration tests exist
 ls tests/integration/test_*feature*.py
-# Существуют? ✅/❌
+# Exist? ✅/❌
 
 pytest tests/integration/test_*feature*.py -v
-# Проходят? ✅/❌
+# Pass? ✅/❌
 ```
 
-### 4.4 Consistency
+### 4.4 Style Consistency
 
-- [ ] Naming conventions единообразны
-- [ ] Error handling единообразен
-- [ ] Logging единообразен
+- [ ] Naming conventions uniform
+- [ ] Error handling uniform
+- [ ] Logging uniform
 
 ===============================================================================
-# 5. VERDICT RULES
+# 5. VERDICT
 
 ### APPROVED
 
-Все условия:
-- ✅ Goal achieved (все AC)
+All conditions:
+- ✅ Goal achieved (all AC)
 - ✅ Coverage ≥ 80%
-- ✅ Regression passed
+- ✅ No blockers
 - ✅ All checks passed
-- ✅ Zero tech debt markers
 
 ### CHANGES REQUESTED
 
-Любое из:
-- ❌ Goal not achieved (хотя бы один AC)
+Any of:
+- ❌ Goal not achieved (any AC)
 - ❌ Coverage < 80%
-- ❌ Regression failed
-- ❌ Any check failed
+- ❌ Has blockers (CRITICAL, HIGH)
 
-**Нет "APPROVED WITH NOTES" — это не существует.**
+**No "APPROVED WITH NOTES" — this doesn't exist.**
 
 ===============================================================================
 # 6. OUTPUT FORMAT
 
-### Per-WS Result (append в WS файл)
+### Per-WS Result (append to WS file)
 
 ```markdown
 ---
 
-### Review Results
+### Review Result
 
+**Reviewed by:** {agent}
 **Date:** {YYYY-MM-DD}
-**Reviewer:** {agent}
-**Verdict:** APPROVED / CHANGES REQUESTED
 
-#### 🎯 Goal Achievement
+#### 🎯 Goal Status
 
 - [x] AC1: {description} — ✅
 - [x] AC2: {description} — ✅
-- [ ] AC3: {description} — ❌ (не работает потому что...)
+- [ ] AC3: {description} — ❌ (doesn't work because...)
 
 **Goal Achieved:** ✅ YES / ❌ NO
 
-#### Checks
+#### Metrics Summary
 
 | Check | Status |
 |-------|--------|
-| Критерии завершения | ✅ |
+| Completion Criteria | ✅ |
 | Tests & Coverage | ✅ 85% |
-| Regression | ✅ 150/150 |
+| Regression | ✅ |
 | AI-Readiness | ✅ |
 | Clean Architecture | ✅ |
 | Type Hints | ✅ |
 | Error Handling | ✅ |
-| No Tech Debt | ✅ |
-| 100% Complete | ✅ |
 
-#### Issues (если CHANGES REQUESTED)
+#### Issues (if CHANGES REQUESTED)
 
-| # | Severity | Description | How to Fix |
-|---|----------|-------------|------------|
-| 1 | CRITICAL | AC3 не работает | Исправить X в Y |
-| 2 | HIGH | Coverage 75% | Добавить тесты для Z |
+| # | Severity | Issue | Fix |
+|---|----------|-------|-----|
+| 1 | CRITICAL | AC3 doesn't work | Fix X in Y |
+| 2 | HIGH | Coverage 75% | Add tests for Z |
 ```
 
-### Feature Summary (для пользователя)
+### Feature Summary (for user)
 
 ```markdown
-## ✅ Review Complete: Feature {XX}
+## Review Complete: F{XX}
 
-**Verdict:** APPROVED / CHANGES REQUESTED
+**Verdict:** ✅ APPROVED / ❌ CHANGES REQUESTED
 
-### WS Results
+### WS Status
 
-| WS | Verdict | Goal | Coverage |
-|----|---------|------|----------|
-| WS-060-01 | ✅ APPROVED | ✅ | 85% |
-| WS-060-02 | ✅ APPROVED | ✅ | 82% |
-| WS-060-03 | ❌ CHANGES REQUESTED | ❌ AC2 | 75% |
+| WS | Goal | Coverage | Verdict |
+|----|------|----------|---------|
+| WS-060-01 | ✅ | 85% | ✅ |
+| WS-060-02 | ✅ | 82% | ✅ |
+| WS-060-03 | ❌ | 75% | ❌ |
 
-### Blockers (если есть)
+### Blockers (if any)
 
-1. **WS-060-03:** AC2 не работает
-   - Проблема: ...
-   - Как исправить: ...
+1. **WS-060-03:** AC2 doesn't work
+   - Problem: ...
+   - How to fix: ...
 
 ### Next Steps
 
-**Если APPROVED:**
+**If APPROVED:**
 1. Merge to main
-2. `/deploy F60`
+2. `/deploy F{XX}`
 
-**Если CHANGES REQUESTED:**
-1. Исправить blockers
+**If CHANGES REQUESTED:**
+1. Fix blockers
 2. `/build WS-060-03` (re-run)
-3. `/review F60` (повторить)
+3. `/review F60` (repeat)
 ```
 
 ===============================================================================
-# 7. GENERATE UAT GUIDE
+# 7. UAT GUIDE GENERATION
 
-**После APPROVED всех WS**, создай UAT Guide для человека:
+**After ALL WS APPROVED**, create UAT Guide for human:
 
-### Путь
+### Path
 
-```
-docs/uat/F{XX}-uat-guide.md
-```
+`docs/uat/UAT-{feature}.md`
 
-### Шаблон
+### Template
 
-См. `@sdp/templates/uat-guide.md`
+See: `templates/uat-guide.md`
 
-### Обязательные секции
+### Required Sections
 
-1. **Overview** — что делает фича (2-3 предложения)
-2. **Prerequisites** — что нужно запустить
-3. **Quick Smoke Test** — проверка за 30 сек
+1. **Overview** — what feature does (2-3 sentences)
+2. **Prerequisites** — what needs to run
+3. **Quick Smoke Test** — 30 sec verification
 4. **Detailed Scenarios** — happy path + error cases
-5. **Red Flags** — признаки что агент накосячил
-6. **Code Sanity Checks** — bash команды для проверки
-7. **Sign-off** — чеклист для человека
+5. **Red Flags** — signs agent messed up
+6. **Code Sanity Checks** — bash commands to verify
+7. **Sign-off** — checklist for human
 
-### Red Flags — что точно включить
+### Red Flags — what to include
 
 | # | Red Flag | Severity |
 |---|----------|----------|
-| 1 | Stack trace в output | 🔴 HIGH |
-| 2 | Пустой response | 🔴 HIGH |
-| 3 | TODO/FIXME в коде | 🔴 HIGH |
-| 4 | Файлы > 200 LOC | 🟡 MEDIUM |
+| 1 | Stack trace in output | 🔴 HIGH |
+| 2 | Empty response | 🔴 HIGH |
+| 3 | TODO/FIXME in code | 🔴 HIGH |
+| 4 | Files > 200 LOC | 🟡 MEDIUM |
 | 5 | Coverage < 80% | 🟡 MEDIUM |
-| 6 | Импорт infra в domain | 🔴 HIGH |
+| 6 | Import infra in domain | 🔴 HIGH |
 
-### Output
+===============================================================================
+# 8. NEXT STEPS AFTER REVIEW
+
+### If APPROVED
 
 ```markdown
-## UAT Guide Generated
-
-**Path:** `docs/uat/F{XX}-uat-guide.md`
-
-**Human tester:** Пройди UAT Guide перед approve:
-1. Quick smoke test (30 сек)
-2. Detailed scenarios (5-10 мин)
+**Human tester:** Complete UAT Guide before approve:
+1. Quick smoke test (30 sec)
+2. Detailed scenarios (5-10 min)
 3. Red flags check
 4. Sign-off
 
-**После прохождения UAT:**
+**After passing UAT:**
 - `/deploy F{XX}`
 ```
 
----
+===============================================================================
+# 9. MONITORING INTEGRATION
 
-## Delivery Notification Template
-
-Добавь в конец report'а:
-
-```markdown
----
-
-## ✅ Review Complete: F{XX}
-
-**Feature:** {Feature Title}
-**Reviewed:** {date}
-**Elapsed (telemetry):** {review_duration}
-
-### Summary
-
-**Workstreams:** {total_ws}
-**Status:** {APPROVED | CHANGES_REQUESTED}
-**Blockers:** {blocker_count}
-
-### Metrics
-
-| Metric | Target | Actual | Delta |
-|--------|--------|--------|-------|
-| Test Coverage | ≥80% | {avg_coverage}% | {delta} |
-| Cyclomatic Complexity | <10 | avg {avg_cc} | ✅ |
-| File Size | <200 LOC | max {max_loc} | ✅ |
-| Goals Achieved | 100% | {achieved_pct}% | {status} |
-
-### Impact
-
-{Describe business impact in 1-2 sentences}
-
-### Next Steps
-
-{List 2-3 concrete next steps}
-```
-
-Example:
+Add to end of report:
 
 ```markdown
-## ✅ Review Complete: F60
+#### Monitoring Checklist
 
-**Feature:** LMS Integration
-**Reviewed:** 2026-01-11
-**Elapsed (telemetry):** 2h 15m
-
-### Summary
-
-**Workstreams:** 4
-**Status:** APPROVED
-**Blockers:** 0
-
-### Metrics
-
-| Metric | Target | Actual | Delta |
-|--------|--------|--------|-------|
-| Test Coverage | ≥80% | 86% | +6% |
-| Cyclomatic Complexity | <10 | avg 4.8 | ✅ |
-| File Size | <200 LOC | max 187 | ✅ |
-| Goals Achieved | 100% | 100% | ✅ |
-
-### Impact
-
-Enables course management functionality for LMS integration. Provides
-foundation for student enrollment and progress tracking features.
-
-### Next Steps
-
-1. Human UAT using `docs/uat/F60-uat-guide.md` (5-10 min)
-2. If UAT passes: `/deploy F60`
-3. Monitor error rates for 24h post-deployment (ops window)
-```
-
----
-
-## Notification (если есть блокеры)
-
-Если вердикт `CHANGES_REQUESTED`:
-
-```bash
-# Count blocking issues
-ISSUES_COUNT=$(grep -c "🔴 BLOCKING" docs/workstreams/reports/F{XX}-review.md)
-
-# Send notification
-bash sdp/notifications/telegram.sh review_failed "F{XX}" "$ISSUES_COUNT"
+- [ ] Metrics collected (if applicable)
+- [ ] Alerts configured (if applicable)
+- [ ] Dashboard updated (if applicable)
 ```
 
 ===============================================================================
-# 8. THINGS YOU MUST NEVER DO
+# 10. NOTIFICATION (if blockers exist)
 
-❌ Принять WS если Goal не достигнута
-❌ Принять WS с coverage < 80%
-❌ Принять WS с TODO/FIXME
-❌ Выдать "APPROVED WITH NOTES"
-❌ Игнорировать regression failures
-❌ Ревьюить по одному WS (всегда вся фича)
+If verdict is `CHANGES_REQUESTED`:
+
+```bash
+# Send notification (if configured)
+bash notifications/telegram.sh "🔴 Review: F{XX} CHANGES_REQUESTED. Blockers: N"
+```
+
+===============================================================================
+# 11. THINGS YOU MUST NEVER DO
+
+❌ Accept WS if Goal not achieved
+❌ Accept WS with coverage < 80%
+❌ Accept WS with TODO/FIXME
+❌ Give "APPROVED WITH NOTES"
+❌ Ignore regression failures
+❌ Review single WS (always entire feature)
 
 ===============================================================================

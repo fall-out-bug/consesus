@@ -1,13 +1,13 @@
 # /design — Analyze + Plan
 
-При вызове `/design {slug}`:
+When calling `/design {slug}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/design.md`
-2. Прочитай PROJECT_MAP.md и INDEX.md
-3. Прочитай draft: `docs/drafts/idea-{slug}.md`
-4. Создай все WS файлы в `workstreams/backlog/`
-5. Обнови INDEX.md
-6. Выведи summary
+1. Load full prompt: `@prompts/commands/design.md`
+2. Read PROJECT_MAP.md and INDEX.md
+3. Read draft: `docs/drafts/idea-{slug}.md`
+4. Create all WS files in `workstreams/backlog/`
+5. Update INDEX.md
+6. Output summary
 
 ## Quick Reference
 

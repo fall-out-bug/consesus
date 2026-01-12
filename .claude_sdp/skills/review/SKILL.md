@@ -88,7 +88,7 @@ From master prompt:
 - **APPROVED:** All checks ✅, all WS Goals achieved
 - **CHANGES REQUESTED:** Any 🔴 BLOCKING issue
 
-**NO "APPROVED WITH NOTES"** - это лазейка для tech debt!
+**NO "APPROVED WITH NOTES"** - that's a loophole for tech debt!
 
 ## Output
 

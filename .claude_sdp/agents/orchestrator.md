@@ -123,7 +123,7 @@ Next: WS-060-03
 ⚠️ WS-060-02 FAILED (Attempt 1/2)
 
 Error: Import path incorrect
-Fix: Correcting myproject.application path
+Fix: Correcting project.application path
 Retrying...
 ```
 
@@ -163,7 +163,7 @@ Always read before starting:
 
 Invoke when:
 - User types `/auto-build F{XX}`
-- User says "реализуй фичу автономно"
+- User says "implement feature autonomously"
 - User wants hands-off feature implementation
 
 Don't use for:

@@ -1,145 +1,132 @@
-# Release v{X.Y.Z}
+# Release Notes Template
 
-**Date:** {YYYY-MM-DD}
-**Feature:** {Feature ID} - {Feature Name}
+## Version {X.Y.Z} - {YYYY-MM-DD}
 
----
+### Overview
 
-## Overview
-
-{Краткое описание что добавлено в этом релизе — 2-3 предложения}
+{Brief description of what's added in this release — 2-3 sentences}
 
 ---
 
-## New Features
+## 🚀 New Features
 
 ### {Feature Name}
 
-{Описание функциональности для пользователей}
+{Description of functionality for users}
 
-**Что нового:**
-- {Пункт 1}
-- {Пункт 2}
-- {Пункт 3}
+**What's new:**
+- {Item 1}
+- {Item 2}
+- {Item 3}
 
-**Использование:**
+**Usage:**
 
 ```bash
-# Пример команды или использования
-hwc {command} {args}
+# Example command or usage
+app {command} {args}
 ```
 
-**API (если применимо):**
+**API (if applicable):**
 
 ```bash
-# Пример API запроса
+# Example API request
 curl -X POST http://localhost:8000/api/endpoint \
-  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
   -d '{"key": "value"}'
 ```
 
 ---
 
-## Improvements
+## ⬆️ Improvements
 
-- {Улучшение 1}
-- {Улучшение 2}
-
----
-
-## Bug Fixes
-
-- {Исправление 1}
-- {Исправление 2}
+- {Improvement 1}
+- {Improvement 2}
 
 ---
 
-## Breaking Changes
+## 🐛 Bug Fixes
 
-{Если нет breaking changes, написать "None"}
+- {Fix 1}
+- {Fix 2}
 
-### {Breaking Change 1}
+---
 
-**Было:**
+## ⚠️ Breaking Changes
+
+{If no breaking changes, write "None"}
+
+**Before:**
 ```python
-# Старый способ
+# Old way
 old_function(arg1, arg2)
 ```
 
-**Стало:**
+**After:**
 ```python
-# Новый способ
+# New way
 new_function(arg1, arg2, arg3)
 ```
 
-**Миграция:**
-1. Замените `old_function` на `new_function`
-2. Добавьте третий аргумент
+**Migration:**
+1. Replace `old_function` with `new_function`
+2. Add third argument
 
 ---
 
-## Migration Guide
+## 📋 Migration Guide
 
-{Если не требуется миграция, написать "No migration required"}
+{If no migration required, write "No migration required"}
 
 ### Database Migrations
 
 ```bash
-# Запуск миграций
-cd tools/myproject
-alembic upgrade head
+# Run migrations
+poetry run alembic upgrade head
 ```
 
 ### Configuration Changes
 
-{Если изменился формат конфигурации}
+{If configuration format changed}
 
 ```yaml
-# Было
+# Before
 old_config: value
 
-# Стало
+# After
 new_config:
   nested: value
 ```
 
 ---
 
-## Known Issues
+## 🔍 Known Issues
 
-{Если нет known issues, написать "None"}
+{If no known issues, write "None"}
 
-- {Issue 1}: {описание} — workaround: {как обойти}
-- {Issue 2}: {описание}
+- {Issue 1}: {description} — workaround: {how to work around}
+- {Issue 2}: {description}
 
 ---
 
-## Dependencies
-
-### Updated
-- {Library 1}: v{old} → v{new}
-- {Library 2}: v{old} → v{new}
+## 📦 Dependencies
 
 ### Added
-- {New library}: v{version} — {для чего}
+- {New library}: v{version} — {purpose}
 
 ### Removed
-- {Removed library} — {почему удалили}
+- {Removed library} — {why removed}
 
 ---
 
-## Contributors
+## 📚 Documentation
+
+- [Full documentation](docs/)
+- [API reference](docs/api/)
+- [Migration guide](docs/migration/)
+
+---
+
+## 🙏 Contributors
 
 - {Contributor 1}
 - {Contributor 2}
-
----
-
-## Full Changelog
-
-See [CHANGELOG.md](../CHANGELOG.md) for full history.
-
-**Workstreams in this release:**
-- WS-{ID1}: {title}
-- WS-{ID2}: {title}
-- WS-{ID3}: {title}

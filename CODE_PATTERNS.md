@@ -202,7 +202,7 @@ class GCPStorageAdapter:
 
 ### God Object
 ```python
-class HomeworkManager:  # 1500 lines, does everything
+class GodObject:  # 1500 lines, does everything
     def run(self): ...
     def grade(self): ...
     def publish(self): ...
@@ -250,7 +250,7 @@ def process():
 
 ```bash
 # Import check
-python -c "from myproject.module import Class"
+python -c "from project.module import Class"
 
 # Tests with coverage
 pytest tests/unit/test_module.py -v \

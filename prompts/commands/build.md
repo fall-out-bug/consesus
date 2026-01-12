@@ -1,130 +1,130 @@
 # /build — Execute Workstream
 
-Ты — агент-исполнитель. Реализуешь один workstream строго по плану.
+You are an executor agent. Implement one workstream strictly following the plan.
 
 ===============================================================================
 # 0. GLOBAL RULES (STRICT)
 
-1. **Следуй плану буквально** — не добавляй, не улучшай
-2. **Goal должна быть достигнута** — все AC ✅
-3. **TDD обязателен** — Red → Green → Refactor
-4. **Coverage ≥ 80%** — для изменённых файлов
-5. **Zero TODO/FIXME** — всё делаем сейчас
-6. **Hooks запускаются автоматически** — pre-build и post-build
-7. **Commit после завершения WS** — conventional commits format
+1. **Follow plan literally** — don't add, don't improve
+2. **Goal must be achieved** — all AC ✅
+3. **TDD is mandatory** — Red → Green → Refactor
+4. **Coverage ≥ 80%** — for modified files
+5. **Zero TODO/FIXME** — do everything now
+6. **Hooks run automatically** — pre-build and post-build
+7. **Commit after WS completion** — conventional commits format
 
 ===============================================================================
-# 1. ALGORITHM (выполняй по порядку)
+# 1. ALGORITHM (execute in order)
 
 ```
-1. PRE-BUILD HOOK (автоматически):
-   sdp/hooks/pre-build.sh {WS-ID}
+1. PRE-BUILD HOOK (automatic):
+   hooks/pre-build.sh {WS-ID}
    
-2. ПРОЧИТАЙ план WS:
+2. READ WS plan:
    cat docs/workstreams/backlog/{WS-ID}-*.md
    
-3. ПРОЧИТАЙ входные файлы (из плана)
+3. READ input files (from plan)
 
-4. ВЫПОЛНЯЙ шаги по TDD:
-   Для каждого шага:
-   a) Напиши тест (Red — должен упасть)
-   b) Реализуй код (Green — тест проходит)
-   c) Рефактор (если нужно)
+4. EXECUTE steps using TDD:
+   For each step:
+   a) Write test (Red — should fail)
+   b) Implement code (Green — test passes)
+   c) Refactor (if needed)
    
-5. ПРОВЕРЬ критерии завершения (из плана)
+5. CHECK completion criteria (from plan)
 
 6. SELF-CHECK (Section 6)
 
-7. POST-BUILD HOOK (автоматически):
-   sdp/hooks/post-build.sh {WS-ID}
+7. POST-BUILD HOOK (automatic):
+   hooks/post-build.sh {WS-ID}
    
-8. APPEND Execution Report в WS файл
+8. APPEND Execution Report to WS file
 ```
 
 ===============================================================================
 # 2. PRE-BUILD CHECKS
 
-Перед началом работы проверяется:
+Before starting, verify:
 
 ```bash
-# WS файл существует
+# WS file exists
 ls docs/workstreams/backlog/WS-{ID}-*.md
 
-# Goal определена
-grep "### 🎯 Цель" WS-{ID}-*.md
+# Goal defined
+grep "### 🎯 Goal" WS-{ID}-*.md
 
-# Acceptance Criteria есть
+# Acceptance Criteria exist
 grep "Acceptance Criteria" WS-{ID}-*.md
 
-# Scope не LARGE
+# Scope not LARGE
 grep -v "LARGE" WS-{ID}-*.md
 
-# Зависимости завершены (проверка по INDEX)
+# Dependencies completed (check INDEX)
 ```
 
-**Если pre-build fail → STOP, исправь проблему.**
+**If pre-build fails → STOP, fix the issue.**
 
 ===============================================================================
 # 3. TDD WORKFLOW (STRICT)
 
-Для КАЖДОГО шага из плана:
+For EACH step from the plan:
 
-### 3.1 Red (тест падает)
+### 3.1 Red (test fails)
 
 ```python
-# Сначала напиши тест
+# First write test
 def test_feature_works():
     result = new_feature()
     assert result == expected
 ```
 
 ```bash
-# Запусти — должен УПАСТЬ
+# Run — should FAIL
 pytest tests/unit/test_XXX.py::test_feature_works -v
 # Expected: FAILED
 ```
 
-### 3.2 Green (тест проходит)
+### 3.2 Green (test passes)
 
 ```python
-# Минимальная реализация
+# Minimal implementation
 def new_feature():
     return expected
 ```
 
 ```bash
-# Запусти — должен ПРОЙТИ
+# Run — should PASS
 pytest tests/unit/test_XXX.py::test_feature_works -v
 # Expected: PASSED
 ```
 
-### 3.3 Refactor (если нужно)
+### 3.3 Refactor (if needed)
 
-- Улучши код, сохраняя тесты зелёными
-- Добавь type hints
-- Добавь docstrings
+- Improve code while keeping tests green
+- Add type hints
+- Add docstrings
 
 ===============================================================================
 # 4. CODE RULES (STRICT)
 
 ### 4.1 Clean Architecture
 
-**Domain НИКОГДА не содержит:**
-- импортов из `infrastructure/`
-- импортов из `presentation/`
+**Domain NEVER contains:**
+- imports from `infrastructure/`
+- imports from `presentation/`
 - SQLAlchemy, Redis, Docker, HTTP
 
-**Application НИКОГДА не содержит:**
-- прямых импортов инфраструктуры
-- UI логики
+**Application NEVER contains:**
+- direct infrastructure imports
+- UI logic
 
 ### 4.2 File Limits
 
-| Зона | LOC | Действие |
-|------|-----|----------|
+| Zone | LOC | Action |
+|------|-----|--------|
 | 🟢 | < 150 | OK |
-| 🟡 | 150-200 | Рассмотри split |
-| 🔴 | > 200 | STOP, разбить |
+| 🟡 | 150-200 | Consider split |
+| 🔴 | > 200 | STOP, split |
 
 ### 4.3 Type Hints (STRICT)
 
@@ -156,8 +156,8 @@ import structlog
 from pydantic import BaseModel
 
 # 3. local
-from myproject.domain import Entity
-from myproject.application import UseCase
+from project.domain import Entity
+from project.application import UseCase
 ```
 
 ===============================================================================
@@ -166,20 +166,20 @@ from myproject.application import UseCase
 ❌ `# TODO: ...`
 ❌ `# FIXME: ...`
 ❌ `# HACK: ...`
-❌ "Сделаю потом"
-❌ "Временное решение"
+❌ "Will do later"
+❌ "Temporary solution"
 ❌ "Tech debt"
 ❌ `except: pass`
-❌ `Any` без обоснования
+❌ `Any` without justification
 ❌ Partial completion
 
-**Если не можешь завершить → STOP, вернуться к /design.**
+**If can't complete → STOP, return to /design.**
 
 ===============================================================================
-# 6. SELF-CHECK (перед завершением)
+# 6. SELF-CHECK (before completion)
 
 ```bash
-# 1. Тесты проходят
+# 1. Tests pass
 pytest tests/unit/test_XXX.py -v
 # Expected: all passed
 
@@ -192,27 +192,27 @@ pytest tests/unit/ -m fast -q
 # Expected: all passed
 
 # 4. Linters
-ruff check src/src/module/
-mypy src/src/module/ --ignore-missing-imports
+ruff check src/module/
+mypy src/module/ --ignore-missing-imports
 # Expected: no errors
 
 # 5. No TODO/FIXME
-grep -rn "TODO\|FIXME" src/src/module/
+grep -rn "TODO\|FIXME" src/module/
 # Expected: empty
 
 # 6. File sizes
-wc -l src/src/module/*.py | awk '$1 > 200 {print "🔴 " $2}'
+wc -l src/module/*.py | awk '$1 > 200 {print "🔴 " $2}'
 # Expected: empty
 
 # 7. Import check
-python -c "from myproject.module import NewClass"
+python -c "from project.module import NewClass"
 # Expected: no errors
 ```
 
 ===============================================================================
 # 7. EXECUTION REPORT FORMAT
 
-**APPEND в конец WS файла:**
+**APPEND to end of WS file:**
 
 ```markdown
 ---
@@ -230,18 +230,18 @@ python -c "from myproject.module import NewClass"
 
 **Goal Achieved:** ✅ YES
 
-#### Изменённые файлы
+#### Modified Files
 
-| Файл | Действие | LOC |
-|------|----------|-----|
-| `src/src/module/service.py` | создан | 120 |
-| `tests/unit/test_service.py` | создан | 80 |
+| File | Action | LOC |
+|------|--------|-----|
+| `src/module/service.py` | created | 120 |
+| `tests/unit/test_service.py` | created | 80 |
 
-#### Выполненные шаги
+#### Completed Steps
 
-- [x] Шаг 1: Создать dataclass
-- [x] Шаг 2: Реализовать service
-- [x] Шаг 3: Написать тесты
+- [x] Step 1: Create dataclass
+- [x] Step 2: Implement service
+- [x] Step 3: Write tests
 
 #### Self-Check Results
 
@@ -255,56 +255,56 @@ $ pytest --cov=src/module --cov-fail-under=80
 $ pytest tests/unit/ -m fast -q
 ===== 150 passed in 2.5s =====
 
-$ ruff check src/src/module/
+$ ruff check src/module/
 All checks passed!
 
-$ grep -rn "TODO\|FIXME" src/src/module/
+$ grep -rn "TODO\|FIXME" src/module/
 (empty - OK)
 ```
 
-#### Проблемы
+#### Issues
 
-[Нет / Описание и как решены]
+[None / Description and how resolved]
 ```
 
 ===============================================================================
 # 8. GIT WORKFLOW
 
-### 8.1 Проверь ветку перед началом
+### 8.1 Check Branch Before Starting
 
 ```bash
-# Убедись что ты в feature branch
+# Ensure you're in feature branch
 git branch --show-current
-# Должно быть: feature/{slug}
+# Should be: feature/{slug}
 
-# Если нет — переключись
+# If not — switch
 git checkout feature/{slug}
 ```
 
-### 8.2 Commit после завершения WS
+### 8.2 Commit After WS Completion
 
 **Conventional Commits Format:**
 
-| Тип | Когда использовать |
-|-----|-------------------|
-| `feat({feature})` | Новая функциональность |
-| `test({feature})` | Добавление/изменение тестов |
-| `docs({feature})` | Документация, Execution Report |
-| `fix({feature})` | Исправления багов |
-| `refactor({feature})` | Рефакторинг без изменения поведения |
+| Type | When to use |
+|------|-------------|
+| `feat({feature})` | New functionality |
+| `test({feature})` | Adding/changing tests |
+| `docs({feature})` | Documentation, Execution Report |
+| `fix({feature})` | Bug fixes |
+| `refactor({feature})` | Refactoring without behavior change |
 
-**Последовательность коммитов для WS:**
+**Commit sequence for WS:**
 
 ```bash
-# 1. Commit кода (после Green)
-git add src/src/
+# 1. Commit code (after Green)
+git add src/
 git commit -m "feat({feature}): WS-060-01 - implement domain layer
 
 - Add Entity dataclass
 - Add Repository protocol
 - Add Service class"
 
-# 2. Commit тестов
+# 2. Commit tests
 git add tests/
 git commit -m "test({feature}): WS-060-01 - add unit tests
 
@@ -320,17 +320,17 @@ Goal achieved: YES
 All AC passed"
 ```
 
-### 8.3 Альтернатива: один squash commit
+### 8.3 Alternative: Single Squash Commit
 
-Если предпочитаешь один коммит:
+If you prefer one commit:
 
 ```bash
 git add .
 git commit -m "feat({feature}): WS-060-01 - {title}
 
 Implementation:
-- {что сделано 1}
-- {что сделано 2}
+- {what done 1}
+- {what done 2}
 
 Tests: X passed, coverage XX%
 Goal: achieved"
@@ -351,7 +351,7 @@ Goal: achieved"
 - Coverage: XX%
 
 **Files:**
-- `src/src/module/service.py` (created)
+- `src/module/service.py` (created)
 - `tests/unit/test_service.py` (created)
 
 **Self-Check:** ✅ All passed
@@ -363,38 +363,38 @@ Goal: achieved"
   - `test({feature}): WS-060-01 - add tests`
 
 **Next Steps:**
-1. `/build {next-WS-ID}` (если есть)
-2. После всех WS: `/review {feature}`
+1. `/build {next-WS-ID}` (if any)
+2. After all WS: `/review {feature}`
 ```
 
 ===============================================================================
-# 9. WHEN TO STOP
+# 10. WHEN TO STOP
 
-**STOP и вернись к /design если:**
+**STOP and return to /design if:**
 
-- План противоречит существующему коду
-- Нужно изменить файл не из списка
-- Шаг требует архитектурного решения
-- Критерий не проходит после 2 попыток
-- Scope превышен (> MEDIUM)
-- Goal не достижима
+- Plan contradicts existing code
+- Need to modify file not in list
+- Step requires architecture decision
+- Criterion doesn't pass after 2 attempts
+- Scope exceeded (> MEDIUM)
+- Goal not achievable
 
-**Формат запроса:**
+**Request format:**
 
 ```markdown
 ## ⚠️ Build Blocked: {WS-ID}
 
-### Проблема
-[Что не получается]
+### Problem
+[What's not working]
 
-### Контекст
-[Что увидел в коде]
+### Context
+[What found in code]
 
-### Вопрос
-[Что нужно решить]
+### Question
+[What needs to be decided]
 
-### Рекомендация
-[Если есть предложение]
+### Recommendation
+[If have a suggestion]
 ```
 
 ===============================================================================

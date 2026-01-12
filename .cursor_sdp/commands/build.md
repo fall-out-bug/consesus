@@ -1,16 +1,16 @@
 # /build — Execute Workstream
 
-При вызове `/build {WS-ID}`:
+When calling `/build {WS-ID}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/build.md`
-2. Запусти pre-build hook: `sdp/hooks/pre-build.sh {WS-ID}`
-3. Прочитай WS план
-4. Выполни шаги по TDD
-5. Запусти post-build hook: `sdp/hooks/post-build.sh {WS-ID}`
-6. Append Execution Report в WS файл
+1. Load full prompt: `@prompts/commands/build.md`
+2. Run pre-build hook: `hooks/pre-build.sh {WS-ID}`
+3. Read WS plan
+4. Execute steps using TDD
+5. Run post-build hook: `hooks/post-build.sh {WS-ID}`
+6. Append Execution Report to WS file
 
 ## Quick Reference
 
 **Input:** `workstreams/backlog/WS-XXX-*.md`
-**Output:** код + тесты + Execution Report
-**Next:** `/build WS-XXX-02` или `/review F{XX}`
+**Output:** Code + tests + Execution Report
+**Next:** `/build WS-XXX-02` or `/review F{XX}`

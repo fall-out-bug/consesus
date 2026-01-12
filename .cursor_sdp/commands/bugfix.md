@@ -1,8 +1,8 @@
 # /bugfix — Quality Bug Fixes
 
-При вызове `/bugfix "description" --feature=F23 --issue-id=002`:
+When calling `/bugfix "description" --feature=F23 --issue-id=002`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/bugfix.md`
+1. Load full prompt: `@prompts/commands/bugfix.md`
 2. Create bugfix branch (from feature/* or bugfix/* from develop)
 3. Implement fix with full TDD
 4. Complete test suite

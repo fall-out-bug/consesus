@@ -1,347 +1,286 @@
-# Migration Guide
+# Migration Guide: v{OLD} → v{NEW}
 
-**From:** {old_version}  
-**To:** {new_version}  
+**From Version:** {X.Y.Z}
+**To Version:** {X.Y.Z}
 **Date:** {YYYY-MM-DD}
 
 ---
 
 ## Overview
 
-This guide helps you upgrade from v{old} to v{new} which contains breaking changes.
-
-**⚠️ Important:** Read BREAKING_CHANGES.md first for summary.
+{Brief description of what changed and why migration is needed}
 
 ---
 
 ## Prerequisites
 
-Before starting migration:
+Before migrating:
 
-- [ ] Backup production database
-- [ ] Review all breaking changes
-- [ ] Test on staging environment
-- [ ] Plan maintenance window
-- [ ] Prepare rollback plan
+- [ ] Backup current database
+- [ ] Backup current configuration
+- [ ] Read release notes for v{NEW}
+- [ ] Ensure downtime window (if needed)
+
+### Backup Commands
+
+```bash
+# Database backup
+pg_dump -h localhost -U postgres project_db > backup-$(date +%Y%m%d).sql
+
+# Configuration backup
+cp config.yaml config.yaml.backup
+```
 
 ---
 
-## Step 1: Database Migration
+## Breaking Changes Summary
 
-### 1.1 Backup
+| Change | Impact | Action Required |
+|--------|--------|-----------------|
+| {change 1} | {who affected} | {what to do} |
+| {change 2} | {who affected} | {what to do} |
+
+---
+
+## Step-by-Step Migration
+
+### Step 1: Stop Services
 
 ```bash
-# Backup database
-pg_dump -h localhost -U postgres myproject > backup-$(date +%Y%m%d).sql
+docker-compose down
+# or
+systemctl stop project-service
 ```
 
-### 1.2 Run Migrations
+### Step 2: Update Code
 
 ```bash
-cd tools/myproject
+git fetch origin
+git checkout v{NEW}
+poetry install
+```
 
-# Check current version
-poetry run alembic current
+### Step 3: Run Migrations
 
-# Run migrations
+```bash
+# Database migrations
 poetry run alembic upgrade head
 
-# Verify
-poetry run alembic current
-# Should show: {new_revision}
+# Data migrations (if any)
+poetry run python scripts/migrate_data.py
 ```
 
-### 1.3 Data Migration (if needed)
+### Step 4: Update Configuration
 
-```bash
-# Run data migration script
-poetry run python scripts/migrate_data_v{version}.py
-
-# Verify data integrity
-poetry run python scripts/verify_migration.py
-```
-
----
-
-## Step 2: Update Application Code
-
-### 2.1 API Client Updates
-
-**Change 1: Updated endpoint**
-
-```python
-# Before (v{old})
-response = client.post("/old-endpoint", json={
-    "old_field": value
-})
-
-# After (v{new})
-response = client.post("/new-endpoint", json={
-    "new_field": value  # Field renamed
-})
-```
-
-**Change 2: Response format**
-
-```python
-# Before (v{old})
-result = response.json()
-data = result["data"]
-
-# After (v{new})
-result = response.json()
-data = result["items"]  # Key renamed
-```
-
-### 2.2 CLI Script Updates
-
-```bash
-# Before (v{old})
-hwc grading run --repo-url https://github.com/user/repo
-
-# After (v{new})
-hwc grading run --repo https://github.com/user/repo
-```
-
-**Update scripts:**
-```bash
-# Find all uses of old argument
-grep -r "--repo-url" scripts/
-
-# Replace with --repo
-sed -i 's/--repo-url/--repo/g' scripts/*.sh
-```
-
----
-
-## Step 3: Update Configuration
-
-### 3.1 Config File Format
-
-**myproject.yaml:**
-
+**Old format:**
 ```yaml
-# Before (v{old})
-old_config:
-  setting: value
-  
-# After (v{new})
-new_config:
-  setting: value
-  additional_setting: default  # New required field
+old_setting: value
 ```
 
-### 3.2 Environment Variables
+**New format:**
+```yaml
+new_setting:
+  nested: value
+```
+
+### Step 5: Start Services
 
 ```bash
-# Before (v{old})
-export OLD_VAR_NAME=value
-
-# After (v{new})
-export NEW_VAR_NAME=value
+docker-compose up -d
+# or
+systemctl start project-service
 ```
 
----
-
-## Step 4: Backward Compatibility (Transition Period)
-
-If you need to support both old and new versions:
-
-```python
-# Wrapper for backward compatibility
-def submit_work(repo: str, **kwargs):
-    """Support both old and new API."""
-    try:
-        # Try new endpoint first
-        return client.post("/new-endpoint", json={"repo": repo})
-    except Exception:
-        # Fallback to old endpoint
-        return client.post("/old-endpoint", json={"repo_url": repo})
-```
-
-**Remove this wrapper after:** {YYYY-MM-DD + 30d}
-
----
-
-## Step 5: Testing
-
-### 5.1 Smoke Tests
+### Step 6: Verify
 
 ```bash
-cd tools/myproject
+# Health check
+curl http://localhost:8000/health
 
 # Run smoke tests
 poetry run pytest tests/smoke/ -v
 ```
 
-### 5.2 Integration Tests
-
-```bash
-# Run full integration suite
-poetry run pytest tests/integration/ -v
-```
-
-### 5.3 Manual Verification
-
-1. Submit test work via API: ✅/❌
-2. Check status via CLI: ✅/❌
-3. Verify database records: ✅/❌
-4. Check worker processing: ✅/❌
-
 ---
 
-## Step 6: Deployment
+## API Changes
 
-### 6.1 Staging
+### Deprecated Endpoints
 
-```bash
-# Deploy to staging
-docker-compose -f docker-compose.staging.yml down
-docker-compose -f docker-compose.staging.yml pull
-docker-compose -f docker-compose.staging.yml up -d
+| Endpoint | Replacement | Removal Version |
+|----------|-------------|-----------------|
+| `GET /api/v1/old` | `GET /api/v2/new` | v{X.Y.Z} |
 
-# Verify
-curl https://staging.api/health
-# Should return: {"status": "ok", "version": "{new_version}"}
+### New Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/v2/new` | {description} |
+
+### Request/Response Changes
+
+**Before:**
+```json
+{
+  "old_field": "value"
+}
 ```
 
-### 6.2 Production
-
-**Maintenance window:** {start_time} - {end_time}
-
-```bash
-# 1. Enable maintenance mode
-curl -X POST https://api/admin/maintenance/enable
-
-# 2. Stop services
-docker-compose -f docker-compose.prod.yml down
-
-# 3. Backup (again, just before upgrade)
-pg_dump -h localhost -U postgres myproject > backup-final-$(date +%Y%m%d-%H%M).sql
-
-# 4. Deploy new version
-docker-compose -f docker-compose.prod.yml pull
-docker-compose -f docker-compose.prod.yml up -d
-
-# 5. Run migrations
-docker-compose -f docker-compose.prod.yml exec api alembic upgrade head
-
-# 6. Verify health
-curl https://api/health
-
-# 7. Disable maintenance mode
-curl -X POST https://api/admin/maintenance/disable
-```
-
-### 6.3 Monitor
-
-**Watch for 1 hour:**
-- Error rate: should be < 0.1%
-- Response time: should be < 200ms
-- Database connections: should be stable
-
-```bash
-# Watch logs
-docker-compose -f docker-compose.prod.yml logs -f api
-
-# Watch metrics
-# Check Grafana: {grafana_url}
+**After:**
+```json
+{
+  "new_field": "value",
+  "additional_field": "value"
+}
 ```
 
 ---
 
-## Rollback Plan
+## Configuration Changes
 
-If issues occur:
+### New Settings
 
-### Immediate Rollback
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `new_setting` | `value` | {what it does} |
 
-```bash
-# 1. Stop new version
-docker-compose -f docker-compose.prod.yml down
+### Removed Settings
 
-# 2. Restore database
-psql -h localhost -U postgres myproject < backup-final-{timestamp}.sql
+| Setting | Replacement |
+|---------|-------------|
+| `old_setting` | Use `new_setting` instead |
 
-# 3. Deploy old version
-docker tag hw-checker:{new_version} hw-checker:{new_version}-broken
-docker tag hw-checker:{old_version} hw-checker:latest
+### Changed Defaults
 
-docker-compose -f docker-compose.prod.yml up -d
-
-# 4. Verify
-curl https://api/health
-# Should return: {"status": "ok", "version": "{old_version}"}
-```
-
-### Rollback Timeline
-
-- **< 30 min:** Issues detected
-- **30-45 min:** Decision to rollback
-- **45-60 min:** Rollback complete
-- **60-90 min:** Verify old version stable
+| Setting | Old Default | New Default | Reason |
+|---------|-------------|-------------|--------|
+| `timeout` | 30s | 60s | {reason} |
 
 ---
 
-## Common Issues
+## Database Changes
 
-### Issue 1: Database migration fails
+### New Tables
 
-**Symptom:** `alembic upgrade` returns error
+```sql
+CREATE TABLE new_table (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+### Modified Tables
+
+```sql
+ALTER TABLE existing_table ADD COLUMN new_column VARCHAR(255);
+```
+
+### Data Migrations
+
+```python
+# scripts/migrate_data.py
+# Run after schema migration
+
+def migrate():
+    # Transform old data to new format
+    pass
+```
+
+---
+
+## Rollback Procedure
+
+If migration fails:
+
+### Step 1: Stop Services
+
+```bash
+docker-compose down
+```
+
+### Step 2: Restore Database
+
+```bash
+psql -h localhost -U postgres project_db < backup-{date}.sql
+```
+
+### Step 3: Restore Code
+
+```bash
+git checkout v{OLD}
+poetry install
+```
+
+### Step 4: Restore Configuration
+
+```bash
+cp config.yaml.backup config.yaml
+```
+
+### Step 5: Start Services
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### Issue 1: Migration fails with error X
+
+**Symptom:** {what you see}
+
+**Cause:** {why it happens}
 
 **Solution:**
 ```bash
-# Check current version
-alembic current
-
-# Check migration log
-alembic history
-
-# If stuck, manually fix
-psql myproject -c "UPDATE alembic_version SET version_num = '{target}';"
+# Fix command
 ```
 
-### Issue 2: API returns 500 errors
+#### Issue 2: Service won't start
 
-**Symptom:** All API requests fail
+**Symptom:** {what you see}
 
-**Possible causes:**
-1. Database not migrated
-2. Config file not updated
-3. Environment variables missing
+**Cause:** {why it happens}
 
-**Debug:**
-```bash
-# Check logs
-docker-compose logs api | tail -100
-
-# Check config
-docker-compose exec api cat /app/config/myproject.yaml
-
-# Check env vars
-docker-compose exec api env | grep PROJECT
-```
+**Solution:**
+1. Check logs: `docker-compose logs`
+2. Verify config
+3. {additional steps}
 
 ---
 
-## Post-Migration Checklist
+## Verification Checklist
 
-- [ ] All smoke tests pass
-- [ ] Integration tests pass
-- [ ] Production deployed successfully
-- [ ] No error spikes in monitoring
-- [ ] Rollback plan tested on staging
-- [ ] Team notified of changes
-- [ ] Documentation updated
-- [ ] Old code/configs archived
+After migration:
+
+- [ ] All services running
+- [ ] Health checks passing
+- [ ] Smoke tests passing
+- [ ] No errors in logs
+- [ ] Key functionality works
+- [ ] Performance acceptable
 
 ---
 
 ## Support
 
-**Need help?**
-- Slack: #{channel}
-- Email: {support_email}
-- Issues: {github_issues_url}
+If you encounter issues:
 
-**Emergency contact:** {phone_number}
+1. Check troubleshooting section above
+2. Review logs: `docker-compose logs -f`
+3. Create issue with:
+   - Error message
+   - Steps to reproduce
+   - Environment details
+
+---
+
+## Related Documents
+
+- [Release Notes v{NEW}](releases/v{NEW}.md)
+- [API Documentation](api/)
+- [Configuration Reference](config/)

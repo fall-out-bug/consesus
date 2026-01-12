@@ -1,26 +1,11 @@
 {
-  "setup-worktree-unix": [
-    "echo '🔧 Setting up worktree...'",
-    "cd tools/myproject && poetry install --no-interaction --quiet",
-    "cp -n \"$ROOT_WORKTREE_PATH/src/myproject.yaml\" src/myproject.yaml 2>/dev/null || true",
-    "cp -rn \"$ROOT_WORKTREE_PATH/src/secrets/\" src/secrets/ 2>/dev/null || true",
-    "echo '🔍 Running linters...'",
-    "cd tools/myproject && poetry run ruff check src/ --quiet || echo '⚠️ Ruff found issues'",
-    "cd tools/myproject && poetry run mypy src/myproject --ignore-missing-imports --no-error-summary 2>/dev/null || echo '⚠️ Mypy found issues'",
-    "echo '🧪 Running fast tests...'",
-    "cd tools/myproject && poetry run pytest tests/unit/ -m fast -q --tb=no 2>/dev/null || echo '⚠️ Some tests failed'",
-    "echo '✅ Worktree ready: tools/myproject'"
+  "setup_commands_unix": [
+    "poetry install --no-interaction --quiet 2>/dev/null || echo 'Poetry not configured'",
+    "echo '✅ Worktree ready'"
   ],
-  "setup-worktree-windows": [
-    "echo Setting up worktree...",
-    "cd tools\\myproject && poetry install --no-interaction --quiet",
-    "if not exist tools\\myproject\\myproject.yaml copy \"%ROOT_WORKTREE_PATH%\\tools\\myproject\\myproject.yaml\" tools\\myproject\\myproject.yaml 2>nul",
-    "if not exist tools\\myproject\\secrets xcopy /E /I /Q \"%ROOT_WORKTREE_PATH%\\tools\\myproject\\secrets\" tools\\myproject\\secrets 2>nul",
-    "echo Running linters...",
-    "cd tools\\myproject && poetry run ruff check src\\ --quiet || echo Ruff found issues",
-    "cd tools\\myproject && poetry run mypy src\\myproject --ignore-missing-imports --no-error-summary 2>nul || echo Mypy found issues",
-    "echo Running fast tests...",
-    "cd tools\\myproject && poetry run pytest tests\\unit\\ -m fast -q --tb=no 2>nul || echo Some tests failed",
-    "echo Worktree ready: tools/myproject"
-  ]
+  "setup_commands_windows": [
+    "poetry install --no-interaction --quiet 2>nul || echo Poetry not configured",
+    "echo Worktree ready"
+  ],
+  "description": "Template for project worktree setup. Copy and customize for your project."
 }
