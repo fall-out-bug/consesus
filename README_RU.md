@@ -31,44 +31,91 @@ Feature → Workstreams → One-shot выполнение → Готово
 
 ## Workflow
 
-```
-┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
-│  ANALYZE   │───→│    PLAN    │───→│  EXECUTE   │───→│   REVIEW   │
-│  (Фаза 1)  │    │  (Фаза 2)  │    │  (Фаза 3)  │    │  (Фаза 4)  │
-└────────────┘    └────────────┘    └────────────┘    └────────────┘
-```
+Используйте slash-команды для упрощённого выполнения:
 
+```bash
+/idea "Аутентификация пользователей"  # 1. Сбор требований
+/design idea-user-auth                # 2. Создание воркстримов
+/build WS-001-01                      # 3. Реализация воркстрима
+/review F01                           # 4. Проверка качества
+/deploy F01                           # 5. Деплой в продакшн
+```
 
 ## Быстрый старт
 
-### 1. Создать спецификацию Feature
+### 1. Собрать требования
 
-```markdown
-# Feature: User Authentication
-
-## Overview
-Пользователи могут регистрироваться и логиниться по email/паролю.
-
-## Workstreams
-- WS-001: Domain entities (User, Password, Session)
-- WS-002: Repository pattern
-- WS-003: Auth service
-- WS-004: API endpoints
-- WS-005: Tests
+```bash
+/idea "Добавить аутентификацию по email/паролю"
 ```
 
-### 2. Фаза 1: Analyze
+**Результат:** `docs/drafts/idea-user-auth.md`
 
+### 2. Создать воркстримы
+
+```bash
+/design idea-user-auth
 ```
-Проверить WS-001:
-- Критерии приёмки выполнены?
-- Код соответствует паттернам?
-- Тесты адекватны?
+
+**Результат:**
+- `docs/workstreams/backlog/WS-001-01-domain.md`
+- `docs/workstreams/backlog/WS-001-02-repository.md`
+- `docs/workstreams/backlog/WS-001-03-service.md`
+- `docs/workstreams/backlog/WS-001-04-api.md`
+- `docs/workstreams/backlog/WS-001-05-tests.md`
+
+### 3. Реализовать воркстримы
+
+```bash
+/build WS-001-01  # Domain layer
+/build WS-001-02  # Repository
+/build WS-001-03  # Service
+# ... и т.д.
 ```
 
-### 6. Повторить
+Или автономное выполнение:
 
-Повторить фазы 2-4 для оставшихся workstreams.
+```bash
+/oneshot F01  # Выполнит все WS автоматически
+```
+
+### 4. Проверить качество
+
+```bash
+/review F01
+```
+
+Проверяет:
+- ✅ Все критерии приёмки выполнены
+- ✅ Покрытие ≥ 80%
+- ✅ Нет TODO/FIXME
+- ✅ Clean Architecture соблюдена
+
+### 5. Задеплоить
+
+```bash
+/deploy F01
+```
+
+Генерирует:
+- Docker конфиги
+- CI/CD пайплайны
+- Release notes
+- План деплоя
+
+## Справка по командам
+
+| Команда | Назначение | Когда использовать |
+|---------|------------|-------------------|
+| `/idea` | Сбор требований | Начало новой фичи |
+| `/design` | Создание воркстримов | После прояснения требований |
+| `/build` | Реализация воркстрима | Выполнение одного WS |
+| `/review` | Проверка качества | После завершения всех WS |
+| `/deploy` | Деплой в продакшн | После APPROVED review |
+| `/issue` | Отладка и маршрутизация | Анализ багов |
+| `/hotfix` | Экстренное исправление | P0 проблемы в продакшне |
+| `/bugfix` | Качественное исправление | P1/P2 баги |
+| `/oneshot` | Автономное выполнение | Выполнить все WS без участия |
 
 ## Quality Gates
 
@@ -105,10 +152,10 @@ sdp/
 │   ├── PRINCIPLES.md        # SOLID, DRY, KISS, YAGNI
 │   └── concepts/            # Clean Architecture, Artifacts, Roles
 ├── prompts/
-│   ├── structured/          # Промпты фаз 1-4
-│   └── commands/            # Slash-команды
+│   └── commands/            # Slash-команды (/idea, /design, и т.д.)
 ├── schema/                  # JSON валидация
 ├── scripts/                 # Утилиты
+├── hooks/                   # Git hooks
 └── templates/               # Шаблоны документов
 ```
 
@@ -120,16 +167,33 @@ sdp/
 | [docs/PRINCIPLES.md](docs/PRINCIPLES.md) | SOLID, DRY, KISS, YAGNI |
 | [docs/concepts/](docs/concepts/) | Архитектурные концепции |
 | [CODE_PATTERNS.md](CODE_PATTERNS.md) | Паттерны кода |
+| [MODELS.md](MODELS.md) | Рекомендации по моделям |
 | [CLAUDE.md](CLAUDE.md) | Интеграция с Claude Code |
 
 ## Интеграция
 
+### Для Claude Code
+
+1. Скопировать файлы в проект:
 ```bash
-# Скопировать в свой проект
 cp -r prompts/ your-project/
 cp -r schema/ your-project/
+cp -r .claude_sdp/ your-project/
 cp CLAUDE.md your-project/
 ```
+
+2. Использовать skills: `@idea`, `@design`, `@build`, и т.д.
+
+### Для Cursor
+
+1. Скопировать файлы в проект:
+```bash
+cp -r prompts/ your-project/
+cp -r schema/ your-project/
+cp -r .cursor_sdp/ your-project/
+```
+
+2. Использовать slash-команды: `/idea`, `/design`, `/build`, и т.д.
 
 ---
 

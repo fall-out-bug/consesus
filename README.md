@@ -31,44 +31,91 @@ Feature → Workstreams → One-shot execution → Done
 
 ## Workflow
 
-```
-┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
-│  ANALYZE   │───→│    PLAN    │───→│  EXECUTE   │───→│   REVIEW   │
-│  (Phase 1) │    │  (Phase 2) │    │  (Phase 3) │    │  (Phase 4) │
-└────────────┘    └────────────┘    └────────────┘    └────────────┘
-```
+Use slash commands for streamlined execution:
 
+```bash
+/idea "User authentication"      # 1. Requirements gathering
+/design idea-user-auth           # 2. Create workstreams
+/build WS-001-01                 # 3. Implement workstream
+/review F01                      # 4. Quality review
+/deploy F01                      # 5. Deploy to production
+```
 
 ## Quick Start
 
-### 1. Create Feature Spec
+### 1. Gather Requirements
 
-```markdown
-# Feature: User Authentication
-
-## Overview
-Users can register and login with email/password.
-
-## Workstreams
-- WS-001: Domain entities (User, Password, Session)
-- WS-002: Repository pattern
-- WS-003: Auth service
-- WS-004: API endpoints
-- WS-005: Tests
+```bash
+/idea "Add user authentication with email/password"
 ```
 
-### 2. Phase 1: Analyze
+**Output:** `docs/drafts/idea-user-auth.md`
 
+### 2. Create Workstreams
+
+```bash
+/design idea-user-auth
 ```
-Review WS-001:
-- Acceptance criteria met?
-- Code follows patterns?
-- Tests adequate?
+
+**Output:** 
+- `docs/workstreams/backlog/WS-001-01-domain.md`
+- `docs/workstreams/backlog/WS-001-02-repository.md`
+- `docs/workstreams/backlog/WS-001-03-service.md`
+- `docs/workstreams/backlog/WS-001-04-api.md`
+- `docs/workstreams/backlog/WS-001-05-tests.md`
+
+### 3. Implement Workstreams
+
+```bash
+/build WS-001-01  # Domain layer
+/build WS-001-02  # Repository
+/build WS-001-03  # Service
+# ... etc
 ```
 
-### 6. Repeat
+Or use autonomous execution:
 
-Repeat phases 2-4 for remaining workstreams.
+```bash
+/oneshot F01  # Executes all WS automatically
+```
+
+### 4. Review Quality
+
+```bash
+/review F01
+```
+
+Checks:
+- ✅ All acceptance criteria met
+- ✅ Coverage ≥ 80%
+- ✅ No TODO/FIXME
+- ✅ Clean Architecture followed
+
+### 5. Deploy
+
+```bash
+/deploy F01
+```
+
+Generates:
+- Docker configs
+- CI/CD pipelines
+- Release notes
+- Deployment plan
+
+## Commands Reference
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/idea` | Requirements gathering | Start new feature |
+| `/design` | Create workstreams | After requirements clear |
+| `/build` | Implement workstream | Execute single WS |
+| `/review` | Quality check | After all WS complete |
+| `/deploy` | Production deployment | After review APPROVED |
+| `/issue` | Debug and route | Analyze bugs |
+| `/hotfix` | Emergency fix | P0 production issue |
+| `/bugfix` | Quality fix | P1/P2 bugs |
+| `/oneshot` | Autonomous execution | Execute all WS hands-free |
 
 ## Quality Gates
 
@@ -105,10 +152,10 @@ sdp/
 │   ├── PRINCIPLES.md        # SOLID, DRY, KISS, YAGNI
 │   └── concepts/            # Clean Architecture, Artifacts, Roles
 ├── prompts/
-│   ├── structured/          # Phase 1-4 prompts
-│   └── commands/            # Slash commands
+│   └── commands/            # Slash commands (/idea, /design, etc.)
 ├── schema/                  # JSON validation
 ├── scripts/                 # Utilities
+├── hooks/                   # Git hooks
 └── templates/               # Document templates
 ```
 
@@ -120,16 +167,33 @@ sdp/
 | [docs/PRINCIPLES.md](docs/PRINCIPLES.md) | SOLID, DRY, KISS, YAGNI |
 | [docs/concepts/](docs/concepts/) | Architecture concepts |
 | [CODE_PATTERNS.md](CODE_PATTERNS.md) | Code patterns |
+| [MODELS.md](MODELS.md) | Model recommendations |
 | [CLAUDE.md](CLAUDE.md) | Claude Code integration |
 
 ## Integration
 
+### For Claude Code
+
+1. Copy files to your project:
 ```bash
-# Copy to your project
 cp -r prompts/ your-project/
 cp -r schema/ your-project/
+cp -r .claude_sdp/ your-project/
 cp CLAUDE.md your-project/
 ```
+
+2. Use skills: `@idea`, `@design`, `@build`, etc.
+
+### For Cursor
+
+1. Copy files to your project:
+```bash
+cp -r prompts/ your-project/
+cp -r schema/ your-project/
+cp -r .cursor_sdp/ your-project/
+```
+
+2. Use slash commands: `/idea`, `/design`, `/build`, etc.
 
 ---
 
