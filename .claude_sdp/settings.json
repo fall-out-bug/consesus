@@ -1,0 +1,85 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(poetry run pytest:*)",
+      "Bash(poetry run ruff:*)",
+      "Bash(poetry run mypy:*)",
+      "Bash(poetry install:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git merge:*)",
+      "Bash(git tag:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(bash sdp/hooks/*)",
+      "Bash(./sdp/hooks/*)",
+      "Bash(bash sdp/notifications/*)",
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Write(tools/hw_checker/*)",
+      "Write(.claude/*)",
+      "Write(sdp/*)",
+      "Edit(tools/hw_checker/*)",
+      "Edit(.claude/*)",
+      "Edit(sdp/*)",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Write(.env*)",
+      "Write(**/secrets/*)",
+      "Write(**/*credentials*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/pre-edit-check.sh \"$CLAUDE_FILE_PATH\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/post-edit-check.sh \"$CLAUDE_FILE_PATH\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/fall_out_bug/msu_ai_masters/sdp/hooks/validators/session-quality-check.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

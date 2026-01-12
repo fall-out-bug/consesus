@@ -1,0 +1,128 @@
+# hw_checker Workflow Rules
+
+Эти правила автоматически применяются при работе с hw_checker проектом.
+
+## Slash Commands
+
+При получении команды, используй соответствующий промпт:
+
+| Команда | Промпт |
+|---------|--------|
+| `/idea {description}` | `@consensus/prompts/commands/idea.md` |
+| `/design {slug}` | `@consensus/prompts/commands/design.md` |
+| `/build {WS-ID}` | `@consensus/prompts/commands/build.md` |
+| `/review {feature}` | `@consensus/prompts/commands/review.md` |
+| `/deploy {feature}` | `@consensus/prompts/commands/deploy.md` |
+
+## Обязательные файлы для чтения
+
+При ЛЮБОЙ работе с workstreams, СНАЧАЛА читай:
+
+```bash
+# 1. Project Map — архитектурные решения
+cat tools/hw_checker/docs/PROJECT_MAP.md
+
+# 2. INDEX — существующие WS
+cat tools/hw_checker/docs/workstreams/INDEX.md
+```
+
+## Автоматические проверки
+
+### Pre-build (перед /build)
+```bash
+consensus/hooks/pre-build.sh {WS-ID}
+```
+
+### Post-build (после /build)
+```bash
+consensus/hooks/post-build.sh {WS-ID} {module}
+```
+
+## Git Workflow
+
+### Branch Naming
+```
+feature/{slug}     # Для новых фич
+fix/{slug}         # Для исправлений
+```
+
+### Conventional Commits
+```
+feat({scope}): WS-XXX-XX - description
+test({scope}): WS-XXX-XX - add tests
+docs({scope}): WS-XXX-XX - execution report
+fix({scope}): description
+refactor({scope}): description
+```
+
+### Workflow
+```
+/design → git checkout -b feature/{slug}
+/build  → git commit -m "feat({scope}): WS-XXX-XX - ..."
+/review → check git log
+/deploy → git merge --no-ff, git tag, cleanup
+```
+
+### Install Git Hooks
+```bash
+ln -sf ../../consensus/hooks/pre-commit.sh .git/hooks/pre-commit
+ln -sf ../../consensus/hooks/commit-msg.sh .git/hooks/commit-msg
+```
+
+## Запрещено
+
+❌ Создавать WS без Goal + Acceptance Criteria
+❌ Ссылаться на несуществующие WS
+❌ Использовать time estimates (дни/часы)
+❌ Оставлять TODO/FIXME в коде
+❌ Принимать WS с coverage < 80%
+❌ Игнорировать regression tests
+
+## Substream Format
+
+При разбиении WS на части:
+
+```
+WS-{PARENT}-{SEQ}
+
+PARENT = 3 цифры (060)
+SEQ = 2 цифры (01, 02...)
+
+✅ WS-060-01, WS-060-02, WS-060-10
+❌ WS-060-1, WS-60-01, WS-060-A
+```
+
+## Clean Architecture
+
+```
+Domain     → НЕ импортирует infrastructure/presentation
+Application → НЕ импортирует infrastructure напрямую
+Infrastructure → Реализует ports из application
+Presentation → Использует только application
+```
+
+## File Limits
+
+| LOC | Зона | Действие |
+|-----|------|----------|
+| < 150 | 🟢 | OK |
+| 150-200 | 🟡 | Рассмотри split |
+| > 200 | 🔴 | Обязательно разбить |
+
+## Type Hints (Python 3.10+)
+
+```python
+# ✅ Correct
+def func(data: str, count: int = 0) -> list[str]:
+    ...
+
+def void_func() -> None:
+    ...
+
+# ❌ Wrong
+def func(data):  # No types
+    ...
+
+def void_func():  # Missing -> None
+    ...
+```

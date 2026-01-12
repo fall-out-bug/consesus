@@ -1,98 +1,162 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working with this Spec-Driven Protocol (SDP) repository.
 
-## Project Overview
+## Quick Start
 
-This is the **Consensus Workflow** - a file-based multi-agent coordination framework for software development. It enables autonomous agents (Analyst, Architect, Tech Lead, Developer, QA, DevOps) to collaborate through structured JSON messages and shared artifacts.
+**Protocol:** Spec-Driven Protocol (SDP) v0.3.0 — Workstream-driven development for AI agents.
 
-**Protocol Version:** 2.0 (Unified Progressive Consensus)
+**First time?** Read [README.md](README.md) and [PROTOCOL.md](PROTOCOL.md).
 
-## Core Architecture
+## Repository Overview
 
-### UPC Protocol v2.0
+Spec-Driven Protocol (SDP) framework for AI-assisted software development.
 
-Agents communicate through file-based protocol:
-- **State**: `docs/specs/{epic}/consensus/status.json` (single source of truth)
-- **Artifacts**: Deliverables in `docs/specs/{epic}/consensus/artifacts/`
-- **Messages**: JSON files in `docs/specs/{epic}/consensus/messages/inbox/{agent}/`
-- **Schemas**: Validation schemas in `consensus/schema/`
+**Key files:**
+- [PROTOCOL.md](PROTOCOL.md) - Full protocol specification
+- [RULES_COMMON.md](RULES_COMMON.md) - Common rules for all work
+- [README.md](README.md) - Overview and quick start
+- `prompts/` - Agent instructions for different modes
+- `schema/` - JSON validation schemas
+- `scripts/` - Validation and utility scripts
+- `templates/` - Document templates
 
-### Protocol Tiers
+## Terminology
 
-| Tier | Validation | Use Case |
-|------|------------|----------|
-| Starter | JSON syntax | Bug fixes, prototypes |
-| Standard | Full schema | Features |
-| Enterprise | Schema + custom | Large systems |
+| Term | Scope | Size | Example |
+|------|-------|------|---------|
+| **Release** | Product milestone | 10-30 Features | R1: MVP |
+| **Feature** | Large feature | 5-30 Workstreams | F1: User Auth |
+| **Workstream** | Atomic task | SMALL/MEDIUM/LARGE | WS-001 |
 
-### Execution Modes
+**Scope metrics:**
+- **SMALL**: < 500 LOC, < 1500 tokens
+- **MEDIUM**: 500-1500 LOC, 1500-5000 tokens
+- **LARGE**: > 1500 LOC → split into 2+ WS
 
-| Mode | Flow | Use Case |
-|------|------|----------|
-| `full` | All agents | New features |
-| `fast_track` | dev → qa | Bug fixes |
-| `hotfix` | dev → devops | Emergencies |
+**⚠️ NO time-based estimates** — Use scope metrics (LOC/tokens) only.
 
-## Key Commands
+## Workstream Flow
+
+```
+┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
+│  ANALYZE   │───→│    PLAN    │───→│  EXECUTE   │───→│   REVIEW   │
+│  (Phase 1) │    │  (Phase 2) │    │  (Phase 3) │    │  (Phase 4) │
+└────────────┘    └────────────┘    └────────────┘    └────────────┘
+```
+
+**Prompts:** Use `prompts/structured/phase-{1,2,3,4}-*.md`
+
+## Core Concepts
+
+### Workstream-Driven Development
+
+- **Workstream (WS):** Self-contained task executable in one shot by AI
+- **One-shot execution:** No iterative loops; AI completes WS completely
+- **AI-Readiness:** Files < 200 LOC, CC < 10, full type hints, coverage ≥80%
+
+### Structured vs Multi-Agent Mode
+
+**Structured Mode (recommended):**
+- 4 phases with human checkpoints
+- Faster, less coordination
+- Use for most work
+
+**Multi-Agent Mode (advanced):**
+- Parallel agents (Analyst, Architect, Tech Lead, Developer, QA, DevOps)
+- For complex large-scale changes
+- See `archive/` for v1.2 multi-agent prompts
+
+## Quality Gates (Non-Negotiable)
+
+1. **AI-Readiness:** Files < 200 LOC, CC < 10, type hints everywhere
+2. **Clean Architecture:** No layer violations (Domain ← App ← Infra ← Presentation)
+3. **Error Handling:** No silent failures (`except: pass` forbidden)
+4. **Test Coverage:** ≥80% mandatory
+5. **No TODOs:** All tasks completed or deferred to new WS
+
+## Commands
+
+### Create a Feature
 
 ```bash
-# Initialize epic
-python consensus/scripts/init.py EP-001 --title "Feature" --tier standard
+# Phase 1: Analyze and decompose
+@prompts/structured/phase-1-analyze.md
+# Create workstream map from feature requirements
 
-# Validate epic
-python consensus/scripts/validate.py docs/specs/EP-001
+# Phase 2: Plan first workstream
+@prompts/structured/phase-2-design.md
+# Detailed implementation plan for WS-001
+
+# Phase 3: Execute workstream
+@prompts/structured/phase-3-implement.md
+# Code, tests, review
+
+# Phase 4: Review and finalize
+@prompts/structured/phase-4-review.md
+# Validation against spec, quality gates
 ```
 
-## Agent Workflow
+### Validate Structure
 
-When acting as an agent:
-1. Read `consensus/prompts/{role}.md` for instructions
-2. Read `status.json` to verify phase
-3. Perform work, create artifacts
-4. Validate against schema
-5. Update `status.json`
-6. Send messages to next agent
-
-## Critical Rules
-
-### Language
-- **Protocol JSON**: English only
-- **User docs** (`epic.md`): Any language
-
-### Inbox Rules
-- **READ**: Only your own inbox
-- **WRITE**: Only to OTHER agents' inboxes
-
-### Validation
-- All artifacts must validate against `consensus/schema/`
-- Use `python consensus/scripts/validate.py` before completing
-
-### Clean Architecture
-Dependencies MUST point inward:
-```
-Presentation → Infrastructure → Application → Domain
+```bash
+python sdp/scripts/validate.py docs/specs/{feature}/consensus/
 ```
 
-### Forbidden Patterns
-- `except: pass` (silent failures)
-- Default values masking exceptions
-- Catch-all handlers hiding errors
+## Key Guardrails
 
-## Key Files
+**Forbidden:**
+- ❌ `except: pass` or bare exception handling
+- ❌ Default values hiding errors
+- ❌ Time-based estimates ("2 hours", "3 days")
+- ❌ Layer violations (Domain depending on Infrastructure)
+- ❌ Files > 200 LOC without splitting
+- ❌ TODO comments without followup WS
 
-| File | Purpose |
-|------|---------|
-| `PROTOCOL.md` | Full protocol specification |
-| `consensus/prompts/` | Agent instruction files |
-| `consensus/schema/` | JSON validation schemas |
-| `consensus/scripts/` | Validation and init tools |
-| `docs/adr/` | Architecture decisions |
+**Required:**
+- ✅ Type hints (full strict mypy)
+- ✅ Tests first (TDD)
+- ✅ Coverage ≥80%
+- ✅ Clear architecture boundaries
+- ✅ Explicit error handling
 
-## Self-Verification
+## File Organization
 
-Before completing work:
-- [ ] Clean Architecture boundaries respected
-- [ ] Artifacts validated against schema
-- [ ] `status.json` updated
-- [ ] All text in protocol JSON is English
+```
+sdp/
+├── PROTOCOL.md                   # Full specification
+├── RULES_COMMON.md              # Common rules
+├── prompts/
+│   └── structured/              # Phase 1-4 prompts
+├── schema/                       # JSON Schema validation
+├── scripts/                      # Validation tools
+├── templates/                    # Document templates
+└── archive/                      # v1.2 materials
+```
+
+## Integration with Your Project
+
+Copy `prompts/` and `schema/` to your project:
+
+```bash
+cp -r sdp/prompts your-project/
+cp -r sdp/schema your-project/
+cp -r sdp/scripts your-project/
+```
+
+Update your `CLAUDE.md` to reference SDP rules.
+
+## Before You Code
+
+1. **Read RULES_COMMON.md** - Shared rules everyone follows
+2. **Check PROTOCOL.md** - Full protocol details
+3. **Read the phase prompt** - Understand what this phase does
+4. **Run validation** - Ensure structure is correct
+
+## Tips
+
+- **Scope first:** Estimate LOC/tokens before starting
+- **One-shot:** Complete the workstream in one execution
+- **Type it:** Mypy --strict on all code
+- **Test first:** Write test before implementation
+- **Clean boundaries:** No layer violations

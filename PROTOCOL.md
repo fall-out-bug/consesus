@@ -1,244 +1,592 @@
-# Unified Progressive Consensus Protocol v2.0
+# Spec-Driven Protocol v0.3.0
 
-## Overview
+Workstream-driven development для AI-агентов.
 
-The UPC Protocol enables multi-agent collaboration through file-based communication. Agents read and write files to coordinate work on software development tasks.
+---
 
-**Core Principle:**
+## Навигация
+
 ```
-Files are the only required interface.
-Everything else is optional enhancement.
+Ты здесь?                          →  Иди сюда
+─────────────────────────────────────────────────────
+Нужно понять что делать            →  Phase 1: Analyze
+Нужно спланировать WS              →  Phase 2: Plan  
+Нужно выполнить WS                 →  Phase 3: Execute
+Нужно проверить результат          →  Phase 4: Review
+Нужно принять архитектурное решение →  ADR Template
+Нужны примеры кода hw_checker      →  HW_CHECKER_PATTERNS.md
+Непонятно какие правила            →  Guardrails
 ```
 
-## Quick Start
+---
 
-### Initialize a New Epic
+## Workstream Flow
+
+```
+┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
+│  ANALYZE   │───→│    PLAN    │───→│  EXECUTE   │───→│   REVIEW   │
+│  (Sonnet)  │    │  (Sonnet)  │    │   (Auto)   │    │  (Sonnet)  │
+└────────────┘    └────────────┘    └────────────┘    └────────────┘
+     │                  │                  │                  │
+     ▼                  ▼                  ▼                  ▼
+ Карта WS          План WS            Код            APPROVED/FIX
+```
+
+**Промпты:** `@sdp/prompts/structured/phase-{1,2,3,4}-*.md`
+
+---
+
+## Терминология
+
+| Термин | Scope | Размер | Пример |
+|--------|-------|--------|--------|
+| **Release** | Продуктовая веха | 10-30 Features | R1: Submissions E2E |
+| **Feature** | Крупная фича | 5-30 Workstreams | F24: Obsidian Vault |
+| **Workstream** | Атомарная задача | SMALL/MEDIUM/LARGE | WS-140: Vault Domain |
+
+**Scope метрики для Workstream:**
+- **SMALL**: < 500 LOC, < 1500 tokens
+- **MEDIUM**: 500-1500 LOC, 1500-5000 tokens  
+- **LARGE**: > 1500 LOC → разбить на 2+ WS
+
+### ⚠️ Важно: NO TIME-BASED ESTIMATES
+
+**ЗАПРЕЩЕНО использовать время для оценки:**
+- ❌ "Это займёт 2 часа"
+- ❌ "Нужно 3 дня"
+- ❌ "Не успеваю за неделю"
+- ❌ "Времени нет"
+- ❌ "Это долго"
+
+**ИСПОЛЬЗУЙ scope метрики:**
+- ✅ "Это MEDIUM workstream (1000 LOC, 3000 tokens)"
+- ✅ "Scope превышен, нужно разбить на 2 WS"
+- ✅ "По scope это SMALL задача"
+
+#### ✅ Разрешённые упоминания времени (исключения)
+
+Время **разрешено** только в следующих случаях (и **не является оценкой scope**):
+
+- **Telemetry / измерения**: elapsed time, timestamps в логах, метрики выполнения (например, `"elapsed": "1h 23m"`).
+- **SLA / операционные цели**: hotfix/bugfix target windows (например, “P0 hotfix: <2h”, “P1/P2 bugfix: <24h”).
+- **Human Verification (UAT)**: ориентиры для человека (“Smoke test: 30 sec”, “Scenarios: 5–10 min”).
+
+Во всех остальных контекстах **время запрещено** — используем только LOC/tokens и sizing (SMALL/MEDIUM/LARGE).
+
+**Почему НЕ время:**
+1. AI agents работают с разной скоростью (Sonnet ≠ Haiku ≠ GPT)
+2. Scope объективен (LOC, tokens), время субъективно
+3. Время создаёт ложное давление ("не успеваю" → спешка → баги)
+4. One-shot execution: агент выполняет WS за один проход, независимо от "времени"
+
+### Иерархия (Product)
+
+```
+PORTAL_VISION.md (продукт)
+    ↓
+RELEASE_PLAN.md (релизы)
+    ↓
+Feature (F01-F99) — крупные фичи
+    ↓
+Workstream (WS-001-WS-999) — атомарные задачи
+```
+
+### Устаревшие термины
+
+- ~~Epic (EP)~~ → **Feature (F)** (с 2026-01-07)
+- ~~Sprint~~ → не используется
+
+---
+
+## Guardrails
+
+### AI-Readiness (БЛОКИРУЮЩИЕ)
+
+| Правило | Порог | Проверка |
+|---------|-------|----------|
+| File size | < 200 LOC | `wc -l` |
+| Complexity | CC < 10 | `ruff --select=C901` |
+| Type hints | 100% public | Visual |
+| Nesting | ≤ 3 levels | Visual |
+
+### Clean Architecture (БЛОКИРУЮЩИЕ)
+
+```
+Domain      →  НЕ импортирует ничего из других слоёв
+Application →  НЕ импортирует infrastructure напрямую
+```
 
 ```bash
-# Standard tier (recommended)
-python consensus/scripts/init.py EP-001 --title "My Feature" --tier standard
-
-# Starter tier (minimal structure)
-python consensus/scripts/init.py EP-001 --title "Bug Fix" --tier starter --mode fast_track
+# Проверка
+grep -r "from hw_checker.infrastructure" hw_checker/domain/ hw_checker/application/
+# Должно быть пусто
 ```
 
-### Run an Agent
+### Error Handling (БЛОКИРУЮЩИЕ)
 
-1. Open `consensus/prompts/{role}.md` as context
-2. Point agent to `docs/specs/{epic}/`
-3. Agent reads `status.json`, performs work, updates `status.json`
+```python
+# ЗАПРЕЩЕНО
+except:
+    pass
 
-### Validate
+except Exception:
+    return None
+
+# ОБЯЗАТЕЛЬНО
+except SpecificError as e:
+    log.error("operation.failed", error=str(e), exc_info=True)
+    raise
+```
+
+### Security (для DinD)
+
+- [ ] Нет `privileged: true`
+- [ ] Нет `/var/run/docker.sock` mounts
+- [ ] Resource limits заданы
+- [ ] Нет string interpolation в shell commands
+
+---
+
+## Quality Gates
+
+### Gate 1: Analyze → Plan
+- [ ] Карта WS сформирована
+- [ ] Зависимости указаны
+- [ ] AI-Readiness оценён для каждого WS
+
+### Gate 2: Plan → Execute
+- [ ] **WS не существует** в INDEX (проверено)
+- [ ] **Scope оценён**, не превышает MEDIUM
+- [ ] Все пути файлов указаны
+- [ ] Код готов к copy-paste
+- [ ] Критерии завершения включают: tests + coverage + regression
+- [ ] Ограничения явные
+- [ ] **НЕТ временных оценок** (часов/дней)
+
+### Gate 3: Execute → Review
+- [ ] Все шаги выполнены
+- [ ] Критерии завершения пройдены
+- [ ] **Coverage ≥ 80%** для изменённых файлов
+- [ ] **Regression passed** (fast tests)
+- [ ] **Нет TODO/Later** в коде
+- [ ] Отчёт сформирован
+
+### Gate 4: Review → Done
+- [ ] AI-Readiness: ✅
+- [ ] Clean Architecture: ✅
+- [ ] Error Handling: ✅
+- [ ] Tests & Coverage: ✅ (≥80%)
+- [ ] Regression: ✅ (all fast tests)
+- [ ] Review записан **в конец WS файла** (не отдельный файл)
+
+### Gate 5: Done → Deploy (Human UAT)
+
+**UAT (User Acceptance Testing)** — проверка человеком перед деплоем:
+
+| Шаг | Описание | Время |
+|-----|----------|-------|
+| 1 | Quick Smoke Test | 30 сек |
+| 2 | Detailed Scenarios (happy path + errors) | 5-10 мин |
+| 3 | Red Flags Check | 2 мин |
+| 4 | Sign-off | 1 мин |
+
+**UAT Guide создаётся автоматически** после `/review APPROVED`:
+- Feature-level: `docs/uat/F{XX}-uat-guide.md`
+- WS-level: секция "Human Verification (UAT)" в WS файле
+
+**Без Sign-off человека → Deploy блокирован.**
+
+---
+
+## WS Scope Control
+
+**Метрики размера (вместо времени):**
+
+| Размер | Строк кода | Токенов | Действие |
+|--------|-----------|---------|----------|
+| **SMALL** | < 500 | < 1500 | ✅ Оптимально |
+| **MEDIUM** | 500-1500 | 1500-5000 | ✅ Допустимо |
+| **LARGE** | > 1500 | > 5000 | ❌ **РАЗБИТЬ** |
+
+**Правило:** Все WS должны быть SMALL или MEDIUM.
+
+**Если scope превышен во время Execute:**
+→ STOP, вернуться к Phase 2 для разбиения на WS-XXX-1, WS-XXX-2
+
+---
+
+## Test Coverage Gate
+
+**Минимум:** 80% для изменённых/созданных файлов
 
 ```bash
-python consensus/scripts/validate.py docs/specs/EP-001 --tier standard
+pytest tests/unit/test_module.py -v \
+  --cov=hw_checker/module \
+  --cov-report=term-missing \
+  --cov-fail-under=80
 ```
 
-## Protocol Tiers
+**Если coverage < 80% → CHANGES REQUESTED (HIGH)**
 
-| Tier | Use Case | Validation | Agent Chain |
-|------|----------|------------|-------------|
-| **Starter** | Bug fixes, prototypes | JSON syntax only | Optional |
-| **Standard** | Features | Full schema validation | Required |
-| **Enterprise** | Large systems | Schema + custom rules | Required + custom |
+---
 
-## Execution Modes
+## Regression Gate
 
-| Mode | Agent Chain | Use Case |
-|------|-------------|----------|
-| `full` | analyst → architect → tech_lead → developer → qa → devops | New features |
-| `fast_track` | developer → qa | Bug fixes (≤50 LOC) |
-| `hotfix` | developer → devops | Critical production issues |
-
-## Directory Structure
-
-### Standard Tier
-
-```
-docs/specs/{epic}/
-├── epic.md                    # Problem description
-└── consensus/
-    ├── status.json            # State machine (required)
-    ├── artifacts/             # Agent deliverables
-    │   ├── requirements.json
-    │   ├── architecture.json
-    │   ├── plan.json
-    │   ├── implementation.json
-    │   └── test_results.json
-    ├── messages/
-    │   └── inbox/{role}/      # Agent communication
-    └── decision_log/          # Audit trail
-```
-
-## State Machine (`status.json`)
-
-The `status.json` file is the single source of truth for epic state.
-
-```json
-{
-  "epic_id": "EP-001",
-  "tier": "standard",
-  "phase": "implementation",
-  "mode": "full",
-  "iteration": 1,
-  "approvals": ["analyst", "architect", "tech_lead"],
-  "blockers": [],
-  "workstreams": [
-    { "id": "WS-01", "title": "Domain Layer", "status": "done" },
-    { "id": "WS-02", "title": "API Layer", "status": "in_progress" }
-  ],
-  "updated_at": "2025-12-31T14:30:00Z",
-  "updated_by": "developer"
-}
-```
-
-### Phase Flow
-
-```
-requirements → architecture → planning → implementation → testing → deployment → done
-                                ↑                                        ↓
-                                └────────────── blocked ←────────────────┘
-```
-
-### Field Definitions
-
-| Field | Description |
-|-------|-------------|
-| `tier` | Validation strictness (starter/standard/enterprise) |
-| `phase` | Current lifecycle phase |
-| `mode` | Agent topology (full/fast_track/hotfix) |
-| `iteration` | Increment on veto cycles |
-| `approvals` | Roles that approved current phase |
-| `blockers` | Active vetoes or questions |
-| `workstreams` | Micro-tasks for granular tracking |
-
-## Agent Rules
-
-### Reading
-
-- **Only read your own inbox**: `messages/inbox/{your_role}/`
-- **Always read `status.json` first** before acting
-
-### Writing
-
-- **Never write to your own inbox**
-- **Always update `status.json`** after completing work
-- **Validate before writing** against schema
-
-### Phase Ownership
-
-Only the phase owner can advance `phase`:
-- `requirements` → analyst
-- `architecture` → architect
-- `planning` → tech_lead
-- `implementation` → developer
-- `testing` → qa
-- `deployment` → devops
-
-## Message Format
-
-Messages are JSON files in `messages/inbox/{role}/`:
-
-```json
-{
-  "d": "2025-12-31",
-  "st": "handoff",
-  "r": "analyst",
-  "epic": "EP-001",
-  "sm": ["Requirements ready for architecture review"],
-  "nx": ["Review and design architecture"],
-  "artifacts": ["consensus/artifacts/requirements.json"]
-}
-```
-
-| Key | Description |
-|-----|-------------|
-| `d` | Date (YYYY-MM-DD) |
-| `st` | Status (request/response/veto/approval/handoff) |
-| `r` | Sender role |
-| `sm` | Summary points |
-| `nx` | Next actions |
-
-## Veto Protocol
-
-### Cannot Override (Blocking)
-
-| Veto | Authority | Trigger |
-|------|-----------|---------|
-| `layer_violation` | architect | Dependencies pointing outward |
-| `critical_security_issue` | security | Security vulnerability |
-| `no_rollback_plan` | devops | Missing rollback strategy |
-| `failed_acceptance` | qa | Acceptance criteria not met |
-
-### Can Negotiate
-
-| Veto | Authority | Trigger |
-|------|-----------|---------|
-| `scope_creep` | analyst | Exceeds original scope |
-| `untestable_plan` | tech_lead | Plan cannot be verified |
-
-## Validation
-
-### Run Validator
+**После каждого WS:**
 
 ```bash
-# Standard validation
-python consensus/scripts/validate.py docs/specs/EP-001
-
-# Starter (syntax only)
-python consensus/scripts/validate.py docs/specs/EP-001 --tier starter
-
-# Enterprise (strict)
-python consensus/scripts/validate.py docs/specs/EP-001 --tier enterprise
+# Все fast tests ДОЛЖНЫ проходить
+pytest tests/unit/ -m fast -v
 ```
 
-### Validation Gates
+**Если регресс нарушен → CHANGES REQUESTED (CRITICAL)**
 
-Before phase transition:
-1. **Schema gate**: JSON validates against schema
-2. **Phase gate**: Required artifacts exist
-3. **Ownership gate**: Correct role advancing phase
-4. **Language gate**: Protocol JSON in English
+---
 
-## Schemas
+## TODO/Later Gate
 
-All schemas are in `consensus/schema/`:
+**СТРОГО ЗАПРЕЩЕНО в коде:**
+- `# TODO: ...`
+- `# FIXME: ...`
+- Комментарии "оставлю на потом", "временное решение"
 
-| Schema | Purpose |
-|--------|---------|
-| `status.schema.json` | State machine |
-| `message.schema.json` | Agent communication |
-| `requirements.schema.json` | Analyst deliverable |
-| `architecture.schema.json` | Architect deliverable |
-| `plan.schema.json` | Tech Lead deliverable |
+**Исключение:** `# NOTE:` — только для пояснений
 
-## Platform Adapters
+**Если обнаружено → CHANGES REQUESTED (HIGH)**
 
-The protocol works with any tool. Platform-specific guides are in `docs/guides/adapters/`:
+---
 
-| Platform | Config |
-|----------|--------|
-| Cursor | `.cursorrules` |
-| Claude Code | `CLAUDE.md` |
-| Aider | `.aider.conf.yml` |
+## ⛔ NO TECH DEBT
 
-See [docs/guides/](docs/guides/) for setup instructions.
+**Концепция Tech Debt ЗАПРЕЩЕНА в проекте.**
 
-## Migration from v1.2
+❌ "Это tech debt, сделаем потом"
+❌ "Временное решение, вернёмся позже"
+❌ "Грязный код, но работает"
+❌ "Отложим рефакторинг"
+
+✅ **Правило: всё говно убираем сразу.**
+
+**Если код не соответствует стандартам:**
+1. Исправь в текущем WS
+2. Если scope превышен → разбей на WS (см. ниже)
+3. НЕ оставляй "на потом"
+
+**Философия:** Каждый WS оставляет код в идеальном состоянии. Нет накапливающегося долга.
+
+---
+
+## 🔀 Substreams: Правила разбиения
+
+**Если WS нужно разбить на части:**
+
+### Формат нумерации (СТРОГО)
+
+```
+WS-{PARENT_ID}-{SEQ}
+
+Где:
+- PARENT_ID = ID родительского WS (3 цифры, с ведущими нулями)
+- SEQ = порядковый номер substream (2 цифры: 01, 02, ... 99)
+```
+
+**Примеры:**
+```
+WS-050         ← родительский (разбивается)
+├── WS-050-01  ← первый substream
+├── WS-050-02  ← второй substream
+├── WS-050-03  ← третий substream
+├── ...
+├── WS-050-10  ← десятый (сортировка корректна!)
+└── WS-050-15  ← пятнадцатый
+```
+
+**ЗАПРЕЩЁННЫЕ форматы:**
+```
+❌ WS-050-A, WS-050-B      (буквы)
+❌ WS-050-part1            (слова)
+❌ WS-050.1, WS-050.2      (точки)
+❌ WS-50-1                 (без ведущих нулей в PARENT)
+❌ WS-050-1                (однозначный SEQ — всегда 01, 02...)
+```
+
+### ОБЯЗАТЕЛЬНО при разбиении:
+
+1. **Создай ВСЕ файлы substreams** в `workstreams/backlog/`:
+   ```
+   WS-050-01-domain-entities.md
+   WS-050-02-application-layer.md
+   WS-050-03-infrastructure.md
+   ```
+
+2. **Заполни каждый substream** полностью (не stub):
+   - Контекст
+   - Зависимости (WS-XXX-1 → WS-XXX-2 → ...)
+   - Входные файлы
+   - Шаги
+   - Код
+   - Критерии завершения
+
+3. **Обнови INDEX.md** с новыми WS
+
+4. **Удали или пометь родительский WS** как "Разбит → WS-XXX-1, WS-XXX-2"
+
+### ЗАПРЕЩЕНО:
+
+❌ Ссылаться на несуществующие WS ("см. WS-050-02" без создания файла)
+❌ Оставлять пустые stubs ("TODO: заполнить")
+❌ Разбивать без создания файлов
+❌ Partial execution ("сделал часть, остальное в другом WS")
+❌ Форматы: `24.1`, `WS-24-1`, `WS-050-1`, `WS-050-part1`
+❌ Time estimates: "0.5 дня", "3 дня" — только LOC/tokens
+❌ Создавать отдельные `-ANALYSIS.md` файлы (анализ → сразу в WS файлы)
+
+### Пример правильного разбиения:
+
+```markdown
+## WS-050: Large Feature → РАЗБИТ
+
+**Статус:** Разбит на substreams
+**Причина:** Scope > MEDIUM (2500 LOC)
+
+**Substreams:** (формат: WS-{PARENT}-{SEQ}, SEQ всегда 2 цифры)
+| ID | Файл | Scope |
+|----|------|-------|
+| WS-050-01 | WS-050-01-domain-entities.md | SMALL (400 LOC) |
+| WS-050-02 | WS-050-02-application-layer.md | MEDIUM (800 LOC) |
+| WS-050-03 | WS-050-03-infrastructure.md | MEDIUM (700 LOC) |
+| WS-050-04 | WS-050-04-presentation.md | SMALL (300 LOC) |
+| WS-050-05 | WS-050-05-integration-tests.md | SMALL (300 LOC) |
+
+Все файлы созданы в backlog/, добавлены в INDEX.md.
+```
+
+### Проверка перед ссылкой на substream
 
 ```bash
-# Move existing epic to new structure
-python consensus/scripts/init.py EP-001 --base-dir docs/specs
+# ОБЯЗАТЕЛЬНО перед тем как написать "см. WS-050-02":
+ls tools/hw_checker/docs/workstreams/backlog/WS-050-02-*.md
 
-# Copy existing artifacts
-cp old/requirements.json docs/specs/EP-001/consensus/artifacts/
+# Если "No such file" → СНАЧАЛА создай файл!
 
-# Validate
-python consensus/scripts/validate.py docs/specs/EP-001
+# Проверка формата нумерации (должны быть 2 цифры для SEQ):
+ls tools/hw_checker/docs/workstreams/backlog/ | grep -E "WS-[0-9]{3}-[0-9]{2}-"
+# ✅ WS-050-01-domain.md, WS-050-02-app.md
+# ❌ WS-050-1-domain.md (SEQ должен быть 01, не 1)
+
+# Проверка на time estimates (должно быть пусто):
+grep -rE "дн[яей]|час[ов]|недел" tools/hw_checker/docs/workstreams/backlog/WS-050*.md
 ```
 
-## References
+---
 
-- [ADR-0004: Unified Progressive Consensus](docs/adr/0004-unified-progressive-consensus.md)
-- [Agent Prompts](consensus/prompts/)
-- [JSON Schemas](consensus/schema/)
+## ADR Template
+
+Когда принимаешь архитектурное решение, создай:
+
+`docs/architecture/adr/YYYY-MM-DD-{title}.md`
+
+```markdown
+# ADR: {Title}
+
+## Status
+Proposed / Accepted / Deprecated
+
+## Context
+[Какая проблема? Какие ограничения?]
+
+## Decision
+[Что решили делать?]
+
+## Alternatives Considered
+1. [Альтернатива 1] — почему нет
+2. [Альтернатива 2] — почему нет
+
+## Consequences
+- [+] Плюс
+- [-] Минус
+- [!] Риск
+```
+
+---
+
+## Workstream Format
+
+```markdown
+## WS-{ID}: {Title}
+
+### Контекст
+[Почему нужно]
+
+### Зависимость  
+[WS-XX / Независимый]
+
+### Входные файлы
+- `path/to/file.py` — что там
+
+### Шаги
+1. [Атомарное действие]
+2. ...
+
+### Код
+```python
+# Готовый код
+```
+
+### Ожидаемый результат
+- [Что должно быть]
+
+### Критерий завершения
+```bash
+pytest ...
+ruff check ...
+```
+
+### Ограничения
+- НЕ делать: ...
+```
+
+---
+
+## Иерархия документации (C4-подобная)
+
+```
+L1: System      docs/SYSTEM_OVERVIEW.md
+    ↓ Общий контекст системы, границы, основные домены
+    
+L2: Domain      docs/domains/{domain}/DOMAIN_MAP.md  
+    ↓ Структура домена, компоненты, интеграции
+    
+L3: Component   docs/domains/{domain}/components/{comp}/SPEC.md
+    ↓ Детальная спецификация компонента
+    
+L4: Workstream  docs/workstreams/WS-XXX.md
+    ↓ Конкретная задача для выполнения
+```
+
+### Navigation Flow
+
+**Phase 1 (Analyze):**
+1. Читай L1 (`SYSTEM_OVERVIEW.md`) для общего контекста
+2. Выбери релевантный домен, читай L2 (`domains/{domain}/DOMAIN_MAP.md`)
+3. Если затрагиваешь компонент, читай L3 (component SPEC)
+4. Генерируй L4 (workstream map)
+
+**Phase 2 (Plan):**
+1. Читай L4 (`workstreams/INDEX.md`) — проверь дубликаты
+2. Читай L1/L2/L3 для контекста конкретного WS
+3. Создай детальный план WS
+
+**Phase 3 (Execute):**
+1. Работай по плану WS (L4)
+
+**Phase 4 (Review):**
+1. Проверь качество кода
+2. Если WS изменил domain boundaries → обновить L2
+3. Если WS изменил component → обновить L3
+
+### Product vs Architecture Hierarchy
+
+**Product (планирование фичей):**
+```
+PORTAL_VISION.md → RELEASE_PLAN.md → Feature (F) → Workstream (WS)
+```
+
+**Architecture (структура кода/документации):**
+```
+L1 (System) → L2 (Domain) → L3 (Component) → L4 (Workstream)
+```
+
+**Пересечение:**
+- Feature F24 → создаёт/модифицирует L2 (content domain)
+- Workstream WS-140 → создаёт L3 (vault component)
+
+---
+
+## Quick Reference
+
+```bash
+# AI-Readiness check
+find hw_checker -name "*.py" -exec wc -l {} + | awk '$1 > 200'
+ruff check hw_checker --select=C901
+
+# Clean Architecture check  
+grep -r "from hw_checker.infrastructure" hw_checker/domain/ hw_checker/application/
+
+# Error handling check
+grep -rn "except:" hw_checker/
+grep -rn "except Exception" hw_checker/ | grep -v "exc_info"
+
+# Test coverage (≥80%)
+pytest tests/unit/test_module.py -v \
+  --cov=hw_checker/module \
+  --cov-report=term-missing \
+  --cov-fail-under=80
+
+# Regression (fast tests)
+pytest tests/unit/ -m fast -v
+
+# TODO/Later check
+grep -rn "TODO\|FIXME" hw_checker/ --include="*.py" | grep -v "# NOTE"
+
+# Full test suite
+pytest -m fast -x --tb=short
+pytest --cov=hw_checker --cov-report=term-missing
+```
+
+---
+
+## Observability
+
+### Telegram Notifications
+
+Automated notifications for critical events:
+
+```bash
+# Setup
+export TELEGRAM_BOT_TOKEN="..."
+export TELEGRAM_CHAT_ID="..."
+
+# Events: oneshot_started, oneshot_completed, oneshot_blocked,
+#         ws_failed, review_failed, breaking_changes, e2e_failed,
+#         deploy_success, hotfix_deployed
+```
+
+See: `sdp/notifications/TELEGRAM.md`
+
+### Audit Log
+
+Centralized logging of all workflow events:
+
+```bash
+# Configuration
+export AUDIT_LOG_FILE="/var/log/consensus-audit.log"
+
+# Format: ISO8601|EVENT_TYPE|USER|GIT_BRANCH|EVENT_DATA
+# Example:
+# 2026-01-11T00:30:15+03:00|WS_START|user|feature/lms|ws=WS-060-01
+
+# Query
+grep "feature=F60" /var/log/consensus-audit.log
+grep "WS_FAILED" /var/log/consensus-audit.log
+```
+
+See: `sdp/notifications/AUDIT_LOG.md`
+
+### Breaking Changes Detection
+
+Automatic detection and documentation:
+
+```bash
+# Runs in pre-commit hook
+python scripts/detect_breaking_changes.py --staged
+
+# Generates:
+# - BREAKING_CHANGES.md
+# - MIGRATION_GUIDE.md (template)
+```
+
+See: `tools/hw_checker/scripts/detect_breaking_changes.py`
+
+---
+

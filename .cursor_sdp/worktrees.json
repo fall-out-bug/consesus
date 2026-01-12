@@ -1,0 +1,26 @@
+{
+  "setup-worktree-unix": [
+    "echo '🔧 Setting up worktree...'",
+    "cd tools/hw_checker && poetry install --no-interaction --quiet",
+    "cp -n \"$ROOT_WORKTREE_PATH/tools/hw_checker/hw_checker.yaml\" tools/hw_checker/hw_checker.yaml 2>/dev/null || true",
+    "cp -rn \"$ROOT_WORKTREE_PATH/tools/hw_checker/secrets/\" tools/hw_checker/secrets/ 2>/dev/null || true",
+    "echo '🔍 Running linters...'",
+    "cd tools/hw_checker && poetry run ruff check src/ --quiet || echo '⚠️ Ruff found issues'",
+    "cd tools/hw_checker && poetry run mypy src/hw_checker --ignore-missing-imports --no-error-summary 2>/dev/null || echo '⚠️ Mypy found issues'",
+    "echo '🧪 Running fast tests...'",
+    "cd tools/hw_checker && poetry run pytest tests/unit/ -m fast -q --tb=no 2>/dev/null || echo '⚠️ Some tests failed'",
+    "echo '✅ Worktree ready: tools/hw_checker'"
+  ],
+  "setup-worktree-windows": [
+    "echo Setting up worktree...",
+    "cd tools\\hw_checker && poetry install --no-interaction --quiet",
+    "if not exist tools\\hw_checker\\hw_checker.yaml copy \"%ROOT_WORKTREE_PATH%\\tools\\hw_checker\\hw_checker.yaml\" tools\\hw_checker\\hw_checker.yaml 2>nul",
+    "if not exist tools\\hw_checker\\secrets xcopy /E /I /Q \"%ROOT_WORKTREE_PATH%\\tools\\hw_checker\\secrets\" tools\\hw_checker\\secrets 2>nul",
+    "echo Running linters...",
+    "cd tools\\hw_checker && poetry run ruff check src\\ --quiet || echo Ruff found issues",
+    "cd tools\\hw_checker && poetry run mypy src\\hw_checker --ignore-missing-imports --no-error-summary 2>nul || echo Mypy found issues",
+    "echo Running fast tests...",
+    "cd tools\\hw_checker && poetry run pytest tests\\unit\\ -m fast -q --tb=no 2>nul || echo Some tests failed",
+    "echo Worktree ready: tools/hw_checker"
+  ]
+}

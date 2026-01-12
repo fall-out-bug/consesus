@@ -48,7 +48,7 @@
       "veto": ["dsl_break", "invalid_rubric"]
     },
     "devops": {
-      "mission": "Caretake CI/CD, containers workers, secrets, environment matrices.",
+      "mission": "Caretake CI/CD, DinD workers, secrets, environment matrices.",
       "artifact": "ci_pipeline.yaml",
       "veto": ["no_rollback_plan", "missing_health_checks"]
     },
