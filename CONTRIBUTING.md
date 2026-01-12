@@ -1,4 +1,4 @@
-# Contributing to Consensus Workflow
+# Contributing to Spec-Driven Protocol
 
 Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
 
@@ -7,16 +7,16 @@ Thank you for your interest in contributing! This document provides guidelines f
 - **Report bugs** - Open an issue describing the problem
 - **Suggest features** - Open an issue with your idea
 - **Improve documentation** - Fix typos, add examples, clarify explanations
-- **Add new agent roles** - Create prompts for specialized domains
-- **Share integrations** - Document how you use Consensus with other tools
+- **Add command templates** - Enhance existing slash commands
+- **Share integrations** - Document how you use SDP with other tools
 
 ## Getting Started
 
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/consensus.git
-   cd consensus
+   git clone https://github.com/YOUR_USERNAME/sdp.git
+   cd sdp
    ```
 3. Create a branch for your changes:
    ```bash
@@ -27,14 +27,21 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```
 consensus/
-├── prompts/           # Agent prompt templates
-│   └── quick/         # Token-optimized prompts
+├── prompts/
+│   ├── commands/       # Slash command prompts (/idea, /design, /build, etc.)
+│   └── structured/     # Phase-based workflow prompts
 ├── docs/
-│   ├── guides/        # Integration guides
-│   └── examples/      # Worked examples
-├── PROTOCOL.md        # Consensus protocol spec
-├── RULES_COMMON.md    # Shared agent rules
-└── MODELS.md          # Model recommendations
+│   ├── guides/         # Integration guides (Claude Code, Cursor)
+│   ├── concepts/       # Core concepts (Clean Architecture, Artifacts, Roles)
+│   ├── adr/            # Architecture decision records
+│   └── specs/          # Feature specifications
+├── .cursor_sdp/        # Cursor IDE configuration
+├── .claude_sdp/        # Claude Code configuration
+├── hooks/              # Git hooks and validators
+├── templates/          # Document templates
+├── PROTOCOL.md         # SDP specification
+├── RULES_COMMON.md     # Shared rules
+└── MODELS.md           # Model recommendations
 ```
 
 ## Contribution Guidelines
@@ -46,55 +53,53 @@ consensus/
 - Keep formatting consistent with existing docs
 - Test any code examples you include
 
-### For Prompts
+### For Command Prompts
 
-When adding or modifying agent prompts:
+When adding or modifying command prompts in `prompts/commands/`:
 
-1. **Follow the existing structure** - Use the JSON format with `meta`, `context`, `mission`, `workflow`, etc.
-2. **Keep language-agnostic** - Don't hardcode specific technologies (use placeholders like `{database}`)
+1. **Follow the existing structure** - Use the format with sections like ALGORITHM, PRE-FLIGHT CHECKS, etc.
+2. **Keep language-agnostic** - Don't hardcode specific technologies (use placeholders like `{language}`, `{framework}`)
 3. **Include all required sections**:
-   - `meta` - Role metadata and veto powers
-   - `mission` - Clear one-line purpose
-   - `workflow` - Step-by-step instructions
-   - `boundaries` - Must do / must not do
-   - `veto` - Triggers and actions
-4. **Create both full and quick versions** - Full prompt in `prompts/`, quick version in `prompts/quick/`
-5. **Test with actual AI tools** - Verify the prompt works with Claude Code or Cursor
+   - GLOBAL RULES - Core principles
+   - ALGORITHM - Step-by-step workflow
+   - OUTPUT FORMAT - What to display to user
+   - THINGS YOU MUST NEVER DO - Hard constraints
+4. **Test with actual AI tools** - Verify the prompt works with Claude Code or Cursor
 
-### For New Agent Roles
+### For New Commands
 
-To add a new agent role:
+To add a new slash command:
 
-1. Create `prompts/{role}_prompt.md` (full version)
-2. Create `prompts/quick/{role}_quick.md` (quick version)
-3. Add role to `consensus_architecture.json`
-4. Update `README.md` with role description
+1. Create `prompts/commands/{command}.md` (full prompt)
+2. Create `.cursor_sdp/commands/{command}.md` (quick reference)
+3. Add skill to `.claude_sdp/skills/{command}/SKILL.md` (Claude Code integration)
+4. Update `README.md` with command description
 5. Update `MODELS.md` with model recommendation
 
 ### Code Style
 
-- **English only** - All content must be in English
-- **Consistent formatting** - Follow existing Markdown/JSON style
+- **English only** - All content must be in English (except README_RU.md)
+- **Consistent formatting** - Follow existing Markdown style
 - **No trailing whitespace**
 - **End files with newline**
 
-## AI-Assisted Contributions (Optional)
+## Using SDP for Your Contributions
 
-You're welcome to use AI tools for your contributions. For larger changes, consider using the consensus workflow:
+You're welcome to use SDP workflow for larger contributions:
 
 ### For Larger Changes (new features, major refactors)
 
-1. **Define requirements** - Use `prompts/analyst_prompt.md` to clarify scope
-2. **Validate design** - Use `prompts/architect_prompt.md` for architectural decisions
-3. **Plan implementation** - Use `prompts/tech_lead_prompt.md` for task breakdown
-4. **Implement** - Use `prompts/developer_prompt.md` for coding with TDD
-5. **Verify quality** - Use `prompts/qa_prompt.md` for testing
+1. **Requirements** - Run `/idea "{description}"` to create draft
+2. **Design** - Run `/design idea-{slug}` to create workstreams
+3. **Implement** - Run `/build WS-XXX-XX` for each workstream
+4. **Review** - Run `/review F{XX}` to verify quality
+5. **Deploy** - Run `/deploy F{XX}` when ready
 
 **Recommended tools:**
-- [Claude Code CLI](docs/guides/CLAUDE_CODE.md) - Multi-provider support (Gemini, Claude, OpenAI, Ollama)
-- [Cursor IDE](docs/guides/CURSOR.md) - Visual multi-agent mode with parallel execution
+- [Claude Code](docs/guides/CLAUDE_CODE.md) - CLI with multiple providers
+- [Cursor IDE](docs/guides/CURSOR.md) - Visual IDE with slash commands
 
-See [MODELS.md](MODELS.md) for cost-effective model selection (Gemini 3 Flash recommended for most tasks).
+See [MODELS.md](MODELS.md) for model selection.
 
 ## Pull Request Process
 
@@ -109,9 +114,9 @@ See [MODELS.md](MODELS.md) for cost-effective model selection (Gemini 3 Flash re
 type: brief description
 
 Examples:
-- docs: add example for Python project
-- prompt: add database architect role
-- fix: correct inbox path in developer prompt
+- docs: add Python project example
+- feat: add /refactor command
+- fix: correct path in /build prompt
 ```
 
 ### PR Description Template
@@ -139,10 +144,10 @@ Fixes #123
 
 ## Adding Examples
 
-We welcome examples showing Consensus in action:
+We welcome examples showing SDP in action:
 
-1. Add to `docs/examples/`
-2. Include complete epic with all artifacts
+1. Add to `examples/`
+2. Include complete feature with workstreams
 3. Add README explaining the example
 4. Keep examples generic (no proprietary code)
 
@@ -154,7 +159,7 @@ When reporting bugs, include:
 - What actually happened
 - Steps to reproduce
 - Which AI tool you're using (Claude Code, Cursor, etc.)
-- Relevant prompt or configuration
+- Relevant command or configuration
 
 ## Suggesting Features
 

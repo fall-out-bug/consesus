@@ -1,48 +1,52 @@
-# Model Recommendations for Consensus Agents
+# Model Recommendations for SDP
 
-This guide provides recommendations for selecting AI models for each agent role in the consensus workflow.
+This guide provides recommendations for selecting AI models when working with the Spec-Driven Protocol.
 
 **Note**: AI model capabilities change rapidly. Check official provider documentation for current offerings and benchmarks.
 
-## Quick Role Assignments
+## Quick Command Assignments
 
-| Role | Recommended | Why |
-|------|-------------|-----|
-| **Analyst** | Most capable model available | Requirements need deep understanding |
-| **Architect** | Most capable model available | Architecture decisions are critical |
-| **Tech Lead** | Medium-tier model | Planning doesn't need highest capability |
-| **Developer** | Fast model | Rapid iteration is key |
-| **QA** | Fast model | Test verification is straightforward |
-| **DevOps** | Fast model | Config generation is routine |
-| **Security** | Most capable model available | Security requires careful analysis |
+| Command | Recommended Model | Why |
+|---------|-------------------|-----|
+| `/idea` | Medium | Requirements gathering needs understanding |
+| `/design` | Capable | Architecture planning is critical |
+| `/build` | Fast | Implementation benefits from quick iteration |
+| `/review` | Capable | Quality checks need thoroughness |
+| `/deploy` | Fast | Config generation is routine |
+| `/issue` | Medium | Debugging needs analysis |
+| `/hotfix` | Fast | Speed is critical |
+| `/bugfix` | Fast | Straightforward fixes |
+| `/oneshot` | Capable | Autonomous execution needs reliability |
 
 ## General Principles
 
-1. **Strategic roles** (Analyst, Architect, Security) benefit from more capable models
-2. **Implementation roles** (Developer, QA, DevOps) work well with faster, cheaper models
-3. **Start cheap, escalate if needed** - try faster model first, use capable model only when stuck
+1. **Strategic commands** (`/design`, `/review`, `/oneshot`) benefit from more capable models
+2. **Implementation commands** (`/build`, `/deploy`, `/hotfix`) work well with faster models
+3. **Start fast, escalate if needed** - try faster model first, use capable model only when stuck
 
 ## For Claude Code Users
 
 Claude Code supports Claude models only. Use `/model` command to switch:
 
 ```
-/model opus    # Most capable - for Analyst, Architect, Security
-/model sonnet  # Balanced - for Tech Lead
-/model haiku   # Fastest - for Developer, QA, DevOps
+/model opus    # Most capable - for /design, /review, /oneshot
+/model sonnet  # Balanced - for /idea, /issue
+/model haiku   # Fastest - for /build, /deploy, /hotfix, /bugfix
 ```
 
 ### Recommended Assignment
 
-| Role | Model | Command |
-|------|-------|---------|
-| Analyst | Opus | `/model opus` |
-| Architect | Opus | `/model opus` |
-| Tech Lead | Sonnet | `/model sonnet` |
-| Developer | Haiku or Sonnet | `/model haiku` |
-| QA | Haiku | `/model haiku` |
-| DevOps | Haiku | `/model haiku` |
-| Security | Opus | `/model opus` |
+| Command | Model | Switch Command |
+|---------|-------|----------------|
+| `/idea` | Sonnet | `/model sonnet` |
+| `/design` | Opus | `/model opus` |
+| `/build` | Haiku/Sonnet | `/model haiku` |
+| `/review` | Opus | `/model opus` |
+| `/deploy` | Haiku | `/model haiku` |
+| `/issue` | Sonnet | `/model sonnet` |
+| `/hotfix` | Haiku | `/model haiku` |
+| `/bugfix` | Haiku | `/model haiku` |
+| `/oneshot` | Opus | `/model opus` |
 
 ## For Cursor Users
 
@@ -50,21 +54,21 @@ Cursor supports multiple providers. Configure in Settings → Models.
 
 ### Suggested Strategy
 
-- **Strategic decisions**: Use most capable model (e.g., Claude Opus, GPT-4)
-- **Implementation**: Use fast model (e.g., Claude Haiku, fast variants)
+- **Strategic work** (`/design`, `/review`, `/oneshot`): Use most capable model (Claude Opus, GPT-4)
+- **Implementation** (`/build`, `/deploy`, fixes): Use fast model (Claude Haiku, GPT-4 Turbo)
 - **Check Cursor's current offerings** - they change frequently
 
 ## Cost Optimization
 
 ### Strategy 1: Quality-First
-Use capable models for all roles. Higher cost, best results.
+Use capable models for all commands. Higher cost, best results.
 
 ### Strategy 2: Balanced (Recommended)
-- Strategic roles (Analyst, Architect, Security): Capable model
-- Implementation roles (Developer, QA, DevOps): Fast model
+- Strategic commands (`/design`, `/review`, `/oneshot`): Capable model
+- Implementation commands (`/build`, `/deploy`, fixes): Fast model
 
 ### Strategy 3: Budget
-Use fast models for all roles. Lowest cost, adequate for many projects.
+Use fast models for all commands. Lowest cost, adequate for many projects.
 
 ## Model Selection Tips
 
@@ -77,20 +81,25 @@ Use fast models for all roles. Lowest cost, adequate for many projects.
    - If 2+ iterations without progress, switch to capable model
 
 3. **Strategic decisions matter most**
-   - Analyst and Architect set the foundation
-   - Don't skimp on these roles
+   - `/design` sets the architecture foundation
+   - `/review` ensures quality gates
+   - Don't skimp on these commands
 
 4. **Implementation is repetitive**
-   - Developer, QA, DevOps do similar tasks repeatedly
+   - `/build`, `/deploy` do similar tasks repeatedly
    - Fast models work well here
+
+5. **Speed matters for fixes**
+   - `/hotfix` prioritizes speed over capability
+   - `/bugfix` benefits from quick turnaround
 
 ## Current Model Landscape
 
 Check these sources for current benchmarks:
 - [SWE-bench](https://www.swebench.com/) - Coding benchmark leaderboard
-- [Anthropic Models](https://docs.anthropic.com/claude/docs/models-overview) - Claude model specifications
-- [OpenAI Models](https://platform.openai.com/docs/models) - GPT model specifications
-- [Google AI](https://ai.google.dev/models) - Gemini model specifications
+- [Anthropic Models](https://docs.anthropic.com/claude/docs/models-overview) - Claude specifications
+- [OpenAI Models](https://platform.openai.com/docs/models) - GPT specifications
+- [Google AI](https://ai.google.dev/models) - Gemini specifications
 
 ---
 
