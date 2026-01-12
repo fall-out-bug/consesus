@@ -172,7 +172,25 @@ sdp/
 
 ## Интеграция
 
-### Для Claude Code
+### Интерактивная установка (рекомендуется)
+
+Запустите мастер установки:
+
+```bash
+python scripts/init.py
+```
+
+Мастер:
+- ✅ Определит вашу IDE (Cursor/Claude Code)
+- ✅ Создаст необходимые директории
+- ✅ Скопирует файлы SDP в проект
+- ✅ Установит Git hooks для валидации
+- ✅ Проведёт по настройкам проекта
+- ✅ Покажет следующие шаги
+
+### Ручная установка
+
+#### Для Claude Code
 
 1. Скопировать файлы в проект:
 ```bash
@@ -182,9 +200,11 @@ cp -r .claudecode/ your-project/
 cp CLAUDE.md your-project/
 ```
 
-2. Использовать skills: `@idea`, `@design`, `@build`, и т.д.
+2. Заполнить `PROJECT_CONVENTIONS.md` правилами проекта
 
-### Для Cursor
+3. Использовать skills: `@idea`, `@design`, `@build`, и т.д.
+
+#### Для Cursor
 
 1. Скопировать файлы в проект:
 ```bash
@@ -194,7 +214,16 @@ cp -r .cursor/ your-project/
 cp .cursorrules your-project/
 ```
 
-2. Использовать slash-команды: `/idea`, `/design`, `/build`, и т.д.
+2. Заполнить `PROJECT_CONVENTIONS.md` правилами проекта
+
+3. Использовать slash-команды: `/idea`, `/design`, `/build`, и т.д.
+
+### После интеграции
+
+1. **Заполнить PROJECT_CONVENTIONS.md** — Добавить специфичные для проекта правила DO/DON'T
+2. **Проверить конфиг IDE** — Посмотреть `.cursorrules` или `CLAUDE.md`
+3. **Установить Git hooks** — Запустить `scripts/init.py --install-hooks`
+4. **Прочитать документацию** — См. [PROTOCOL.md](PROTOCOL.md) и [docs/PRINCIPLES.md](docs/PRINCIPLES.md)
 
 ---
 

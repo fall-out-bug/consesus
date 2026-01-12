@@ -172,7 +172,25 @@ sdp/
 
 ## Integration
 
-### For Claude Code
+### Interactive Setup (Recommended)
+
+Run the interactive setup wizard:
+
+```bash
+python scripts/init.py
+```
+
+The wizard will:
+- ✅ Detect your IDE (Cursor/Claude Code)
+- ✅ Create necessary directory structure
+- ✅ Copy SDP files to your project
+- ✅ Install Git hooks for validation
+- ✅ Guide you through project conventions
+- ✅ Show clear next steps
+
+### Manual Setup
+
+#### For Claude Code
 
 1. Copy files to your project:
 ```bash
@@ -182,9 +200,11 @@ cp -r .claudecode/ your-project/
 cp CLAUDE.md your-project/
 ```
 
-2. Use skills: `@idea`, `@design`, `@build`, etc.
+2. Fill out `PROJECT_CONVENTIONS.md` with your project rules
 
-### For Cursor
+3. Use skills: `@idea`, `@design`, `@build`, etc.
+
+#### For Cursor
 
 1. Copy files to your project:
 ```bash
@@ -194,7 +214,16 @@ cp -r .cursor/ your-project/
 cp .cursorrules your-project/
 ```
 
-2. Use slash commands: `/idea`, `/design`, `/build`, etc.
+2. Fill out `PROJECT_CONVENTIONS.md` with your project rules
+
+3. Use slash commands: `/idea`, `/design`, `/build`, etc.
+
+### After Integration
+
+1. **Fill PROJECT_CONVENTIONS.md** — Add project-specific DO/DON'T rules
+2. **Review IDE config** — Check `.cursorrules` or `CLAUDE.md`
+3. **Install Git hooks** — Run `scripts/init.py --install-hooks` (if skipped)
+4. **Read documentation** — See [PROTOCOL.md](PROTOCOL.md) and [docs/PRINCIPLES.md](docs/PRINCIPLES.md)
 
 ---
 
