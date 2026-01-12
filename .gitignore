@@ -51,6 +51,5 @@ node_modules/
 Thumbs.db
 
 # Consensus Workflow - Work in Progress
-# Keep epics local during development, commit only completed artifacts
-docs/specs/epic_*/
-!docs/specs/epic_sample/
+# Keep features local during development, commit only completed artifacts
+docs/specs/feature_*/

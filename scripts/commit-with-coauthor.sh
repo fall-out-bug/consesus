@@ -15,7 +15,7 @@ COMMIT_MSG="$1"
 # Add Co-authored-by trailer
 FULL_MSG="${COMMIT_MSG}
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>"
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>"
 
 # Create commit
 git commit -m "$FULL_MSG"

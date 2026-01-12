@@ -199,8 +199,7 @@ docs/
 │   ├── in_progress/     # EXECUTING workstreams
 │   ├── completed/       # DONE workstreams
 │   └── INDEX.md         # All workstreams
-├── specs/
-│   └── feature_sample/  # Feature specifications
+├── specs/               # Feature specifications
 └── concepts/            # Architecture documentation
 ```
 

@@ -50,7 +50,7 @@ When commits are made with AI assistance (Claude Code, Cursor AI), add Co-author
 ```
 feat(auth): WS-001-01 - implement domain layer
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>
 ```
 
 ### Automatic Addition
@@ -69,7 +69,7 @@ git commit  # Template will include Co-authored-by placeholder
 ```bash
 git commit -m "feat(auth): WS-001-01 - implement domain layer
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>"
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>"
 ```
 
 ### When to Add Co-authored-by
@@ -97,7 +97,7 @@ feat(auth): WS-001-01 - implement user domain entities
 - Add Session entity
 - Coverage: 85%
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>
 ```
 
 ### Bug Fix
@@ -108,7 +108,7 @@ fix(api): resolve timeout in payment endpoint
 Increase timeout from 5s to 30s for large payment processing.
 Add retry logic with exponential backoff.
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>
 ```
 
 ### Documentation
@@ -120,7 +120,7 @@ docs(sdp): update README with Task tool integration
 - Add AskUserQuestion examples
 - Update workflow diagrams
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>
 ```
 
 ### Multiple Workstreams
@@ -137,7 +137,7 @@ Implemented:
 
 All acceptance criteria met. Coverage: 87%.
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>
 ```
 
 ## Git Hooks
@@ -188,7 +188,7 @@ git add src/
 # 2. Commit with Co-authored-by
 git commit -m "feat(auth): WS-001-01 - implement domain layer
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>"
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>"
 
 # 3. Stage tests
 git add tests/
@@ -196,7 +196,7 @@ git add tests/
 # 4. Commit tests
 git commit -m "test(auth): WS-001-01 - add unit tests
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>"
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>"
 
 # 5. Stage execution report
 git add docs/workstreams/
@@ -204,7 +204,7 @@ git add docs/workstreams/
 # 6. Commit report
 git commit -m "docs(auth): WS-001-01 - execution report
 
-Co-authored-by: Claude Code (Auto) <claude-code@anthropic.ai>"
+Co-authored-by: Cursor AI <cursor-ai@cursor.sh>"
 ```
 
 ### During /oneshot

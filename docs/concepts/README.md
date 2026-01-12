@@ -9,7 +9,6 @@ Core concepts that underpin the Spec-Driven Protocol.
 | **Principles** | SOLID, DRY, KISS, YAGNI, Clean Code | [PRINCIPLES.md](../PRINCIPLES.md) |
 | **Clean Architecture** | Layer separation, dependency inversion | [clean-architecture/](clean-architecture/README.md) |
 | **Artifacts** | Specs, ADRs, design docs, test reports | [artifacts/](artifacts/README.md) |
-| **Roles** | Analyst, Architect, Developer, QA | [roles/](roles/README.md) |
 
 ## Relationship Diagram
 
@@ -19,15 +18,15 @@ Core concepts that underpin the Spec-Driven Protocol.
 │              SOLID • DRY • KISS • YAGNI • Clean Code             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌──────────────────┐    ┌──────────────────────────────────┐  │
-│  │ CLEAN ARCHITECTURE│    │              ROLES                │  │
-│  │                   │    │                                   │  │
-│  │   Presentation    │    │  Analyst → Architect → Developer │  │
-│  │        ↓          │    │        ↘        ↓        ↙       │  │
-│  │  Infrastructure   │    │           QA ← DevOps            │  │
-│  │        ↓          │    │                                   │  │
-│  │   Application     │    └──────────────────────────────────┘  │
-│  │        ↓          │                    ↓                     │
+│  ┌──────────────────┐                                          │
+│  │ CLEAN ARCHITECTURE│                                          │
+│  │                   │                                          │
+│  │   Presentation    │                                          │
+│  │        ↓          │                                          │
+│  │  Infrastructure   │                                          │
+│  │        ↓          │                                          │
+│  │   Application     │                                          │
+│  │        ↓          │                                          │
 │  │     Domain        │             ┌─────────────┐              │
 │  │                   │             │  ARTIFACTS  │              │
 │  └──────────────────┘             │             │              │
@@ -47,14 +46,6 @@ Principles like **SRP** and **DIP** directly inform Clean Architecture layers:
 - SRP: Each layer has one responsibility
 - DIP: Inner layers don't depend on outer layers
 
-### Roles → Artifacts
-
-Each role produces specific artifacts:
-- Analyst → Specifications
-- Architect → ADRs, Design docs
-- Developer → Code, Tests
-- QA → Test reports
-
 ### Architecture → Workstreams
 
 Clean Architecture layers guide workstream decomposition:
@@ -68,8 +59,7 @@ Clean Architecture layers guide workstream decomposition:
 For newcomers:
 1. [PRINCIPLES.md](../PRINCIPLES.md) — Start with the fundamentals
 2. [clean-architecture/README.md](clean-architecture/README.md) — Understand layer separation
-3. [roles/README.md](roles/README.md) — Know the responsibilities
-4. [artifacts/README.md](artifacts/README.md) — Learn what to produce
+3. [artifacts/README.md](artifacts/README.md) — Learn what to produce
 
 For quick reference:
 - [PROTOCOL.md](../../PROTOCOL.md) — Full SDP specification
