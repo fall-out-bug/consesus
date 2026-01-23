@@ -21,6 +21,7 @@ from sdp.core.project_map import (
 from sdp.core.workstream import (
     AcceptanceCriterion,
     Workstream,
+    WorkstreamID,
     WorkstreamParseError,
     WorkstreamSize,
     WorkstreamStatus,
@@ -38,6 +39,7 @@ __all__ = [
     "ProjectMapParseError",
     "TechStackItem",
     "Workstream",
+    "WorkstreamID",
     "WorkstreamParseError",
     "WorkstreamSize",
     "WorkstreamStatus",
