@@ -1,0 +1,43 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "builder": {
+      "mode": "primary",
+      "description": "TDD execution agent. Implements workstreams following Red-Green-Refactor cycle.",
+      "prompt": "See @sdp/prompts/commands/build.md for full TDD workflow and execution report template",
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "webfetch": true
+      }
+    },
+    "reviewer": {
+      "mode": "primary",
+      "description": "Code review agent. Performs 17-point quality checks for workstreams.",
+      "prompt": "See @sdp/prompts/commands/codereview.md for full review workflow",
+      "tools": { "write": false, "edit": false }
+    },
+    "planner": {
+      "mode": "primary",
+      "description": "Planning agent. Analyzes requirements and creates workstream specifications.",
+      "prompt": "See @sdp/prompts/commands/design.md for full design workflow",
+      "tools": { "read": true, "glob": true, "grep": true }
+    },
+    "deployer": {
+      "mode": "primary",
+      "description": "Deployment agent. Generates DevOps, CI/CD, and release notes.",
+      "prompt": "See @sdp/prompts/commands/deploy.md for full deployment workflow",
+      "tools": { "bash": true, "read": true }
+    },
+    "orchestrator": {
+      "mode": "primary",
+      "description": "Orchestration agent. Manages autonomous feature execution with checkpoint/resume support.",
+      "prompt": "See @sdp/prompts/commands/oneshot.md for full oneshot workflow",
+      "tools": { "bash": true, "read": true }
+    }
+  }
+}
