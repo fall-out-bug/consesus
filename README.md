@@ -106,6 +106,57 @@ The package provides:
   - `sdp` - Main CLI with core operations
   - `sdp-github` - GitHub integration commands
 
+### Installation as Submodule
+
+SDP is typically used as a git submodule in projects:
+
+```bash
+# Add SDP as submodule
+git submodule add git@github.com:fall-out-bug/sdp.git sdp
+
+# Update submodule to latest
+git submodule update --remote sdp
+
+# Initialize submodules in fresh clone
+git submodule update --init --recursive
+```
+
+### Project Structure
+
+```
+sdp/
+├── src/sdp/          # Source code
+├── prompts/          # Command prompts
+├── templates/        # WS templates
+├── docs/             # Documentation
+├── tests/            # Test suite
+└── scripts/          # Utility scripts
+```
+
+### Versioning
+
+SDP follows semantic versioning. When used as a submodule, pin to a specific tag:
+
+```bash
+cd sdp
+git checkout v0.1.0  # or specific commit
+cd ..
+git add sdp
+git commit -m "Pin SDP to v0.1.0"
+```
+
+### Development
+
+For SDP development:
+
+```bash
+# Clone directly (not as submodule)
+git clone git@github.com:fall-out-bug/sdp.git
+cd sdp
+poetry install
+pytest
+```
+
 ## Quick Start
 
 ### Option 1: Slash Commands (Recommended)
