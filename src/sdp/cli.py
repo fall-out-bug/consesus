@@ -107,7 +107,7 @@ def validate_tier(ws_file: Path, tier: str, output_json: bool) -> None:
     """
     import json
 
-    from sdp.validators import ValidationResult, validate_workstream_tier
+    from sdp.validators import validate_workstream_tier
 
     try:
         result = validate_workstream_tier(ws_file, tier)
@@ -157,6 +157,123 @@ def validate_tier(ws_file: Path, tier: str, output_json: bool) -> None:
             failed_count = sum(1 for check in result.checks if not check.passed)
             click.echo(f"Failed checks: {failed_count}/{len(result.checks)}")
             sys.exit(1)
+
+
+@main.group()
+def tier() -> None:
+    """Tier management commands (metrics, promotion, demotion)."""
+    pass
+
+
+@tier.command("metrics")
+@click.argument("ws_id", default="")
+@click.option(
+    "--storage",
+    type=click.Path(path_type=Path),
+    default=Path(".sdp/tier_metrics.json"),
+    help="Path to metrics storage file",
+)
+def tier_metrics(ws_id: str, storage: Path) -> None:
+    """Show tier metrics for workstream(s).
+
+    Args:
+        ws_id: Workstream ID (empty for all workstreams)
+        storage: Path to metrics storage file
+    """
+    from sdp.core.tier_metrics import TierMetricsStore
+
+    store = TierMetricsStore(storage)
+
+    if ws_id:
+        # Show specific workstream
+        metrics = store.get_metrics(ws_id)
+        if not metrics:
+            click.echo(f"No metrics found for {ws_id}")
+            sys.exit(1)
+
+        click.echo(f"=== Tier Metrics: {ws_id} ===")
+        click.echo(f"Current Tier: {metrics.current_tier}")
+        click.echo(f"Total Attempts: {metrics.total_attempts}")
+        click.echo(f"Successful: {metrics.successful_attempts}")
+        click.echo(f"Success Rate: {metrics.success_rate:.1%}")
+        click.echo(f"Consecutive Failures: {metrics.consecutive_failures}")
+        click.echo(f"Last Updated: {metrics.last_updated.strftime('%Y-%m-%d %H:%M:%S')}")
+    else:
+        # Show all workstreams
+        all_metrics = store._metrics
+        if not all_metrics:
+            click.echo("No metrics found")
+            sys.exit(0)
+
+        click.echo(f"=== Tier Metrics ({len(all_metrics)} workstreams) ===")
+        click.echo()
+
+        for ws_id, metrics in sorted(all_metrics.items()):
+            click.echo(f"{ws_id}:")
+            click.echo(f"  Tier: {metrics.current_tier}")
+            click.echo(
+                f"  Success: {metrics.successful_attempts}/{metrics.total_attempts} "
+                f"({metrics.success_rate:.1%})"
+            )
+            click.echo(f"  Consecutive Failures: {metrics.consecutive_failures}")
+
+
+@tier.command("promote-check")
+@click.argument("ws_id", default="")
+@click.option(
+    "--storage",
+    type=click.Path(path_type=Path),
+    default=Path(".sdp/tier_metrics.json"),
+    help="Path to metrics storage file",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Check without updating workstream files",
+)
+def tier_promote_check(ws_id: str, storage: Path, dry_run: bool) -> None:
+    """Check workstream(s) for tier promotion/demotion eligibility.
+
+    Args:
+        ws_id: Workstream ID (empty for all workstreams)
+        storage: Path to metrics storage file
+        dry_run: Check without updating files
+    """
+    from sdp.core.tier_metrics import TierMetricsStore
+
+    store = TierMetricsStore(storage)
+
+    if ws_id:
+        ws_ids = [ws_id]
+    else:
+        ws_ids = list(store._metrics.keys())
+
+    if not ws_ids:
+        click.echo("No metrics found")
+        sys.exit(0)
+
+    click.echo(f"=== Promotion/Demotion Check ({len(ws_ids)} workstreams) ===")
+    click.echo()
+
+    changes = []
+    for ws_id in ws_ids:
+        new_tier = store.check_promotion_eligible(ws_id)
+        if new_tier:
+            metrics = store.get_metrics(ws_id)
+            changes.append((ws_id, metrics.current_tier, new_tier))
+            click.echo(
+                f"⚠ {ws_id}: {metrics.current_tier} → {new_tier} "
+                f"({metrics.successful_attempts}/{metrics.total_attempts} attempts, "
+                f"{metrics.success_rate:.1%} success)"
+            )
+
+    if not changes:
+        click.echo("No tier changes needed")
+    elif not dry_run:
+        click.echo()
+        click.echo(f"Found {len(changes)} tier changes")
+        click.echo("Note: Automatic file updates not yet implemented")
+        click.echo("Use --dry-run to preview changes")
 
 
 # Register extension commands
