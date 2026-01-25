@@ -11,50 +11,49 @@ SDP (Spec-Driven Protocol) workstreams for project_id: 00.
 | F005 | Extension System | 0 | 3 | 3 | ✅ 100% complete |
 | F006 | Core SDP | 0 | 6 | 6 | ✅ 100% complete |
 | F007 | Oneshot & Hooks | 0 | 10 | 10 | ✅ 100% complete |
-| F008 | Contract-Driven WS Tiers | 8 | 1 | 9 | 🔄 11% complete |
+| F008 | Contract-Driven WS Tiers | 0 | 9 | 9 | ✅ 100% complete |
 | F010 | SDP Infrastructure | 0 | 5 | 5 | ✅ 100% complete |
 | F011 | PRD Command | 6 | 0 | 6 | ⏳ 0% complete |
 
 ## Summary
 
 - **Total:** 48 workstreams (SDP-specific only)
-- **Backlog:** 15 workstreams (31%)
-- **Completed:** 33 workstreams (69%)
+- **Backlog:** 6 workstreams (12%)
+- **Completed:** 42 workstreams (88%)
 
 **Removed:** F001, F002, F009 (37 hw_checker-specific workstreams)
 
 ## Implementation Status
 
-### ✅ Complete Features (6)
+### ✅ Complete Features (7)
 - **F003** Two-Stage Review (5/5 WS)
 - **F004** Platform Adapters (4/4 WS)
 - **F005** Extension System (3/3 WS)
 - **F006** Core SDP (6/6 WS)
 - **F007** Oneshot & Hooks (10/10 WS)
+- **F008** Contract-Driven WS Tiers (9/9 WS)
 - **F010** SDP Infrastructure (5/5 WS)
 
 
-### ⏳ In Progress Features (1)
-- **F008** Contract-Driven WS Tiers (1/9 WS, 11%)
+### ⏳ In Progress Features (0)
 
 ### 📋 Not Started (1)
 - **F011** PRD Command (0/6 WS, 0%)
 
 ## Workstreams by Status
 
-### Backlog (15)
+### Backlog (6)
 
-**F008 (8):** 00-008-01, 00-008-03 to 00-008-09
 **F011 (6):** 00-011-01 to 00-011-06
 
-### Completed (33)
+### Completed (42)
 
 **F003 (5):** 00-003-01, 00-003-02, 00-003-05, 00-003-07, 00-003-08
 **F006 (6):** 00-006-01, 00-006-02, 00-006-03, 00-006-04, 00-006-05, 00-006-06
 **F004 (4):** 00-004-01 to 00-004-04
 **F005 (3):** 00-005-01 to 00-005-03
 **F007 (10):** 00-007-01 to 00-007-11
-**F008 (1):** 00-008-02
+**F008 (9):** 00-008-01, 00-008-02, 00-008-03, 00-008-04, 00-008-05, 00-008-06, 00-008-07, 00-008-08, 00-008-09
 **F010 (5):** 00-010-01 to 00-010-05
 
 ---
