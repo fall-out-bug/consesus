@@ -59,6 +59,23 @@ from .validator import (
     has_critical_issues,
 )
 
+from .generator import (
+    generate_diagrams,
+    generate_flow_from_steps,
+)
+
+from .generator_mermaid import (
+    generate_mermaid_sequence,
+    generate_mermaid_component,
+    generate_mermaid_deployment,
+)
+
+from .generator_plantuml import (
+    generate_plantuml_sequence,
+    generate_plantuml_component,
+    generate_plantuml_deployment,
+)
+
 __all__ = [
     # Profiles
     "ProjectType",
@@ -98,4 +115,13 @@ __all__ = [
     "validate_prd_file",
     "format_validation_issues",
     "has_critical_issues",
+    # Generators
+    "generate_diagrams",
+    "generate_flow_from_steps",
+    "generate_mermaid_sequence",
+    "generate_mermaid_component",
+    "generate_mermaid_deployment",
+    "generate_plantuml_sequence",
+    "generate_plantuml_component",
+    "generate_plantuml_deployment",
 ]
