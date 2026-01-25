@@ -79,3 +79,4 @@ Thumbs.db
 # SDP specific
 artifacts/
 archive/
+.oneshot
