@@ -1,4 +1,4 @@
-# Spec-Driven Protocol v0.3.0
+# Spec-Driven Protocol v0.4.0
 
 Workstream-driven development для AI-агентов.
 

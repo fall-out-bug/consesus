@@ -47,7 +47,7 @@ After installation, verify the package is working:
 ```bash
 # Check version
 sdp --version
-# Output: sdp version 0.3.0
+# Output: sdp version 0.4.0
 
 # Show help
 sdp --help
