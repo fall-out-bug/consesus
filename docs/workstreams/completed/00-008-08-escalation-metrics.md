@@ -23,10 +23,10 @@ capability_tier: T2
 - Alerts при аномально высоком escalation rate
 
 **Acceptance Criteria (критерии приёмки):**
-- [ ] AC1: Метрики собираются при каждом escalation event (WS ID, tier, attempts, diagnostics)
-- [ ] AC2: CLI команда `sdp metrics escalations` выводит summary
-- [ ] AC3: Реализован threshold-based alert (email/Slack при escalation rate > 20%)
-- [ ] AC4: Unit-тесты для metrics collection и alert logic
+- [x] AC1: Метрики собираются при каждом escalation event (WS ID, tier, attempts, diagnostics)
+- [x] AC2: CLI команда `sdp metrics escalations` выводит summary
+- [x] AC3: Реализован threshold-based alert (email/Slack при escalation rate > 20%)
+- [x] AC4: Unit-тесты для metrics collection и alert logic
 
 **⚠️ Правило:** WS НЕ завершён, пока Goal не достигнута (все AC ✅).
 

@@ -23,11 +23,11 @@ capability_tier: T1
 - Автоматическое обновление `capability_tier` в WS frontmatter при достижении thresholds
 
 **Acceptance Criteria (критерии приёмки):**
-- [ ] AC1: Создана база метрик для хранения execution history (WS ID → attempts, successes, tier)
-- [ ] AC2: Реализована логика promotion/demotion с configurable thresholds
-- [ ] AC3: Автоматическое обновление `capability_tier` в WS файлах при promotion
-- [ ] AC4: Добавлена CLI команда `sdp tier promote-check` для manual trigger
-- [ ] AC5: Unit-тесты для promotion logic и threshold checks
+- [x] AC1: Создана база метрик для хранения execution history (WS ID → attempts, successes, tier)
+- [x] AC2: Реализована логика promotion/demotion с configurable thresholds
+- [x] AC3: Автоматическое обновление `capability_tier` в WS файлах при promotion
+- [x] AC4: Добавлена CLI команда `sdp tier promote-check` для manual trigger
+- [x] AC5: Unit-тесты для promotion logic и threshold checks
 
 **⚠️ Правило:** WS НЕ завершён, пока Goal не достигнута (все AC ✅).
 

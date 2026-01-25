@@ -23,11 +23,11 @@ capability_tier: T1
 - Добавлены тесты для разных стратегий выбора
 
 **Acceptance Criteria (критерии приёмки):**
-- [ ] AC1: Добавлены поля `cost_per_1m_tokens`, `availability_pct`, `context_window` в `ModelProvider`
-- [ ] AC2: Реализована функция weighted selection с параметрами веса (cost, availability, context)
-- [ ] AC3: `select_model_for_tier()` использует weighted selection вместо `models[0]`
-- [ ] AC4: Добавлены unit-тесты для разных весовых конфигураций
-- [ ] AC5: `model-mapping.md` обновлён с метриками для всех моделей
+- [x] AC1: Добавлены поля `cost_per_1m_tokens`, `availability_pct`, `context_window` в `ModelProvider`
+- [x] AC2: Реализована функция weighted selection с параметрами веса (cost, availability, context)
+- [x] AC3: `select_model_for_tier()` использует weighted selection вместо `models[0]`
+- [x] AC4: Добавлены unit-тесты для разных весовых конфигураций
+- [x] AC5: `model-mapping.md` обновлён с метриками для всех моделей
 
 **⚠️ Правило:** WS НЕ завершён, пока Goal не достигнута (все AC ✅).
 

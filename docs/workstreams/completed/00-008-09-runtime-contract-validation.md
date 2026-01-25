@@ -23,10 +23,10 @@ capability_tier: T2
 - Build fails with clear error если contract нарушен
 
 **Acceptance Criteria (критерии приёмки):**
-- [ ] AC1: Snapshot Interface + Tests sections перед /build
-- [ ] AC2: Compare snapshot с post-build state
-- [ ] AC3: Raise `ContractViolationError` если T2/T3 модифицировал contract
-- [ ] AC4: Unit-тесты для violation detection (changed signature, added test, removed test)
+- [x] AC1: Snapshot Interface + Tests sections перед /build
+- [x] AC2: Compare snapshot с post-build state
+- [x] AC3: Raise `ContractViolationError` если T2/T3 модифицировал contract
+- [x] AC4: Unit-тесты для violation detection (changed signature, added test, removed test)
 
 **⚠️ Правило:** WS НЕ завершён, пока Goal не достигнута (все AC ✅).
 

@@ -246,26 +246,35 @@ Starting autonomous execution...
 ```python
 # Псевдокод
 while True:
-    # 1. Get next WS
+    # 1. Count backlog WS (CRITICAL: explicit check before exit)
+    backlog_count = count_backlog_ws_in_index(feature_id)
+
+    if backlog_count == 0:
+        break  # TRULY all done - no backlog remaining
+
+    # 2. Get next ready WS
     next_ws = find_ready_ws(feature_id)
-    
+
     if next_ws is None:
-        break  # All done
-    
-    # 2. Execute
+        # CRITICAL: backlog exists but no WS ready!
+        # This means remaining WS are BLOCKED by dependencies
+        escalate_blocked_deps(feature_id, backlog_count)
+        break  # Stop and notify human
+
+    # 3. Execute
     result = execute_ws(next_ws)
-    
-    # 3. Check result
+
+    # 4. Check result
     if result.failed:
         if result.severity == "CRITICAL":
             stop_and_notify_human()
         else:
             fix_and_retry()
-    
-    # 4. Update INDEX
+
+    # 5. Update INDEX
     update_index(next_ws, "completed")
-    
-    # 5. Log progress
+
+    # 6. Log progress
     log_progress(feature_id)
 
 # Final review
@@ -273,7 +282,28 @@ review_result = review_feature(feature_id)
 return review_result
 ```
 
-### 3.1 Find Ready WS
+**КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ:** Цикл теперь ЯВНО проверяет backlog count перед выходом.
+- `backlog_count == 0` → break (действительно всё выполнено)
+- `backlog_count > 0` + `next_ws is None` → CRITICAL (WS заблокированы зависимостями)
+
+### 3.1 Count Backlog WS (NEW)
+
+```bash
+# ЯВНЫЙ подсчёт backlog WS из INDEX.md
+# Это ПЕРВАЯ проверка в каждой итерации цикла
+
+count_backlog_ws_in_index() {
+    local feature_id="$1"
+    grep "| F${feature_id#F}" docs/workstreams/INDEX.md | \
+        awk '{print $3}' | \
+        grep -v "^0$" | \
+        wc -l
+}
+```
+
+**Возвращает:** Количество WS со статусом `backlog` для фичи.
+
+### 3.2 Find Ready WS
 
 ```bash
 # Найти WS фичи
@@ -285,15 +315,62 @@ grep "| WS-060" tools/hw_checker/docs/workstreams/INDEX.md
 
 **Правила:**
 - WS готов к выполнению если:
-  - Статус: `backlog`
+  - Статус: `backlog` (в INDEX.md)
   - Зависимости: все `completed` или "Независимый"
-  
+
 **Порядок приоритета:**
 1. WS без зависимостей (параллельно если можно)
 2. WS с выполненными зависимостями
 3. Сначала меньшие (SMALL → MEDIUM → LARGE)
 
-### 3.2 Execute WS
+### 3.3 Escalate Blocked Dependencies (NEW)
+
+```bash
+# Вызывается когда: backlog_count > 0 И next_ws is None
+# Это значит: есть WS в backlog, но ни один не готов к выполнению
+
+escalate_blocked_deps() {
+    local feature_id="$1"
+    local backlog_count="$2"
+
+    cat <<EOF
+
+⛔ CRITICAL: EXECUTION BLOCKED
+
+Feature: ${feature_id}
+Remaining backlog: ${backlog_count} WS
+Problem: No ready WS found (all blocked by dependencies)
+
+**Possible causes:**
+1. Circular dependency in WS definitions
+2. Dependency WS not properly marked as "completed" in INDEX.md
+3. Dependency parsing error
+
+**Action required:**
+1. Check INDEX.md: verify dependency WS statuses
+2. Check WS files: verify "Dependencies:" sections
+3. Review dependency graph for cycles
+
+Execution stopped. Human intervention required.
+EOF
+
+    # Create blocked checkpoint
+    CHECKPOINT_FILE=".oneshot/${FEATURE_ID}-checkpoint.json"
+    cat > "$CHECKPOINT_FILE" <<CHECKPOINT_EOF
+{
+  "feature": "$FEATURE_ID",
+  "status": "blocked",
+  "blocked_reason": "Remaining WS blocked by dependencies",
+  "backlog_remaining": $backlog_count,
+  "blocked_at": "$(date -Iseconds)"
+}
+CHECKPOINT_EOF
+
+    exit 1
+}
+```
+
+### 3.4 Execute WS
 
 Для каждого WS выполни:
 
@@ -329,7 +406,7 @@ Files: {count} files, {LOC} lines
 Tests: {count} tests, {coverage}%"
 ```
 
-### 3.3 Handle Failures
+### 3.5 Handle Failures
 
 Если WS провалился:
 
@@ -409,7 +486,7 @@ Waiting for human decision...
 4. If still fails → escalate to CRITICAL
 ```
 
-### 3.4 Update Progress & Checkpoint
+### 3.6 Update Progress & Checkpoint
 
 После каждого WS:
 
