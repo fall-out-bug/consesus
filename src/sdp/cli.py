@@ -921,6 +921,7 @@ main.add_command(test)
 main.add_command(task)
 main.add_command(ws)
 main.add_command(orchestrator)
+main.add_command(webhook)
 
 
 @main.command()
@@ -1062,6 +1063,69 @@ def orchestrator_status(ws_dir: str) -> None:
     click.echo(f"  Total: {stats.total_agents}")
     click.echo(f"  Busy: {stats.busy_agents}")
     click.echo(f"  Available: {stats.available_agents}")
+
+
+# Webhook commands
+@main.group()
+def webhook() -> None:
+    """GitHub webhook server commands."""
+    pass
+
+
+@webhook.command("start")
+@click.option("--host", default="0.0.0.0", help="Host to bind to")
+@click.option("--port", default=8080, type=int, help="Port to listen on")
+@click.option("--secret", envvar="GITHUB_WEBHOOK_SECRET", help="Webhook secret")
+@click.option("--smee-url", help="SMEE.io URL for tunneling")
+def webhook_start(host: str, port: int, secret: str | None, smee_url: str | None) -> None:
+    """Start webhook server for GitHub events.
+
+    Example: sdp webhook start --port 8080
+    """
+    from sdp.webhook import start_server
+
+    if smee_url:
+        click.echo(f"SMEE tunneling URL: {smee_url}")
+        click.echo("Configure your GitHub webhook to forward to this URL")
+        click.echo(f"Then set webhook URL to: http://{host}:{port}/webhook")
+
+    click.echo(f"Starting webhook server on {host}:{port}")
+    click.echo("Endpoints:")
+    click.echo(f"  http://{host}:{port}/webhook - GitHub webhook endpoint")
+    click.echo(f"  http://{host}:{port}/health - Health check")
+    click.echo(f"  http://{host}:{port}/events - Event log")
+    click.echo("\nPress Ctrl+C to stop")
+
+    server = start_server(
+        host=host,
+        port=port,
+        webhook_secret=secret,
+        smee_url=smee_url,
+    )
+
+    server.start()
+
+
+@webhook.command("events")
+@click.option("--limit", default=20, type=int, help="Number of recent events")
+@click.option("--log-file", default=".sdp/webhook.log", help="Webhook log file")
+def webhook_events(limit: int, log_file: str) -> None:
+    """Show recent webhook events.
+
+    Example: sdp webhook events --limit 10
+    """
+    from sdp.webhook import EventHandler, SignatureValidator
+
+    handler = EventHandler(SignatureValidator(), log_file)
+    events = handler.get_event_log(limit)
+
+    if not events:
+        click.echo("No webhook events found.")
+        return
+
+    click.echo(f"Recent {len(events)} webhook events:")
+    for event in events:
+        click.echo(f"  {event['timestamp']} - {event['event_type']}" + (f": {event['action']}" if event.get('action') else ""))
 
 
 if __name__ == "__main__":
