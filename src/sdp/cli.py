@@ -706,6 +706,115 @@ def test_watch(coverage: bool, pattern: str | None, debounce: float) -> None:
         click.echo("\nWatch mode stopped")
 
 
+
+# Workspace commands
+@main.group()
+def ws() -> None:
+    """Workstream state management commands."""
+    pass
+
+
+@ws.command("move")
+@click.argument("ws_id")
+@click.option("--to", "to_status", required=True, type=click.Choice(["backlog", "in-progress", "completed", "blocked"]), help="Target status")
+@click.option("--no-index", is_flag=True, help="Skip updating INDEX.md")
+def ws_move(ws_id: str, to_status: str, no_index: bool) -> None:
+    """Move workstream to different status directory."""
+    from sdp.workspace.mover import WorkstreamMover
+    from sdp.workspace.validator import MoveValidationError
+
+    mover = WorkstreamMover()
+
+    try:
+        new_path = mover.move(ws_id, to_status, update_index=not no_index)
+        click.echo(f"Moved {ws_id} to {to_status}")
+        click.echo(f"  {new_path}")
+    except MoveValidationError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@ws.command("start")
+@click.argument("ws_id")
+def ws_start(ws_id: str) -> None:
+    """Start workstream (backlog -> in-progress)."""
+    from sdp.workspace.mover import WorkstreamMover
+    from sdp.workspace.validator import MoveValidationError
+
+    mover = WorkstreamMover()
+
+    try:
+        new_path = mover.start(ws_id)
+        click.echo(f"Started {ws_id}")
+        click.echo(f"  {new_path}")
+    except MoveValidationError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@ws.command("complete")
+@click.argument("ws_id")
+@click.option("--no-validate", is_flag=True, help="Skip acceptance criteria validation")
+def ws_complete(ws_id: str, no_validate: bool) -> None:
+    """Complete workstream (in-progress -> completed)."""
+    from sdp.workspace.mover import WorkstreamMover
+    from sdp.workspace.validator import MoveValidationError
+
+    mover = WorkstreamMover()
+
+    try:
+        new_path = mover.complete(ws_id, validate=not no_validate)
+        click.echo(f"Completed {ws_id}")
+        click.echo(f"  {new_path}")
+    except MoveValidationError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@ws.command("block")
+@click.argument("ws_id")
+def ws_block(ws_id: str) -> None:
+    """Block workstream."""
+    from sdp.workspace.mover import WorkstreamMover
+    from sdp.workspace.validator import MoveValidationError
+
+    mover = WorkstreamMover()
+
+    try:
+        new_path = mover.block(ws_id)
+        click.echo(f"Blocked {ws_id}")
+        click.echo(f"  {new_path}")
+    except MoveValidationError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@ws.command("list")
+@click.option("--status", type=click.Choice(["backlog", "in-progress", "completed", "blocked"]), help="Filter by status")
+def ws_list(status: str | None) -> None:
+    """List workstreams in status directory."""
+    from sdp.workspace.mover import WorkstreamMover
+
+    mover = WorkstreamMover()
+
+    if status:
+        workstreams = mover.list_in_status(status)
+        click.echo(f"{status} ({len(workstreams)})")
+        for ws in sorted(workstreams, key=lambda p: p.name):
+            click.echo(f"  {ws.name}")
+    else:
+        total = 0
+        for s in ["backlog", "in_progress", "completed", "blocked"]:
+            workstreams = mover.list_in_status(s)
+            if workstreams:
+                click.echo(f"\n{s.replace('_', '-')} ({len(workstreams)})")
+                for ws in sorted(workstreams, key=lambda p: p.name):
+                    click.echo(f"  {ws.name}")
+                total += len(workstreams)
+
+        click.echo(f"\nTotal: {total}")
+
+
 # Register extension commands
 from sdp.cli_extension import extension
 from sdp.cli_init import init
@@ -718,6 +827,7 @@ main.add_command(daemon)
 main.add_command(queue)
 main.add_command(status)
 main.add_command(test)
+main.add_command(ws)
 
 
 if __name__ == "__main__":
