@@ -707,6 +707,97 @@ def test_watch(coverage: bool, pattern: str | None, debounce: float) -> None:
 
 
 
+# Task commands (separate from queue)
+@main.group()
+def task() -> None:
+    """Task execution and management commands."""
+    pass
+
+
+@task.command("enqueue")
+@click.argument("ws_id")
+@click.option(
+    "--priority",
+    type=click.Choice(["blocked", "backlog", "normal", "active", "urgent"], case_sensitive=False),
+    default="normal",
+    help="Task priority",
+)
+def task_enqueue(ws_id: str, priority: str) -> None:
+    """Add workstream to task queue."""
+    from sdp.queue import Priority, Task, TaskQueue
+
+    q = TaskQueue()
+    task = Task(ws_id=ws_id, priority=Priority.from_string(priority))
+    q.enqueue(task)
+    click.echo(f"Enqueued: {ws_id} (priority: {task.priority.name})")
+
+
+@task.command("execute")
+@click.argument("ws_id")
+@click.option("--timeout", type=int, default=3600, help="Timeout in seconds")
+@click.option("--dry-run", is_flag=True, help="Show what would be done without executing")
+def task_execute(ws_id: str, timeout: int, dry_run: bool) -> None:
+    """Execute workstream immediately."""
+    from sdp.agents import AgentExecutor
+
+    if dry_run:
+        click.echo(f"Would execute: {ws_id}")
+        click.echo(f"  Timeout: {timeout}s")
+        return
+
+    executor = AgentExecutor(timeout=timeout)
+    click.echo(f"Executing {ws_id}...")
+
+    try:
+        success = executor.execute(ws_id, timeout=timeout)
+        if success:
+            click.echo(f"✅ {ws_id} completed successfully")
+        else:
+            click.echo(f"❌ {ws_id} failed")
+            sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Error: {e}", err=True)
+        sys.exit(1)
+
+
+@task.command("list")
+def task_list() -> None:
+    """Show all pending/running/completed tasks."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+
+    if q.is_empty():
+        click.echo("No tasks in queue")
+        return
+
+    click.echo(f"Queue size: {q.size()}")
+    task = q.peek()
+    if task:
+        click.echo(f"Next: {task.ws_id} (priority: {task.priority.name})")
+
+
+@task.command("cancel")
+@click.argument("task_id", type=int)
+def task_cancel(task_id: int) -> None:
+    """Cancel pending task (by queue position)."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+
+    if q.is_empty():
+        click.echo("Queue is empty")
+        return
+
+    if task_id == 1:
+        # Cancel first task
+        task = q.dequeue()
+        if task:
+            click.echo(f"Cancelled: {task.ws_id}")
+    else:
+        click.echo(f"Cancelling specific positions not yet implemented")
+
+
 # Workspace commands
 @main.group()
 def ws() -> None:
@@ -827,6 +918,7 @@ main.add_command(daemon)
 main.add_command(queue)
 main.add_command(status)
 main.add_command(test)
+main.add_command(task)
 main.add_command(ws)
 
 
