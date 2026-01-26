@@ -14,13 +14,13 @@ SDP (Spec-Driven Protocol) workstreams for project_id: 00.
 | F008 | Contract-Driven WS Tiers | 0 | 9 | 9 | ✅ 100% complete |
 | F010 | SDP Infrastructure | 0 | 5 | 5 | ✅ 100% complete |
 | F011 | PRD Command | 0 | 6 | 6 | ✅ 100% complete |
-| F012 | GitHub Agent Orchestrator | 10 | 0 | 10 | 📋 Not Started |
+| F012 | GitHub Agent Orchestrator + Developer DX | 14 | 0 | 14 | 📋 Not Started |
 
 ## Summary
 
-- **Total:** 58 workstreams (SDP-specific only)
-- **Backlog:** 10 workstreams (17%)
-- **Completed:** 48 workstreams (83%)
+- **Total:** 62 workstreams (SDP-specific only)
+- **Backlog:** 14 workstreams (23%)
+- **Completed:** 48 workstreams (77%)
 
 **Removed:** F001, F002, F009 (37 hw_checker-specific workstreams)
 
@@ -39,13 +39,13 @@ SDP (Spec-Driven Protocol) workstreams for project_id: 00.
 ### ⏳ In Progress Features (0)
 
 ### 📋 Not Started (1)
-- **F012** GitHub Agent Orchestrator (0/10 WS, 0%)
+- **F012** GitHub Agent Orchestrator + Developer DX (0/14 WS, 0%)
 
 ## Workstreams by Status
 
-### Backlog (10)
+### Backlog (14)
 
-**F012 (10):** 00-012-01, 00-012-02, 00-012-03, 00-012-04, 00-012-05, 00-012-06, 00-012-07, 00-012-08, 00-012-09, 00-012-10
+**F012 (14):** 00-012-01, 00-012-02, 00-012-03, 00-012-04, 00-012-05, 00-012-06, 00-012-07, 00-012-08, 00-012-09, 00-012-10, 00-012-11, 00-012-12, 00-012-13, 00-012-14
 
 ### Completed (48)
 
