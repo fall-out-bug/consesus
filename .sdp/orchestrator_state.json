@@ -1,0 +1,14 @@
+{
+  "feature_id": "F001",
+  "started_at": "2026-01-26T22:58:04.692915",
+  "status": "completed",
+  "results": {
+    "00-001-01": false,
+    "00-001-02": false
+  },
+  "current_ws": null,
+  "errors": {
+    "00-001-01": "AgentExecutor.__init__() got multiple values for argument 'metrics_file'",
+    "00-001-02": "AgentExecutor.__init__() got multiple values for argument 'metrics_file'"
+  }
+}

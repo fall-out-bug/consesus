@@ -920,8 +920,6 @@ main.add_command(status)
 main.add_command(test)
 main.add_command(task)
 main.add_command(ws)
-main.add_command(orchestrator)
-main.add_command(webhook)
 
 
 @main.command()
@@ -1126,6 +1124,11 @@ def webhook_events(limit: int, log_file: str) -> None:
     click.echo(f"Recent {len(events)} webhook events:")
     for event in events:
         click.echo(f"  {event['timestamp']} - {event['event_type']}" + (f": {event['action']}" if event.get('action') else ""))
+
+
+# Register commands that are defined later in the file
+main.add_command(orchestrator)
+main.add_command(webhook)
 
 
 if __name__ == "__main__":
