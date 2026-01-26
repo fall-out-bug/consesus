@@ -538,6 +538,97 @@ def _fork_daemon() -> int:
     return 0
 
 
+@main.group()
+def queue() -> None:
+    """Task queue management commands."""
+    pass
+
+
+@queue.command("enqueue")
+@click.argument("ws_id")
+@click.option(
+    "--priority",
+    type=click.Choice(["blocked", "backlog", "normal", "active", "urgent"], case_sensitive=False),
+    default="normal",
+    help="Task priority",
+)
+def queue_enqueue(ws_id: str, priority: str) -> None:
+    """Add workstream to task queue."""
+    from sdp.queue import Priority, Task, TaskQueue
+
+    q = TaskQueue()
+    task = Task(ws_id=ws_id, priority=Priority.from_string(priority))
+    q.enqueue(task)
+    click.echo(f"Enqueued: {ws_id} (priority: {task.priority.name})")
+
+
+@queue.command("dequeue")
+@click.option("--wait", type=float, default=0, help="Seconds to wait for task")
+def queue_dequeue(wait: float) -> None:
+    """Remove and return highest priority task."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+    task = q.dequeue(timeout=wait if wait > 0 else None)
+    if task:
+        click.echo(f"Dequeued: {task.ws_id} (priority: {task.priority.name})")
+    else:
+        click.echo("Queue empty")
+
+
+@queue.command("list")
+def queue_list() -> None:
+    """Show all tasks in queue."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+
+    if q.is_empty():
+        click.echo("Queue empty")
+        return
+
+    click.echo(f"Queue size: {q.size()}")
+    click.echo()
+
+    tasks = []
+    while True:
+        task = q.dequeue()
+        if task is None:
+            break
+        tasks.append(task)
+        click.echo(f"  {task.ws_id} - {task.priority.name}")
+
+    # Put tasks back
+    for task in tasks:
+        q.enqueue(task)
+
+
+@queue.command("clear")
+def queue_clear() -> None:
+    """Clear all tasks from queue."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+    size = q.size()
+    q.clear()
+    click.echo(f"Cleared {size} task(s)")
+
+
+@queue.command("status")
+def queue_status() -> None:
+    """Show queue status."""
+    from sdp.queue import TaskQueue
+
+    q = TaskQueue()
+    click.echo(f"Queue size: {q.size()}")
+
+    next_task = q.peek()
+    if next_task:
+        click.echo(f"Next: {next_task.ws_id} (priority: {next_task.priority.name})")
+    else:
+        click.echo("Queue empty")
+
+
 # Register extension commands
 from sdp.cli_extension import extension
 from sdp.cli_init import init
@@ -546,6 +637,7 @@ main.add_command(extension)
 main.add_command(init)
 main.add_command(prd)
 main.add_command(daemon)
+main.add_command(queue)
 
 
 if __name__ == "__main__":
