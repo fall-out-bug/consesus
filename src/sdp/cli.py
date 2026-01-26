@@ -1,5 +1,6 @@
 """Main CLI entry point for SDP package."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -419,6 +420,124 @@ def prd_detect_type(project_path: Path) -> None:
     click.echo(f"Detected project type: {project_type.value}")
 
 
+@main.group()
+def daemon() -> None:
+    """Daemon management commands."""
+    pass
+
+
+@daemon.command("start")
+@click.option("--watch", is_flag=True, help="Enable file watch mode")
+@click.option(
+    "--pid-file",
+    default=".sdp/daemon.pid",
+    help="PID file path",
+)
+def daemon_start(watch: bool, pid_file: str) -> None:
+    """Start SDP daemon process."""
+    import sys
+
+    from sdp.daemon.daemon import Daemon, DaemonConfig
+    from sdp.daemon.pid_manager import PIDManager
+
+    manager = PIDManager(pid_file)
+    if manager.is_running():
+        click.echo(f"Daemon already running (PID: {manager.read()})")
+        return
+
+    # Double-fork method for Unix-like systems
+    try:
+        pid = _fork_daemon()
+    except OSError as e:
+        click.echo(f"Failed to fork daemon: {e}", err=True)
+        sys.exit(1)
+
+    if pid == 0:
+        # Child process (daemon)
+        from sdp.daemon.daemon import Daemon, DaemonConfig
+
+        config = DaemonConfig(watch_enabled=watch, pid_file=pid_file)
+        daemon = Daemon(config)
+        daemon.run()
+        sys.exit(0)
+    else:
+        # Parent process
+        manager.write(pid)
+        click.echo(f"Daemon started (PID: {pid})")
+
+
+@daemon.command("stop")
+@click.option(
+    "--pid-file",
+    default=".sdp/daemon.pid",
+    help="PID file path",
+)
+def daemon_stop(pid_file: str) -> None:
+    """Stop SDP daemon process."""
+    import signal
+
+    from sdp.daemon.pid_manager import PIDManager
+
+    manager = PIDManager(pid_file)
+    if not manager.is_running():
+        click.echo("Daemon not running")
+        return
+
+    pid = manager.read()
+    try:
+        os.kill(pid, signal.SIGTERM)
+        manager.remove()
+        click.echo(f"Daemon stopped (PID: {pid})")
+    except OSError as e:
+        click.echo(f"Failed to stop daemon: {e}", err=True)
+        sys.exit(1)
+
+
+@daemon.command("status")
+@click.option(
+    "--pid-file",
+    default=".sdp/daemon.pid",
+    help="PID file path",
+)
+def daemon_status(pid_file: str) -> None:
+    """Show daemon status."""
+    from sdp.daemon.pid_manager import PIDManager
+
+    manager = PIDManager(pid_file)
+    if manager.is_running():
+        pid = manager.read()
+        click.echo(f"Daemon running (PID: {pid})")
+    else:
+        click.echo("Daemon not running")
+
+
+def _fork_daemon() -> int:
+    """Double-fork to create a daemon process.
+
+    Returns:
+        PID of the daemon process (in parent), 0 in child
+    """
+    import os
+
+    # First fork
+    pid = os.fork()
+    if pid > 0:
+        # Parent process
+        return pid
+
+    # Child process continues
+    os.setsid()
+
+    # Second fork
+    pid = os.fork()
+    if pid > 0:
+        # First child exits
+        os._exit(0)
+
+    # Daemon process
+    return 0
+
+
 # Register extension commands
 from sdp.cli_extension import extension
 from sdp.cli_init import init
@@ -426,6 +545,7 @@ from sdp.cli_init import init
 main.add_command(extension)
 main.add_command(init)
 main.add_command(prd)
+main.add_command(daemon)
 
 
 if __name__ == "__main__":
