@@ -72,7 +72,61 @@ AskUserQuestion about:
 
 Validate against `docs/schema/intent.schema.json`, save to `docs/intent/{slug}.json`
 
-### Phase 5: Transition to @design
+```bash
+# Create intent directory
+mkdir -p docs/intent
+
+# Create and validate
+from sdp.schema.validator import IntentValidator
+from sdp.schema.models import Intent
+
+intent = Intent.from_dict({
+    "problem": "...",
+    "users": [...],
+    "success_criteria": [...]
+})
+
+# Validate
+validator = IntentValidator()
+validator.validate(intent.to_dict())
+
+# Save
+import json
+with open("docs/intent/{slug}.json", "w") as f:
+    json.dump(intent.to_dict(), f, indent=2)
+```
+
+### Phase 5: Create Requirements Draft (REQUIRED)
+
+Create `docs/drafts/idea-{slug}.md` with full specification:
+
+```markdown
+# {Feature Name}
+
+> **Feature ID:** FXXX
+> **Status:** Draft
+> **Created:** YYYY-MM-DD
+
+## Problem
+[From interview]
+
+## Users
+[From interview]
+
+## Success Criteria
+[From interview]
+
+## Goals
+[Primary goals]
+
+## Non-Goals
+[Out of scope]
+
+## Technical Approach
+[From technical interview]
+```
+
+### Phase 6: Transition to @design
 
 Call `/design` with full context (vision + intent).
 

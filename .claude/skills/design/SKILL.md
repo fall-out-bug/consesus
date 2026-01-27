@@ -189,6 +189,25 @@ graph TD
 - `docs/workstreams/INDEX.md` — Updated index
 - Dependency graph for @oneshot execution
 
+### Step 5: Create Workstream Files (REQUIRED)
+
+For each designed workstream, **MUST create** the WS file:
+
+```bash
+# Create backlog directory
+mkdir -p docs/workstreams/backlog
+
+# Create each WS file
+# File: docs/workstreams/backlog/00-XXX-YY.md
+```
+
+**REQUIRED BEFORE EXITING @design:**
+- [ ] All WS files created in `docs/workstreams/backlog/`
+- [ ] INDEX.md updated with feature info
+- [ ] Dependency graph generated
+
+**DO NOT EXIT @design until all WS files exist.**
+
 ## Next Step
 
 `/build WS-XXX-01` or `/oneshot FXXX`
