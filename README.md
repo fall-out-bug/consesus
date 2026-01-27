@@ -47,7 +47,6 @@ git submodule update --remote sdp
 | `/idea` | Interactive requirements gathering | `/idea "Add user auth"` |
 | `/design` | Plan workstreams | `/design idea-user-auth` |
 | `/build` | Execute single workstream | `/build WS-001-01` |
-| `/tdd` | **TDD cycle enforcement** (NEW) | `/tdd` (called by `/build`) |
 | `/debug` | **Systematic debugging** (NEW) | `/debug "Test fails"` |
 | `/oneshot` | Autonomous feature execution | `/oneshot F001` |
 | `/review` | Quality check | `/review F001` |
@@ -55,6 +54,9 @@ git submodule update --remote sdp
 | `/issue` | Debug and route bugs | `/issue "Login fails"` |
 | `/hotfix` | Emergency fix (P0) | `/hotfix "Critical bug"` |
 | `/bugfix` | Quality fix (P1/P2) | `/bugfix "Incorrect totals"` |
+
+**Internal skills** (called automatically):
+- `/tdd` — TDD cycle enforcement (used by `/build`)
 
 ## Project Structure
 

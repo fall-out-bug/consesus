@@ -1,19 +1,21 @@
 ---
 name: tdd
-description: Enforce Test-Driven Development discipline: Red -> Green -> Refactor
+description: Enforce Test-Driven Development discipline: Red -> Green -> Refactor (INTERNAL - used by @build)
 tools: Read, Write, Edit, Bash
 ---
 
-# /tdd - Test-Driven Development
+# /tdd - Test-Driven Development (INTERNAL)
 
-Enforce TDD discipline with Red-Green-Refactor cycle. Used internally by @build, available standalone.
+**INTERNAL SKILL** — Automatically called by `/build`, not invoked directly by users.
 
-## When to Use
+Enforce TDD discipline with Red-Green-Refactor cycle.
 
-- Writing any production code
-- Fixing bugs (write test that reproduces first)
-- Refactoring (test coverage first)
-- Before @build execution
+## Purpose
+
+Called automatically by `@build` to ensure:
+- Tests written BEFORE implementation
+- Minimal code in Green phase
+- Refactoring doesn't break tests
 
 ## The TDD Cycle
 

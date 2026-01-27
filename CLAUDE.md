@@ -25,7 +25,6 @@ Use **skills** to execute SDP commands:
 | `@idea` | **Interactive requirements** (AskUserQuestion) | `@idea "Add payment processing"` |
 | `@design` | **Interactive planning** (EnterPlanMode) | `@design idea-payments` |
 | `@build` | Execute workstream (TodoWrite tracking) | `@build WS-001-01` |
-| `/tdd` | **TDD cycle enforcement** (Red→Green→Refactor) | `/tdd` (called by @build) |
 | `/debug` | **Systematic debugging** (scientific method) | `/debug "Test fails unexpectedly"` |
 | `@review` | Quality check | `@review F01` |
 | `@deploy` | Production deployment | `@deploy F01` |
@@ -33,6 +32,11 @@ Use **skills** to execute SDP commands:
 | `@hotfix` | Emergency fix (P0) | `@hotfix "Critical API outage"` |
 | `@bugfix` | Quality fix (P1/P2) | `@bugfix "Incorrect totals"` |
 | `@oneshot` | **Autonomous execution** (Task-based) | `@oneshot F01` or `@oneshot F01 --background` |
+
+**Internal skills** (not called directly by users):
+| Skill | Purpose | Called By |
+|-------|---------|----------|
+| `/tdd` | TDD cycle enforcement (Red→Green→Refactor) | `@build` (automatic) |
 
 Skills are defined in `.claude/skills/{name}/SKILL.md`
 
