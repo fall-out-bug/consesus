@@ -43,9 +43,12 @@ git submodule update --remote sdp
 
 | Command | Purpose | Example |
 |---------|---------|---------|
+| `/feature` | **Unified feature development** (NEW) | `/feature "Add user auth"` |
 | `/idea` | Interactive requirements gathering | `/idea "Add user auth"` |
 | `/design` | Plan workstreams | `/design idea-user-auth` |
 | `/build` | Execute single workstream | `/build WS-001-01` |
+| `/tdd` | **TDD cycle enforcement** (NEW) | `/tdd` (called by `/build`) |
+| `/debug` | **Systematic debugging** (NEW) | `/debug "Test fails"` |
 | `/oneshot` | Autonomous feature execution | `/oneshot F001` |
 | `/review` | Quality check | `/review F001` |
 | `/deploy` | Production deployment | `/deploy F001` |
@@ -57,14 +60,29 @@ git submodule update --remote sdp
 
 ```
 sdp/
+├── PRODUCT_VISION.md  # Project manifesto
 ├── src/sdp/          # Source code
 │   ├── core/         # Workstream parser, feature decomposition
 │   ├── github/       # GitHub integration
 │   ├── prd/          # PRD command
+│   ├── schema/       # Intent validation (NEW)
+│   ├── tdd/          # TDD cycle runner (NEW)
+│   ├── feature/      # Product vision management (NEW)
+│   ├── design/       # Dependency graph (NEW)
 │   └── validators/   # Quality checks
 ├── prompts/          # Command prompts
 │   └── commands/     # /idea, /design, /build, /review, etc.
+├── .claude/skills/    # AI agent skill definitions
+│   ├── feature/      # Unified entry point (NEW)
+│   ├── idea/         # Requirements gathering
+│   ├── design/       # Workstream planning
+│   ├── build/        # WS execution (NEW)
+│   ├── tdd/          # TDD discipline (NEW)
+│   ├── debug/        # Systematic debugging (NEW)
+│   └── oneshot/      # Autonomous execution
 ├── docs/             # Documentation
+│   ├── schema/       # Intent JSON schema (NEW)
+│   └── intent/       # Machine-readable intent (NEW)
 ├── tests/            # Test suite
 └── hooks/            # Git hooks
 ```
@@ -79,7 +97,7 @@ sdp/
 | Clean Architecture | No layer violations | Manual review |
 | Error Handling | No `except: pass` | `grep -r "except:"` |
 
-## Features (v0.4.0)
+## Features (v0.5.0)
 
 - ✅ F003: Two-Stage Review (5 WS)
 - ✅ F004: Platform Adapters (4 WS) - Claude Code, Cursor, OpenCode
@@ -89,8 +107,9 @@ sdp/
 - ✅ F008: Contract-Driven WS Tiers (9 WS)
 - ✅ F010: SDP Infrastructure (5 WS)
 - ✅ F011: PRD Command (6 WS)
+- ✅ F012: AI-Human Communication Enhancement (9 WS) - NEW
 
-**Total:** 48/58 workstreams completed (83%)
+**Total:** 57/67 workstreams completed (85%)
 
 ## Documentation
 
@@ -118,4 +137,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Version:** 0.4.0 | **Status:** ✅ Active | **Last Updated:** 2026-01-25
+**Version:** 0.5.0 | **Status:** ✅ Active | **Last Updated:** 2026-01-26
