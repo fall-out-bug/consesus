@@ -52,14 +52,6 @@ git submodule update --remote sdp
 | `/issue` | Debug and route bugs | `/issue "Login fails"` |
 | `/hotfix` | Emergency fix (P0) | `/hotfix "Critical bug"` |
 | `/bugfix` | Quality fix (P1/P2) | `/bugfix "Incorrect totals"` |
-| `sdp daemon` | Background daemon service | `sdp daemon start` |
-| `sdp task` | Task queue management | `sdp task enqueue WS-001-01` |
-| `sdp orchestrator` | Multi-agent orchestration | `sdp orchestrator run F012` |
-| `sdp dashboard` | TUI dashboard | `sdp dashboard` |
-| `sdp status` | Workstream status | `sdp status --feature F012` |
-| `sdp test watch` | Watch and rerun tests | `sdp test watch` |
-| `sdp ws` | Workspace management | `sdp ws start WS-001-01` |
-| `sdp webhook` | Webhook server | `sdp webhook start` |
 
 ## Project Structure
 
@@ -67,15 +59,7 @@ git submodule update --remote sdp
 sdp/
 ├── src/sdp/          # Source code
 │   ├── core/         # Workstream parser, feature decomposition
-│   ├── github/       # GitHub integration (sync, projects, fields)
-│   ├── agents/       # Agent executor, orchestrator, dependency graph
-│   ├── daemon/       # Daemon service, PID management
-│   ├── dashboard/    # TUI dashboard, state management
-│   ├── queue/        # Task queue, priority management
-│   ├── status/       # Status command
-│   ├── test_watch/   # Test file watcher
-│   ├── workspace/    # Workstream state management
-│   ├── webhook/      # Webhook server, signature validation
+│   ├── github/       # GitHub integration
 │   ├── prd/          # PRD command
 │   └── validators/   # Quality checks
 ├── prompts/          # Command prompts
@@ -90,31 +74,28 @@ sdp/
 | Gate | Requirement | Check |
 |------|-------------|-------|
 | AI-Readiness | Files < 200 LOC, CC < 10 | `ruff check --select=C901` |
-| Test Coverage | ≥ 80% | `pytest --cov-fail-under=80` |
+| Test Coverage | >= 80% | `pytest --cov-fail-under=80` |
 | Type Checking | mypy strict | `mypy --strict` |
 | Clean Architecture | No layer violations | Manual review |
 | Error Handling | No `except: pass` | `grep -r "except:"` |
 
-## Features (v0.5.0)
+## Features (v0.4.0)
 
-- ✅ F003: Two-Stage Review (5 WS)
-- ✅ F004: Platform Adapters (4 WS) - Claude Code, Cursor, OpenCode
-- ✅ F005: Extension System (3 WS)
-- ✅ F006: Core SDP (6 WS)
-- ✅ F007: Oneshot & Hooks (10 WS)
-- ✅ F008: Contract-Driven WS Tiers (9 WS)
-- ✅ F010: SDP Infrastructure (5 WS)
-- ✅ F011: PRD Command (6 WS)
-- ✅ **F012: GitHub Agent Orchestrator + Developer DX** (14 WS)
+- **F003:** Two-Stage Review (5 WS) — Spec compliance before code quality
+- **F004:** Platform Adapters (4 WS) — Claude Code, Cursor, OpenCode
+- **F005:** Extension System (3 WS) — Customize without forking
+- **F006:** Core SDP (6 WS) — Base framework
+- **F007:** Oneshot & Hooks (10 WS) — Autonomous execution
+- **F008:** Contract-Driven WS Tiers (9 WS) — Complexity levels
+- **F010:** SDP Infrastructure (5 WS) — Project infrastructure
+- **F011:** PRD Command (6 WS) — Auto-generated diagrams
 
-**Total:** 62/62 workstreams completed (100%)
+**Total:** 48/58 workstreams completed (83%)
 
 ## Documentation
 
-- [PROTOCOL.md](PROTOCOL.md) - Full protocol specification (Russian)
-- [docs/guides/CLAUDE_CODE.md](docs/guides/CLAUDE_CODE.md) - Claude Code integration guide
-- [docs/guides/DEVELOPER_DX.md](docs/guides/DEVELOPER_DX.md) - Developer DX features guide (F012)
-- [docs/multi-ide-parity.md](docs/multi-ide-parity.md) - Multi-IDE support
+- [PROTOCOL.md](PROTOCOL.md) - Full protocol specification
+- [CLAUDE.md](CLAUDE.md) - Claude Code integration guide
 - [docs/workstreams/INDEX.md](docs/workstreams/INDEX.md) - Workstream index
 - [CHANGELOG.md](CHANGELOG.md) - Release notes
 
@@ -128,7 +109,7 @@ SDP is inspired by and incorporates ideas from:
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see LICENSE file for details.
 
 ## Support
 
@@ -137,4 +118,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Version:** 0.5.0 | **Status:** ✅ Active | **Last Updated:** 2026-01-27
+**Version:** 0.4.0 | **Status:** Active | **Last Updated:** 2026-01-27

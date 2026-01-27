@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sdp"
-version = "0.5.0"
+version = "0.5.0-dev"
 description = "Spec-Driven Protocol - Workstream automation tools"
 authors = ["MSU AI Masters <ai-masters@msu.ru>"]
 readme = "README.md"
@@ -12,12 +12,9 @@ PyGithub = "^2.1.1"
 python-dotenv = "^1.0.0"
 click = "^8.1.0"
 pyyaml = "^6.0"
-textual = ">=0.80.0"
-watchdog = ">=4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4"
-pytest-asyncio = "^0.23"
 pytest-cov = "^4.1"
 ruff = "^0.1"
 mypy = "^1.7"
@@ -44,7 +41,6 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-asyncio_mode = "auto"
 markers = [
     "fast: Unit tests without external deps",
     "integration: Integration tests with external services",
