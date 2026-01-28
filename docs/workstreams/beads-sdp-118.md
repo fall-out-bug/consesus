@@ -747,3 +747,122 @@ tests/unit/unified/gates/
 - Comprehensive error handling for all operations
 
 ---
+
+---
+
+## Execution Report: WS-005 (Team lifecycle management)
+
+**Workstream ID:** sdp-118.5
+**Status:** ✅ COMPLETED
+**Completed:** 2026-01-28
+**Duration:** ~1 hour (TDD cycle)
+
+### Implementation Summary
+
+Implemented team lifecycle management functions for TeamManager:
+- `create_team()` - Create new team or load existing configuration
+- `delete_team()` - Delete team directory and configuration
+- `get_team()` - Retrieve existing team or return None
+- Team config stored at ~/.claude/teams/{feature_id}/config.json
+- Integration with existing TeamManager and persistence layer
+- Refactored into separate lifecycle.py module for clean separation
+
+### Files Created
+
+**Implementation (113 LOC - new file):**
+- `/Users/fall_out_bug/projects/vibe_coding/sdp/src/sdp/unified/team/lifecycle.py` (113 LOC)
+
+**Modified:**
+- `/Users/fall_out_bug/projects/vibe_coding/sdp/src/sdp/unified/team/__init__.py` (16 LOC) - Added lifecycle exports
+- `/Users/fall_out_bug/projects/vibe_coding/sdp/src/sdp/unified/team/manager.py` (176 LOC) - Removed lifecycle functions
+
+**Tests (197 LOC added):**
+- `/Users/fall_out_bug/projects/vibe_coding/sdp/tests/unit/unified/team/test_team_manager.py` (+197 LOC) - Added TestTeamLifecycle class
+
+### Acceptance Criteria Verification
+
+✅ **AC1: create_team() method implemented**
+- Creates new TeamManager with initial roles
+- Loads existing config if present
+- Validates feature_id parameter
+- Located in lifecycle.py
+
+✅ **AC2: delete_team() method implemented**
+- Removes team directory and config.json
+- Handles nonexistent teams gracefully (no error)
+- Uses shutil.rmtree() for clean removal
+- Located in lifecycle.py
+
+✅ **AC3: get_team() method implemented**
+- Returns TeamManager if config exists
+- Returns None if team doesn't exist
+- Handles errors gracefully with warning log
+- Located in lifecycle.py
+
+✅ **AC4: Team config stored at ~/.claude/teams/{feature_id}/config.json**
+- Uses existing TeamConfigStore from WS-004
+- TeamManager maintains this structure
+- Lifecycle functions respect this convention
+- Verified by tests
+
+✅ **AC5: Integration with CheckpointRepository**
+- Lifecycle functions work with TeamManager initialization
+- TeamManager can be created alongside CheckpointRepository
+- CheckpointRepo manages agent state, TeamManager manages roles
+- Test validates coexistence
+
+✅ **AC6: Error handling and logging**
+- Validates feature_id (empty/whitespace check)
+- Graceful handling of missing teams (delete_team, get_team)
+- Comprehensive logging at INFO/DEBUG/WARNING levels
+- TeamManagerError raised for invalid inputs
+
+### Test Results
+
+**Tests:** 8/8 PASSED (new TestTeamLifecycle class)
+**Existing Tests:** 26/26 PASSED (regression check)
+**Total:** 34/34 PASSED
+**Coverage:** 97% (146 LOC total, 5 statements uncovered in lifecycle.py)
+
+### Quality Gates
+
+✅ **All files < 200 LOC:**
+- lifecycle.py: 113 LOC
+- manager.py: 176 LOC (after refactoring)
+
+✅ **Full type hints:** All functions have complete type annotations
+
+✅ **No TODO/FIXME:** Clean code with no placeholders
+
+✅ **Coverage ≥80%:** 97% achieved
+
+✅ **Linters pass:** 
+- ruff: No issues
+- mypy: Success, no type errors
+
+### Files Changed
+
+**New Files:**
+- src/sdp/unified/team/lifecycle.py (113 LOC)
+
+**Modified Files:**
+- src/sdp/unified/team/__init__.py (+3 LOC)
+- src/sdp/unified/team/manager.py (-96 LOC, removed lifecycle functions)
+- tests/unit/unified/team/test_team_manager.py (+197 LOC, new test class)
+
+**Total LOC:** 113 LOC new implementation + 197 LOC tests = 310 LOC
+
+### Next Steps
+
+- **WS-008:** Checkpoint save/resume will use team lifecycle for orchestration
+- **WS-012:** AgentSpawner will create teams for new features
+- **WS-015:** Role switching will activate/deactivate roles
+- **WS-020:** Unit tests will validate integration with CheckpointRepository
+
+### Notes
+
+- Lifecycle functions extracted to separate module to maintain <200 LOC limit
+- TeamManager refactored to focus on role registry operations
+- Clean separation of concerns: TeamManager (instance) vs lifecycle (module-level)
+- Full integration with existing TeamConfigStore persistence
+- Comprehensive error handling for edge cases
