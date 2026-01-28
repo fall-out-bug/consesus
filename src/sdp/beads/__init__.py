@@ -9,9 +9,10 @@ Key components:
 - MockBeadsClient: In-memory mock for development/testing
 - CLIBeadsClient: Real Beads via CLI subprocess
 - BeadsSyncService: Bidirectional sync between SDP workstreams and Beads tasks
+- FeatureDecomposer: Decompose features into workstreams
 
 Usage:
-    from sdp.beads import create_beads_client, BeadsSyncService
+    from sdp.beads import create_beads_client, BeadsSyncService, FeatureDecomposer
 
     # Create client (mock for development, real for production)
     client = create_beads_client(use_mock=True)  # Mock
@@ -20,9 +21,9 @@ Usage:
     # Create sync service
     sync = BeadsSyncService(client)
 
-    # Sync workstream to Beads
-    result = sync.sync_workstream_to_beads("docs/workstreams/backlog/00-001-01.md")
-    print(f"Created Beads task: {result.beads_id}")
+    # Decompose feature
+    decomposer = FeatureDecomposer(client)
+    ws_ids = decomposer.decompose("bd-0001")
 """
 
 from .client import (
@@ -41,6 +42,8 @@ from .models import (
     BeadsDependencyType,
     BeadsSyncResult,
 )
+from .sync import BeadsSyncService, BeadsSyncError
+from .skills_design import FeatureDecomposer, WorkstreamSpec
 
 __all__ = [
     # Client
@@ -57,6 +60,11 @@ __all__ = [
     "BeadsDependency",
     "BeadsDependencyType",
     "BeadsSyncResult",
+    # Services
+    "BeadsSyncService",
+    "BeadsSyncError",
+    "FeatureDecomposer",
+    "WorkstreamSpec",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
