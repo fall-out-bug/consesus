@@ -65,6 +65,7 @@ class BeadsTask:
     description: Optional[str] = None
     status: BeadsStatus = BeadsStatus.OPEN
     priority: BeadsPriority = BeadsPriority.MEDIUM
+    issue_type: Optional[str] = None  # Beads CLI field: "task", "bug", "feature"
 
     # Relationships
     parent_id: Optional[str] = None  # For sub-tasks
@@ -86,6 +87,7 @@ class BeadsTask:
             "description": self.description,
             "status": self.status.value,
             "priority": self.priority.value,
+            "issue_type": self.issue_type,  # Beads CLI field
             "parent_id": self.parent_id,
             "dependencies": [
                 {"task_id": d.task_id, "type": d.type.value} for d in self.dependencies
@@ -114,6 +116,7 @@ class BeadsTask:
             description=data.get("description"),
             status=BeadsStatus(data.get("status", "open")),
             priority=BeadsPriority(data.get("priority", 2)),
+            issue_type=data.get("issue_type"),  # Beads CLI field
             parent_id=data.get("parent_id"),
             dependencies=dependencies,
             external_ref=data.get("external_ref"),

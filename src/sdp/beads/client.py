@@ -317,7 +317,12 @@ class CLIBeadsClient(BeadsClient):
                 check=True,
             )
 
-            return BeadsTask.from_dict(json.loads(result.stdout))
+            data = json.loads(result.stdout)
+            # bd show --json returns array with one element, not a single object
+            if isinstance(data, list) and len(data) > 0:
+                return BeadsTask.from_dict(data[0])
+            else:
+                return BeadsTask.from_dict(data)
 
         except subprocess.CalledProcessError:
             # Task not found
@@ -362,7 +367,11 @@ class CLIBeadsClient(BeadsClient):
             )
 
             data = json.loads(result.stdout)
-            return data.get("ready_tasks", [])
+            # bd ready --json returns array directly, not object with "ready_tasks" field
+            if isinstance(data, list):
+                return data
+            else:
+                return data.get("ready_tasks", [])
 
         except subprocess.CalledProcessError as e:
             raise BeadsClientError(f"Failed to get ready tasks: {e.stderr}") from e
@@ -418,7 +427,11 @@ class CLIBeadsClient(BeadsClient):
             )
 
             data = json.loads(result.stdout)
-            return [BeadsTask.from_dict(t) for t in data.get("tasks", [])]
+            # bd list --json returns array directly, not object with "tasks" field
+            if isinstance(data, list):
+                return [BeadsTask.from_dict(t) for t in data]
+            else:
+                return [BeadsTask.from_dict(t) for t in data.get("tasks", [])]
 
         except subprocess.CalledProcessError as e:
             raise BeadsClientError(f"Failed to list tasks: {e.stderr}") from e
