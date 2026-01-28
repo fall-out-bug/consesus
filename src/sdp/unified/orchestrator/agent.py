@@ -9,6 +9,7 @@ from datetime import datetime
 
 from sdp.unified.checkpoint.repository import CheckpointRepository
 from sdp.unified.checkpoint.schema import Checkpoint, CheckpointStatus
+from sdp.unified.orchestrator.agent_extension import AgentCheckpointExtension
 from sdp.unified.orchestrator.dispatcher import WorkstreamDispatcher
 from sdp.unified.orchestrator.errors import ExecutionError
 from sdp.unified.orchestrator.models import ExecutionResult
@@ -34,6 +35,7 @@ class OrchestratorAgent:
         self.repo = repo
         self.dispatcher = WorkstreamDispatcher()
         self.monitor = ProgressMonitor(repo)
+        self.checkpoint_ext = AgentCheckpointExtension(repo)
 
     def execute_feature(
         self,
