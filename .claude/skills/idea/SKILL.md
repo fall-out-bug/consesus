@@ -2,12 +2,12 @@
 name: idea
 description: Interactive requirements gathering using Beads for task storage. Creates Beads task with comprehensive requirements from deep interviewing.
 tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
-version: 2.0.0-beads
+version: 2.1.0-beads-ai-comm
 ---
 
-# @idea - Requirements Gathering (Beads Integration)
+# @idea - Requirements Gathering (Beads + AI-Comm Integration)
 
-Deep, interactive interviewing to capture comprehensive feature requirements using AskUserQuestion tool. **Outputs Beads task instead of markdown draft.**
+Deep, interactive interviewing to capture comprehensive feature requirements using AskUserQuestion tool. **Outputs Beads task with PRODUCT_VISION alignment.**
 
 ## When to Use
 
@@ -18,7 +18,7 @@ Deep, interactive interviewing to capture comprehensive feature requirements usi
 
 ## Beads vs Markdown Workflow
 
-**This skill creates Beads tasks** (hash-based IDs, multi-agent ready).
+**This skill creates Beads tasks** (hash-based IDs, multi-agent ready) with enhanced metadata.
 
 For traditional markdown workflow, use `prompts/commands/idea.md` instead.
 
@@ -38,7 +38,22 @@ For traditional markdown workflow, use `prompts/commands/idea.md` instead.
 
 **IMPORTANT:** Use AskUserQuestion for deep, continuous interviewing until requirements are complete.
 
-### Step 1: Initialize Beads Client
+### When to Call /think
+
+If requirements are **ambiguous, complex, or have conflicting needs**, call `@think` first:
+
+```python
+Skill("think")
+# Returns structured analysis before interviewing
+```
+
+Use @think for:
+- Multiple user types with conflicting needs
+- Technical approach unclear
+- Success metrics debatable
+- Significant unknowns
+
+### Step 0: Initialize Beads Client
 
 ```python
 from sdp.beads import create_beads_client, BeadsTaskCreate, BeadsPriority
@@ -49,6 +64,14 @@ use_mock = os.getenv("BEADS_USE_MOCK", "true").lower() == "true"
 client = create_beads_client(use_mock=use_mock)
 
 print(f"Using {'Mock' if use_mock else 'Real'} Beads client")
+```
+
+### Step 1: Read Product Vision (If Exists)
+
+Check for PRODUCT_VISION.md to align with project goals:
+
+```bash
+Read(PRODUCT_VISION.md)  # if exists
 ```
 
 ### Step 2: Read Context (If Exists)
@@ -64,7 +87,34 @@ Glob("docs/specs/**/*")
 Grep("similar feature keywords")
 ```
 
-### Step 3: Initial Interview
+### Step 3: Vision Interview (NEW from ai-comm)
+
+**Ask product vision questions using AskUserQuestion:**
+
+```markdown
+AskUserQuestion({
+  "questions": [{
+    "question": "What is the core mission of this feature?",
+    "header": "Mission",
+    "options": [
+      {"label": "Solve specific pain point", "description": "Addresses clear user frustration"},
+      {"label": "Enable new capability", "description": "Unlocks something previously impossible"},
+      {"label": "Improve efficiency", "description": "Makes existing process faster/cheaper"}
+    ]
+  }, {
+    "question": "How does this feature align with PRODUCT_VISION.md?",
+    "header": "Alignment",
+    "options": [
+      {"label": "Directly supports mission", "description": "Core to product vision"},
+      {"label": "Enables mission", "description": "Supporting capability"},
+      {"label": "Extends mission", "description": "Natural evolution"},
+      {"label": "New direction", "description": "May need vision update"}
+    ]
+  }]
+})
+```
+
+### Step 4: Initial Interview
 
 **Ask foundational questions using AskUserQuestion:**
 
@@ -94,7 +144,7 @@ AskUserQuestion({
 })
 ```
 
-### Step 4: Deep Dive Interview
+### Step 5: Deep Dive Interview
 
 **Continue with progressively detailed questions. Be VERY in-depth:**
 
@@ -143,9 +193,9 @@ AskUserQuestion({
 - Integration points
 - Tradeoffs between approaches
 
-### Step 5: Create Beads Task
+### Step 6: Create Beads Task with Enhanced Metadata (MERGED)
 
-After interviewing is complete, create Beads task:
+After interviewing is complete, create Beads task with ai-comm metadata:
 
 ```python
 # Build comprehensive description from interview
@@ -164,6 +214,11 @@ description = f"""## Context & Problem
 ## Primary Users
 
 {users_answer}
+
+## Product Alignment (NEW)
+
+**Mission:** {mission_answer}
+**Vision Alignment:** {alignment_answer}
 
 ## Technical Approach
 
@@ -195,7 +250,7 @@ scope_priority = {
     "Backlog": BeadsPriority.BACKLOG
 }
 
-# Create Beads task
+# Create Beads task with enhanced metadata
 task = client.create_task(BeadsTaskCreate(
     title=feature_title,
     description=description,
@@ -204,6 +259,9 @@ task = client.create_task(BeadsTaskCreate(
         "feature_type": "idea",
         "interview_answers": all_answers,
         "created_by": "@idea skill",
+        "product_vision_alignment": alignment_answer,  # NEW
+        "mission": mission_answer,  # NEW
+        "think_analysis": think_result if think_called else None,  # NEW
     }
 ))
 
@@ -213,7 +271,7 @@ print(f"   Status: {task.status}")
 print(f"   Priority: {task.priority}")
 ```
 
-### Step 6: Optional Markdown Export
+### Step 7: Optional Markdown Export + Intent File (NEW from ai-comm)
 
 For git history and human readability, export to markdown:
 
@@ -238,11 +296,31 @@ with open(markdown_path, "w") as f:
 """)
 ```
 
+**Create machine-readable intent file (NEW):**
+```python
+import json
+
+intent_path = f"docs/intent/{task.id}.json"
+
+with open(intent_path, "w") as f:
+    json.dump({
+        "task_id": task.id,
+        "title": task.title,
+        "mission": mission_answer,
+        "alignment": alignment_answer,
+        "priority": task.priority.value,
+        "created_at": datetime.utcnow().isoformat(),
+        "interview_answers": all_answers,
+    }, f, indent=2)
+```
+
 ## Output
 
 **Primary:** Beads task ID (e.g., `bd-0001`)
 
-**Secondary:** Optional markdown export to `docs/drafts/beads-{task_id}.md`
+**Secondary:**
+- Optional markdown export to `docs/drafts/beads-{task_id}.md`
+- Intent file at `docs/intent/{task_id}.json` (NEW)
 
 **Beads Task Fields:**
 - `id`: Hash-based task ID (auto-generated)
@@ -250,7 +328,7 @@ with open(markdown_path, "w") as f:
 - `description`: Comprehensive requirements from interview
 - `status`: OPEN (default)
 - `priority`: CRITICAL/HIGH/MEDIUM/LOW/BACKLOG
-- `sdp_metadata`: Interview answers, metadata
+- `sdp_metadata`: Interview answers, product alignment, think analysis (enhanced)
 
 ## Next Steps
 
@@ -276,16 +354,18 @@ After creating idea task:
 
 **Interviewing Strategy:**
 1. **Start broad, go deep** — foundational questions first, then drill into details
-2. **No obvious questions** — don't ask "should we test?" Ask "integration tests or just unit tests?"
-3. **Expose tradeoffs** — every option should show pros/cons in description
-4. **Continue until complete** — keep asking until no ambiguities remain
-5. **Capture decisions** — record why certain approaches were chosen/rejected
+2. **Product vision first** — align with PRODUCT_VISION.md before technical details (NEW)
+3. **No obvious questions** — don't ask "should we test?" Ask "integration tests or just unit tests?"
+4. **Expose tradeoffs** — every option should show pros/cons in description
+5. **Continue until complete** — keep asking until no ambiguities remain
+6. **Capture decisions** — record why certain approaches were chosen/rejected
 
 **Beads Integration:**
 1. **Hash-based IDs** — No conflicts, multi-agent safe
 2. **Priority levels** — Map scope to priority (critical → P0, etc.)
-3. **Metadata** — Store interview answers in `sdp_metadata` for reference
-4. **Optional markdown** — Export for git history, but Beads is source of truth
+3. **Enhanced metadata** — Product alignment, mission, think analysis (NEW)
+4. **Intent files** — Machine-readable intent for automation (NEW)
+5. **Optional markdown** — Export for git history, but Beads is source of truth
 
 ## Migration from Markdown Workflow
 
@@ -296,10 +376,10 @@ After creating idea task:
 @build WS-001-01
 ```
 
-**New Beads workflow:**
+**New Beads + ai-comm workflow:**
 ```bash
-@idea "Add auth"  # → bd-0001 (Beads task)
-@design bd-0001  # → bd-0001.1, bd-0001.2, ... (sub-tasks)
+@idea "Add auth"  # → bd-0001 (Beads task) + docs/intent/bd-0001.json
+@design bd-0001  # → bd-0001.1, bd-0001.2, ... (sub-tasks with execution graphs)
 @build bd-0001.1  # → Updates Beads status
 ```
 
@@ -308,6 +388,8 @@ After creating idea task:
 - Multi-agent ready (sub-tasks can be executed in parallel)
 - Built-in dependency tracking
 - `bd ready` shows what to work on next
+- Product vision alignment tracked in metadata (NEW)
+- Machine-readable intent for automation (NEW)
 
 ## Troubleshooting
 
@@ -330,30 +412,42 @@ bd status
 bd logs
 ```
 
+**Intent validation failed (NEW):**
+```bash
+# Validate intent file
+sdp schema validate docs/intent/bd-0001.json
+```
+
 ## Quick Reference
 
 | Command | Purpose |
 |---------|---------|
-| `@idea "feature"` | Create Beads task with requirements |
+| `@idea "feature"` | Create Beads task with requirements + intent |
+| `@think "complex analysis"` | Deep analysis before @idea (NEW) |
 | `bd show {id}` | View task details |
 | `bd ready` | List ready tasks |
 | `bd list --status open` | List all open tasks |
 | `@design {id}` | Decompose into workstreams |
 | `@build {id}` | Execute workstream |
+| `sdp schema validate` | Validate intent file (NEW) |
 
 ## Example Session
 
 ```bash
+# Optional: Analyze complexity first
+@think "Should we use JWT or sessions for auth?"
+
 # Start interviewing
 @idea "Add user authentication"
 
-# ... (interviewing happens) ...
+# ... (interviewing happens with PRODUCT_VISION alignment) ...
 
 # Output:
 ✅ Created Beads task: bd-0001
    Title: Add user authentication
    Status: BeadsStatus.OPEN
    Priority: BeadsPriority.HIGH
+   Intent: docs/intent/bd-0001.json
 
 # Next step: decompose
 @design bd-0001
@@ -379,6 +473,6 @@ Ready tasks:
 
 ---
 
-**Version:** 2.0.0-beads
-**Status:** Beads Integration
-**See Also:** `@design`, `@build`, `@oneshot`
+**Version:** 2.1.0-beads-ai-comm
+**Status:** Beads + AI-Comm Integration
+**See Also:** `@design`, `@build`, `@oneshot`, `@think`

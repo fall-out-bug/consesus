@@ -1,24 +1,25 @@
 ---
 name: oneshot
-description: Autonomous multi-agent execution using Beads ready detection. Executes all feature workstreams in parallel with dependency tracking.
+description: Autonomous multi-agent execution using Beads ready detection with checkpoints and resume capability. Executes all feature workstreams in parallel with dependency tracking.
 tools: Read, Write, Edit, Bash, AskUserQuestion
-version: 2.0.0-beads
+version: 2.1.0-beads-ai-comm
 ---
 
-# @oneshot - Multi-Agent Execution (Beads Integration)
+# @oneshot - Multi-Agent Execution (Beads + AI-Comm Integration)
 
-Execute all workstreams for a feature using multiple agents in parallel, with Beads automatically tracking dependencies and unblocking tasks.
+Execute all workstreams for a feature using multiple agents in parallel, with Beads automatically tracking dependencies, unblocking tasks, and checkpoint/resume capability for fault tolerance.
 
 ## When to Use
 
 - Feature has multiple workstreams that can run in parallel
 - Want to execute entire feature autonomously
-- After `@design` has created workstreams
+- After `@design` has created workstreams with execution graphs
 - For hands-off execution with progress tracking
+- For background execution with resume capability (NEW)
 
 ## Beads vs Markdown Workflow
 
-**This skill uses Beads for task discovery and multi-agent coordination.**
+**This skill uses Beads for task discovery and multi-agent coordination with checkpoints.**
 
 For traditional markdown workflow, use `prompts/commands/oneshot.md` instead.
 
@@ -28,6 +29,10 @@ For traditional markdown workflow, use `prompts/commands/oneshot.md` instead.
 @oneshot bd-0001
 # or with custom agent count
 @oneshot bd-0001 --agents 5
+# or with resume (NEW)
+@oneshot bd-0001 --resume abc123xyz
+# or background execution (NEW)
+@oneshot bd-0001 --background
 ```
 
 **Environment Variables:**
@@ -36,55 +41,205 @@ For traditional markdown workflow, use `prompts/commands/oneshot.md` instead.
 
 ## Workflow
 
-### Step 1: Initialize Multi-Agent Executor
+### Step 1: Read Execution Graph (NEW from ai-comm)
 
 ```python
 from sdp.beads import create_beads_client, MultiAgentExecutor
+from sdp.design.graph import DependencyGraph
 import os
 
 use_mock = os.getenv("BEADS_USE_MOCK", "true").lower() == "true"
 client = create_beads_client(use_mock=use_mock)
 
+# Load workstreams and build graph
+graph = DependencyGraph()
+feature = client.get_task(feature_id)
+
+# Get all sub-tasks (workstreams) for this feature
+all_tasks = client.list_tasks(parent_id=feature_id)
+
+for task in all_tasks:
+    metadata = task.sdp_metadata or {}
+    graph.add(WorkstreamNode(
+        ws_id=task.id,
+        title=task.title,
+        depends_on=[d.task_id for d in task.dependencies],
+        oneshot_ready=metadata.get("oneshot_ready", True),
+        estimated_loc=metadata.get("estimated_loc"),
+        estimated_duration=metadata.get("estimated_duration"),
+    ))
+
+# Get correct execution order
+execution_order = graph.topological_sort()
+print(f"Execution order: {' → '.join(execution_order)}")
+```
+
+### Step 2: Initialize or Resume Checkpoint (NEW from ai-comm)
+
+**New execution:**
+```python
+import json
+from datetime import datetime, timezone
+
+agent_id = f"agent-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
+checkpoint_path = f".oneshot/{feature_id}-checkpoint.json"
+
+checkpoint = {
+    "feature": feature_id,
+    "agent_id": agent_id,
+    "status": "in_progress",
+    "completed_ws": [],
+    "current_ws": None,
+    "execution_order": execution_order,
+    "started_at": datetime.now(timezone.utc).isoformat(),
+    "metrics": {
+        "ws_total": len(execution_order),
+        "ws_completed": 0,
+    }
+}
+
+# Save checkpoint
+os.makedirs(".oneshot", exist_ok=True)
+with open(checkpoint_path, "w") as f:
+    json.dump(checkpoint, f, indent=2)
+
+print(f"📋 Checkpoint created: {checkpoint_path}")
+print(f"   Agent ID: {agent_id}")
+```
+
+**Resume execution (NEW):**
+```python
+# Read existing checkpoint
+if args.get("resume"):
+    with open(checkpoint_path) as f:
+        checkpoint = json.load(f)
+
+    agent_id = checkpoint["agent_id"]
+    completed = checkpoint["completed_ws"]
+
+    print(f"🔄 Resuming from checkpoint")
+    print(f"   Agent ID: {agent_id}")
+    print(f"   Completed: {len(completed)}/{checkpoint['metrics']['ws_total']} WS")
+
+    # Skip already completed workstreams
+    execution_order = [ws for ws in execution_order if ws not in completed]
+```
+
+### Step 3: Initialize Multi-Agent Executor
+
+```python
 # Get agent count from argument or default
 num_agents = args.get("agents", 3)
 
 executor = MultiAgentExecutor(client, num_agents=num_agents)
 ```
 
-### Step 2: Execute Feature
+### Step 4: Execute Feature (MERGED)
 
 ```python
 # Execute all workstreams for feature
-result = executor.execute_feature(feature_id)
+result = executor.execute_feature(
+    feature_id,
+    checkpoint=checkpoint,  # NEW
+    mock_success=not args.get("debug", False)
+)
 
 if result.success:
     print(f"✅ Feature complete! Executed {result.total_executed} workstreams")
+
+    # Update checkpoint (NEW)
+    checkpoint["status"] = "completed"
+    checkpoint["current_ws"] = None
+    checkpoint["metrics"]["ws_completed"] = result.total_executed
+    checkpoint["completed_at"] = datetime.now(timezone.utc).isoformat()
+
+    with open(checkpoint_path, "w") as f:
+        json.dump(checkpoint, f, indent=2)
+
+    print(f"📋 Checkpoint updated: {checkpoint_path}")
 else:
     print(f"❌ Execution failed: {result.error}")
     print(f"   Failed tasks: {result.failed_tasks}")
+
+    # Update checkpoint with failure state (NEW)
+    checkpoint["status"] = "failed"
+    checkpoint["failed_tasks"] = result.failed_tasks
+    checkpoint["error"] = result.error
+
+    with open(checkpoint_path, "w") as f:
+        json.dump(checkpoint, f, indent=2)
+
+    print(f"📋 Checkpoint saved. Resume with: @oneshot {feature_id} --resume {agent_id}")
 ```
 
-### Step 3: Monitor Progress
+### Step 5: Monitor Progress
 
 The executor automatically:
 1. Discovers ready tasks via `get_ready_tasks()`
 2. Executes ready tasks in parallel (up to `num_agents`)
-3. Waits for completion
-4. Repeats until no tasks remain
-5. Reports summary
+3. Updates checkpoint after each WS completion (NEW)
+4. Waits for completion
+5. Repeats until no tasks remain
+6. Reports summary
+
+### Step 6: Two-Stage Review (NEW from ai-comm)
+
+After all WS complete:
+
+**Stage 1: Automated Review**
+```bash
+@review {feature_id}
+```
+
+**Stage 2: Human UAT**
+- Manual testing (5-10 min)
+- Approval for deploy
+
+## Checkpoint Format (NEW)
+
+```json
+{
+  "feature": "bd-0001",
+  "agent_id": "agent-20260126-120000",
+  "status": "in_progress",
+  "completed_ws": ["bd-0001.1", "bd-0001.2"],
+  "current_ws": "bd-0001.3",
+  "execution_order": ["bd-0001.1", "bd-0001.2", "bd-0001.3"],
+  "started_at": "2026-01-26T12:00:00Z",
+  "metrics": {
+    "ws_total": 3,
+    "ws_completed": 2
+  },
+  "completed_at": null,
+  "failed_tasks": [],
+  "error": null
+}
+```
 
 ## Execution Flow
 
-### Example: Feature with 5 Workstreams
+### Example: Feature with 5 Workstreams (MERGED)
 
 **Initial state:**
 ```
 bd-0001 (Feature)
-├── bd-0001.1 (Domain) [READY]
-├── bd-0001.2 (Repository) [READY]
-├── bd-0001.3 (Service) [BLOCKED by bd-0001.2]
-├── bd-0001.4 (API) [READY]
-└── bd-0001.5 (Tests) [BLOCKED by bd-0001.4]
+├── bd-0001.1 (Domain) [READY, oneshot_ready=true]
+├── bd-0001.2 (Repository) [READY, oneshot_ready=true]
+├── bd-0001.3 (Service) [BLOCKED by bd-0001.2, oneshot_ready=true]
+├── bd-0001.4 (API) [READY, oneshot_ready=true]
+└── bd-0001.5 (Tests) [BLOCKED by bd-0001.4, oneshot_ready=false]  # Manual UAT required
+```
+
+**Checkpoint initialized:**
+```json
+{
+  "feature": "bd-0001",
+  "agent_id": "agent-20260126-120000",
+  "status": "in_progress",
+  "completed_ws": [],
+  "execution_order": ["bd-0001.1", "bd-0001.2", "bd-0001.3", "bd-0001.4"],
+  "metrics": {"ws_total": 4, "ws_completed": 0}
+}
 ```
 
 **Round 1 (3 agents):**
@@ -92,50 +247,94 @@ bd-0001 (Feature)
 - Agent 2: Executes bd-0001.2
 - Agent 3: Executes bd-0001.4
 
-**After Round 1:**
+**After Round 1 (checkpoint updated):**
+```json
+{
+  "completed_ws": ["bd-0001.1", "bd-0001.2", "bd-0001.4"],
+  "current_ws": "bd-0001.3",
+  "metrics": {"ws_total": 4, "ws_completed": 3}
+}
+```
+
 ```
 bd-0001.1 [CLOSED] ✅
 bd-0001.2 [CLOSED] ✅
 bd-0001.3 [READY - unblocked by bd-0001.2]
 bd-0001.4 [CLOSED] ✅
-bd-0001.5 [READY - unblocked by bd-0001.4]
+bd-0001.5 [READY - unblocked by bd-0001.4, oneshot_ready=false]  # Stop for manual UAT
 ```
 
 **Round 2 (3 agents):**
 - Agent 1: Executes bd-0001.3
-- Agent 2: Executes bd-0001.5
+- Agent 2: Skips bd-0001.5 (oneshot_ready=false)
 - Agent 3: (idle - no ready tasks)
 
-**After Round 2:**
+**After Round 2 (final checkpoint):**
+```json
+{
+  "status": "completed",
+  "completed_ws": ["bd-0001.1", "bd-0001.2", "bd-0001.3", "bd-0001.4"],
+  "metrics": {"ws_total": 4, "ws_completed": 4},
+  "completed_at": "2026-01-26T12:15:00Z"
+}
 ```
-All workstreams [CLOSED] ✅
-Feature complete!
+
+```
+All autonomous workstreams [CLOSED] ✅
+bd-0001.5 [READY] - Awaiting manual UAT
+Feature autonomous execution complete!
 ```
 
 ## Output
 
 **Success:**
 ```
-✅ Feature complete! Executed 5 workstreams
+✅ Feature complete! Executed 4 workstreams
 
 Execution summary:
-- Workstreams executed: 5
+- Workstreams executed: 4
 - Agents used: 3
 - Rounds: 2
-- Duration: ~5 min
+- Duration: ~15 min
+- Checkpoint: .oneshot/bd-0001-checkpoint.json
+
+Remaining (manual UAT):
+- bd-0001.5: Tests
 ```
 
-**Failure:**
+**Failure (with resume):**
 ```
 ❌ Execution failed: 2 tasks failed
 
 Failed tasks:
 - bd-0001.3: Service layer
-- bd-0001.5: Tests
+- bd-0001.4: API endpoints
 
-Check logs for details:
-bd show bd-0001.3
-bd show bd-0001.5
+Checkpoint saved: .oneshot/bd-0001-checkpoint.json
+
+Resume with:
+  @oneshot bd-0001 --resume agent-20260126-120000
+```
+
+## Background Execution (NEW)
+
+```bash
+# Start in background
+@oneshot bd-0001 --background
+
+# Output:
+⏳ Starting background execution...
+   Task ID: xyz789
+   Output: /tmp/agent_xyz789.log
+   Checkpoint: .oneshot/bd-0001-checkpoint.json
+
+# Continue working...
+
+# Check progress
+Read(/tmp/agent_xyz789.log)
+
+# Resume if interrupted
+@oneshot bd-0001 --resume agent-20260126-120000
 ```
 
 ## Example Session
@@ -143,30 +342,42 @@ bd show bd-0001.5
 ```bash
 # Decompose feature first
 @idea "Add user auth"
-# → bd-0001
+# → bd-0001 + docs/intent/bd-0001.json
 
 @design bd-0001
 # → bd-0001.1, bd-0001.2, bd-0001.3 (sequential deps)
+# + execution graph
 
 # Execute all workstreams
 @oneshot bd-0001 --agents 2
 
 # Output:
 ⏳ Executing feature bd-0001 with 2 agents...
+📋 Checkpoint created: .oneshot/bd-0001-checkpoint.json
+   Agent ID: agent-20260126-120000
+   Execution order: bd-0001.1 → bd-0001.2 → bd-0001.3
 
 Round 1:
   🤖 Agent 1: Executing bd-0001.1 (Domain entities)
   🤖 Agent 2: Executing bd-0001.2 (Repository layer)
+📋 Checkpoint updated: 2/3 WS completed
 
 ✅ bd-0001.1 complete
 ✅ bd-0001.2 complete
 
 Round 2:
   🤖 Agent 1: Executing bd-0001.3 (Service layer)
+📋 Checkpoint updated: 3/3 WS completed
 
 ✅ bd-0001.3 complete
 
 ✅ Feature complete! Executed 3 workstreams
+📋 Checkpoint updated: .oneshot/bd-0001-checkpoint.json
+
+Next steps:
+  1. Automated review: @review bd-0001
+  2. Manual UAT (5-10 min)
+  3. Deploy: @deploy bd-0001
 ```
 
 ## Key Features
@@ -175,6 +386,7 @@ Round 2:
 - No manual task ordering needed
 - Beads DAG automatically tracks dependencies
 - Tasks become ready as dependencies complete
+- Topological sort from execution graph ensures correct order (NEW)
 
 **Parallel Execution:**
 - Independent tasks run in parallel
@@ -185,20 +397,31 @@ Round 2:
 - Real-time status updates
 - Ready task discovery between rounds
 - Comprehensive error reporting
+- Checkpoint after each WS (NEW)
 
-**Fault Tolerance:**
+**Fault Tolerance (NEW):**
+- Checkpoint/resume capability
 - Failed tasks don't block other tasks
 - Continues until no tasks ready
 - Reports all failures at end
+- Resume from interruption
+
+**Two-Stage Review (NEW):**
+- Automated review via @review
+- Human UAT for final validation
+- Clear approval workflow
 
 ## Benefits vs Manual Execution
 
-| Aspect | Manual @build | @oneshot |
-|--------|---------------|----------|
+| Aspect | Manual @build | @oneshot (Beads + ai-comm) |
+|--------|---------------|---------------------------|
 | **Task discovery** | Manual | `bd ready` |
 | **Parallelization** | Manual | Auto (3 agents) |
 | **Status tracking** | Manual file moves | Auto status updates |
 | **Error handling** | Manual | Auto reporting |
+| **Checkpoint/Resume** | None | ✅ (NEW) |
+| **Background mode** | None | ✅ (NEW) |
+| **Execution ordering** | Manual | Graph-based (NEW) |
 | **Time to execute 5 WS** | ~30 min | ~10 min |
 
 ## Troubleshooting
@@ -213,6 +436,9 @@ bd ready
 
 # Verify workstreams are OPEN
 bd list --status open
+
+# Check execution graph (NEW)
+python -c "from sdp.design.graph import DependencyGraph; import json; graph = DependencyGraph(); print(graph.topological_sort())"
 ```
 
 **Agents not utilized:**
@@ -234,6 +460,28 @@ bd status bd-0001.3
 
 # Reset blocked tasks to retry
 bd update bd-0001.3 --status open
+
+# Resume from checkpoint (NEW)
+@oneshot bd-0001 --resume agent-20260126-120000
+```
+
+**Execution interrupted (NEW):**
+```bash
+# Check checkpoint
+cat .oneshot/bd-0001-checkpoint.json
+
+# Resume from checkpoint
+@oneshot bd-0001 --resume agent-20260126-120000
+```
+
+**Wrong execution order (NEW):**
+```python
+# Verify topological sort
+from sdp.design.graph import DependencyGraph
+
+graph = DependencyGraph()
+# ... load workstreams from Beads ...
+print(graph.topological_sort())
 ```
 
 ## Quick Reference
@@ -242,12 +490,24 @@ bd update bd-0001.3 --status open
 |---------|---------|
 | `@oneshot bd-0001` | Execute feature with 3 agents |
 | `@oneshot bd-0001 --agents 5` | Use 5 agents |
+| `@oneshot bd-0001 --resume <id>` | Resume from checkpoint (NEW) |
+| `@oneshot bd-0001 --background` | Background execution (NEW) |
 | `bd ready` | List ready tasks |
 | `bd graph` | Show dependency graph |
 | `bd show {id}` | View task details |
+| `@review {feature}` | Automated review (NEW) |
+
+## File Structure (NEW)
+
+```
+.oneshot/
+├── bd-0001-checkpoint.json    # Execution checkpoint
+├── bd-0002-checkpoint.json    # Another feature
+└── ...
+```
 
 ---
 
-**Version:** 2.0.0-beads
-**Status:** Beads Integration
-**See Also:** `@idea`, `@design`, `@build`
+**Version:** 2.1.0-beads-ai-comm
+**Status:** Beads + AI-Comm Integration
+**See Also:** `@idea`, `@design`, `@build`, `@review`
