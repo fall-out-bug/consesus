@@ -44,6 +44,8 @@ from .models import (
 )
 from .sync import BeadsSyncService, BeadsSyncError
 from .skills_design import FeatureDecomposer, WorkstreamSpec
+from .skills_build import WorkstreamExecutor, ExecutionResult
+from .skills_oneshot import MultiAgentExecutor, OneshotResult
 
 __all__ = [
     # Client
@@ -65,6 +67,10 @@ __all__ = [
     "BeadsSyncError",
     "FeatureDecomposer",
     "WorkstreamSpec",
+    "WorkstreamExecutor",
+    "ExecutionResult",
+    "MultiAgentExecutor",
+    "OneshotResult",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"
