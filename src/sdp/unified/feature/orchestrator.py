@@ -5,32 +5,21 @@ and approval gates for unified feature development workflow.
 """
 
 import logging
-from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
-from sdp.unified.feature.models import FeatureExecution, FeaturePhase
+from sdp.unified.feature.models import (
+    FeatureExecution,
+    FeaturePhase,
+    MockCheckpoint,
+    StepResult,
+)
+from sdp.unified.feature.skills import (
+    invoke_design_skill,
+    invoke_idea_skill,
+    invoke_oneshot_skill,
+)
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class MockCheckpoint:
-    """Mock checkpoint for testing."""
-    feature: str
-    completed_phases: list[str] = field(default_factory=list)
-    metrics: dict[str, object] = field(default_factory=dict)
-
-
-class StepResult:
-    """Result from executing a step."""
-    def __init__(self, success: bool, phase: Optional[FeaturePhase] = None) -> None:
-        self.success = success
-        self.phase = phase
-
-
-def call_skill(skill_name: str) -> None:
-    """Call a skill by name."""
-    logger.info(f"Calling @{skill_name} skill")
 
 
 class FeatureOrchestrator:
@@ -121,16 +110,32 @@ class FeatureOrchestrator:
         """Execute a single workflow step."""
         if step == 1 and execution.skip_flags.skip_requirements:
             return StepResult(success=True, phase=FeaturePhase.ARCHITECTURE)
-        step_handlers = {
-            1: ("idea", FeaturePhase.REQUIREMENTS),
-            2: ("design", FeaturePhase.ARCHITECTURE),
-            3: ("oneshot", FeaturePhase.EXECUTION),
-        }
-        if step in step_handlers:
-            skill_name, phase = step_handlers[step]
-            call_skill(skill_name)
-            execution.completed_phases.append(phase)
-            return StepResult(success=True, phase=phase)
+
+        try:
+            if step == 1:
+                result = invoke_idea_skill(execution.feature_id, execution.feature_name)
+                if result.success:
+                    execution.completed_phases.append(FeaturePhase.REQUIREMENTS)
+                    return StepResult(success=True, phase=FeaturePhase.REQUIREMENTS)
+                return StepResult(success=False, phase=None)
+
+            if step == 2:
+                result = invoke_design_skill(execution.feature_id, "requirements.md")
+                if result.success:
+                    execution.completed_phases.append(FeaturePhase.ARCHITECTURE)
+                    return StepResult(success=True, phase=FeaturePhase.ARCHITECTURE)
+                return StepResult(success=False, phase=None)
+
+            if step == 3:
+                result = invoke_oneshot_skill(execution.feature_id, "architecture.md")
+                if result.success:
+                    execution.completed_phases.append(FeaturePhase.EXECUTION)
+                    return StepResult(success=True, phase=FeaturePhase.EXECUTION)
+                return StepResult(success=False, phase=None)
+        except Exception as e:
+            logger.error(f"Error executing step {step}: {e}")
+            return StepResult(success=False, phase=None)
+
         return StepResult(success=False, phase=None)
 
     def execute_feature(self, execution: FeatureExecution) -> StepResult:

@@ -192,9 +192,13 @@ class TestProgressiveMenu:
 class TestSkillInvocation:
     """Test skill invocation (@idea/@design/@oneshot)."""
 
-    @patch('sdp.unified.feature.orchestrator.call_skill')
-    def test_invokes_idea_skill_step1(self, mock_skill):
+    @patch('sdp.unified.feature.orchestrator.invoke_idea_skill')
+    def test_invokes_idea_skill_step1(self, mock_idea):
         """Should invoke @idea skill for requirements gathering."""
+        from unittest.mock import MagicMock
+
+        mock_idea.return_value = MagicMock(success=True, artifacts={})
+
         orchestrator = FeatureOrchestrator()
         execution = FeatureExecution(
             feature_id="test-feature",
@@ -204,11 +208,15 @@ class TestSkillInvocation:
         result = orchestrator.execute_step(execution, step=1)
 
         assert result.success
-        mock_skill.assert_called_once_with("idea")
+        mock_idea.assert_called_once_with("test-feature", "Test Feature")
 
-    @patch('sdp.unified.feature.orchestrator.call_skill')
-    def test_invokes_design_skill_step2(self, mock_skill):
+    @patch('sdp.unified.feature.orchestrator.invoke_design_skill')
+    def test_invokes_design_skill_step2(self, mock_design):
         """Should invoke @design skill after requirements approved."""
+        from unittest.mock import MagicMock
+
+        mock_design.return_value = MagicMock(success=True, artifacts={})
+
         orchestrator = FeatureOrchestrator()
         execution = FeatureExecution(
             feature_id="test-feature",
@@ -221,11 +229,15 @@ class TestSkillInvocation:
         result = orchestrator.execute_step(execution, step=2)
 
         assert result.success
-        mock_skill.assert_called_once_with("design")
+        mock_design.assert_called_once()
 
-    @patch('sdp.unified.feature.orchestrator.call_skill')
-    def test_invokes_oneshot_skill_step3(self, mock_skill):
+    @patch('sdp.unified.feature.orchestrator.invoke_oneshot_skill')
+    def test_invokes_oneshot_skill_step3(self, mock_oneshot):
         """Should invoke @oneshot skill after architecture approved."""
+        from unittest.mock import MagicMock
+
+        mock_oneshot.return_value = MagicMock(success=True, artifacts={})
+
         orchestrator = FeatureOrchestrator()
         execution = FeatureExecution(
             feature_id="test-feature",
@@ -241,7 +253,7 @@ class TestSkillInvocation:
         result = orchestrator.execute_step(execution, step=3)
 
         assert result.success
-        mock_skill.assert_called_once_with("oneshot")
+        mock_oneshot.assert_called_once()
 
 
 class TestSkipFlags:
@@ -277,6 +289,115 @@ class TestSkipFlags:
         result = orchestrator.execute_feature(execution)
 
         assert result.phase == FeaturePhase.EXECUTION
+
+
+class TestSkillIntegration:
+    """Test enhanced skill invocation integration."""
+
+    @patch('sdp.unified.feature.orchestrator.invoke_idea_skill')
+    def test_invokes_idea_with_context(self, mock_idea):
+        """Should invoke @idea with feature context."""
+        from unittest.mock import MagicMock
+
+        mock_idea.return_value = MagicMock(success=True, artifacts={"requirements": "req.md"})
+
+        orchestrator = FeatureOrchestrator()
+        execution = FeatureExecution(
+            feature_id="test-feature",
+            feature_name="Test Feature",
+        )
+
+        result = orchestrator.execute_step(execution, step=1)
+
+        assert result.success
+        mock_idea.assert_called_once()
+
+    @patch('sdp.unified.feature.orchestrator.invoke_design_skill')
+    def test_invokes_design_with_requirements(self, mock_design):
+        """Should invoke @design with requirements context."""
+        from unittest.mock import MagicMock
+
+        mock_design.return_value = MagicMock(success=True, artifacts={"architecture": "arch.md"})
+
+        orchestrator = FeatureOrchestrator()
+        execution = FeatureExecution(
+            feature_id="test-feature",
+            feature_name="Test Feature",
+            completed_phases=[FeaturePhase.REQUIREMENTS],
+        )
+
+        result = orchestrator.execute_step(execution, step=2)
+
+        assert result.success
+        mock_design.assert_called_once()
+
+    @patch('sdp.unified.feature.orchestrator.invoke_oneshot_skill')
+    def test_invokes_oneshot_with_architecture(self, mock_oneshot):
+        """Should invoke @oneshot with architecture context."""
+        from unittest.mock import MagicMock
+
+        mock_oneshot.return_value = MagicMock(success=True, artifacts={"execution_plan": "plan.md"})
+
+        orchestrator = FeatureOrchestrator()
+        execution = FeatureExecution(
+            feature_id="test-feature",
+            feature_name="Test Feature",
+            completed_phases=[
+                FeaturePhase.REQUIREMENTS,
+                FeaturePhase.ARCHITECTURE,
+            ],
+        )
+
+        result = orchestrator.execute_step(execution, step=3)
+
+        assert result.success
+        mock_oneshot.assert_called_once()
+
+    def test_skill_invocation_failure_handling(self):
+        """Should handle skill invocation failures gracefully."""
+        from unittest.mock import patch, MagicMock
+
+        with patch('sdp.unified.feature.orchestrator.invoke_idea_skill') as mock_idea:
+            mock_idea.side_effect = Exception("Skill invocation failed")
+
+            orchestrator = FeatureOrchestrator()
+            execution = FeatureExecution(
+                feature_id="test-feature",
+                feature_name="Test Feature",
+            )
+
+            # Should still return result but with error logged
+            result = orchestrator.execute_step(execution, step=1)
+
+            # Execution should continue even with skill failure
+            assert result is not None
+
+    def test_skill_functions_return_success_results(self):
+        """Should return successful SkillResult from invoke functions."""
+        from sdp.unified.feature.skills import (
+            invoke_idea_skill,
+            invoke_design_skill,
+            invoke_oneshot_skill,
+        )
+
+        # Test @idea skill
+        result = invoke_idea_skill("test-feature", "Test Feature")
+        assert result.success is True
+        assert "requirements" in result.artifacts
+        assert "intent" in result.artifacts
+
+        # Test @design skill
+        result = invoke_design_skill("test-feature", "requirements.md")
+        assert result.success is True
+        assert "architecture" in result.artifacts
+        assert "workstreams" in result.artifacts
+
+        # Test @oneshot skill
+        result = invoke_oneshot_skill("test-feature", "architecture.md")
+        assert result.success is True
+        assert "execution_plan" in result.artifacts
+        assert "checkpoint" in result.artifacts
+
 
 
 class TestApprovalGates:
