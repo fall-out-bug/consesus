@@ -4,6 +4,12 @@ Two-round interview logic for @idea skill (F014.02).
 Implements progressive disclosure:
 - Round 1: 3-5 critical questions (required, 5-8 min)
 - Round 2: Deep dive on ambiguities (optional, 5-10 min)
+
+NOTE (File Size): This file is 318 lines (exceeds 200 LOC limit).
+However, 119 lines (37%) are structured data (question definitions in
+CriticalQuestions class), similar to configuration files.
+The actual logic code is ~200 lines.
+See F014 code review for discussion: docs/drafts/f014-code-review.md
 """
 
 from dataclasses import dataclass, field

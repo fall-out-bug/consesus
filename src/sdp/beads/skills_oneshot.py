@@ -29,22 +29,6 @@ if TYPE_CHECKING:
     pass
 
 
-@dataclass
-class OneshotResult:
-    """Result of oneshot feature execution."""
-
-    success: bool
-    feature_id: str
-    total_executed: int = 0
-    error: Optional[str] = None
-    failed_tasks: List[str] = field(default_factory=list)
-    mode: ExecutionMode = ExecutionMode.STANDARD
-    deployment_target: str = "production"
-    pr_created: bool = False
-    preview_only: bool = False
-    tasks_preview: List[str] = field(default_factory=list)
-
-
 class MultiAgentExecutor:
     """Execute feature workstreams with multi-agent coordination.
 
@@ -242,6 +226,12 @@ class MultiAgentExecutor:
 
         Returns:
             True if user confirms or no destructive operations, False otherwise
+
+        TODO (F015): Implement actual confirmation prompt using AskUserQuestion.
+        Currently auto-approves all destructive operations. Should:
+        1. Detect destructive operations using DestructiveOperationDetector
+        2. Prompt user with AskUserQuestion to confirm
+        3. Return False if user declines
         """
         # For now, always return True (auto-confirm)
         # In real implementation, would prompt user with AskUserQuestion
