@@ -18,6 +18,8 @@ SDP is for you if:
 - ✅ **You prefer progress tracking** with task systems (Beads CLI) over manual to-do lists
 - ✅ **You're building solo or small team** projects with 5-500 workstreams
 
+**New to SDP?** See [START_HERE.md](START_HERE.md) for beginner guides!
+
 ---
 
 ## Quick Start
@@ -208,19 +210,35 @@ sdp/
 
 ## Documentation
 
-### By Role
+### Beginner Guides (Progressive Learning)
+**New to SDP? Start here:**
+- [START_HERE.md](START_HERE.md) - Welcome page with learning paths
+- [docs/beginner/00-quick-start.md](docs/beginner/00-quick-start.md) - 5-minute overview
+- [docs/beginner/01-first-feature.md](docs/beginner/01-first-feature.md) - Hands-on tutorial
+- [docs/beginner/02-common-tasks.md](docs/beginner/02-common-tasks.md) - Common workflows
+- [docs/beginner/03-troubleshooting.md](docs/beginner/03-troubleshooting.md) - Troubleshooting
 
-**For Team Leads:**
-- [docs/TUTORIAL.md](docs/TUTORIAL.md) - 15-minute quick start
-- [PRODUCT_VISION.md](PRODUCT_VISION.md) - Project overview
+### Reference Documentation (Lookup)
+**Looking up specific commands or config?**
+- [docs/reference/README.md](docs/reference/README.md) - Reference overview
+- [docs/reference/commands.md](docs/reference/commands.md) - All commands
+- [docs/reference/quality-gates.md](docs/reference/quality-gates.md) - Quality standards
+- [docs/reference/configuration.md](docs/reference/configuration.md) - Config files
+- [docs/reference/skills.md](docs/reference/skills.md) - Skill system
 
-**For Engineers:**
-- [PROTOCOL.md](PROTOCOL.md) - Full specification (English)
-- [PROTOCOL_RU.md](PROTOCOL_RU.md) - Полная спецификация (Русский)
-- [docs/workstreams/INDEX.md](docs/workstreams/INDEX.md) - Workstream reference
+### Internals (Maintainer Docs)
+**Extending SDP or contributing?**
+- [docs/internals/README.md](docs/internals/README.md) - Internals overview
+- [docs/internals/architecture.md](docs/internals/architecture.md) - System architecture
+- [docs/internals/extending.md](docs/internals/extending.md) - How to extend
+- [docs/internals/development.md](docs/internals/development.md) - Dev setup
+- [docs/internals/contributing.md](docs/internals/contributing.md) - Contributing
 
-**For Operators:**
-- [.claude/agents/README.md](.claude/agents/README.md) - Agent roles guide
+### Core Documentation
+- [PROTOCOL.md](PROTOCOL.md) - Complete specification
+- [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns
+- [CLAUDE.md](CLAUDE.md) - Claude Code integration
+- [docs/SITEMAP.md](docs/SITEMAP.md) - Full documentation index
 
 ### Key Concepts
 

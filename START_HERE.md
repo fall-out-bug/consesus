@@ -47,45 +47,48 @@ pip install -e .
 
 ### New to SDP? Start Here:
 
-1. **[15-Minute Tutorial](docs/TUTORIAL.md)** ⭐ Recommended first stop
-   - Hands-on introduction to core concepts
-   - Learn by doing
-   - Covers installation, first feature, quality gates
+**Beginner Path (Progressive Learning):**
 
-2. **[Glossary](docs/GLOSSARY.md)** 📖 150+ term reference
-   - Look up any unfamiliar term
-   - Canonical definitions for all SDP concepts
-   - Identifier formats, naming conventions
+1. **[Quick Start (5 min)](docs/beginner/00-quick-start.md)** ⭐ Start here
+   - What is SDP and why it matters
+   - Key concepts at a glance
+   - See it in action
 
-3. **[README](README.md)** 📄 Project overview
-   - Feature highlights
-   - Architecture diagram
-   - Project structure
+2. **[Hands-on Tutorial (15 min)](docs/beginner/01-first-feature.md)** 🔧 Learn by doing
+   - Create your first feature
+   - Interactive walkthrough
+   - Real examples
+
+3. **[Common Tasks Guide](docs/beginner/02-common-tasks.md)** 📋 Daily reference
+   - Feature development workflow
+   - Bug fixes and debugging
+   - Quality checks and deployment
+
+4. **[Troubleshooting Guide](docs/beginner/03-troubleshooting.md)** 🔧 When stuck
+   - Common issues and solutions
+   - Error patterns
+   - Debugging tips
+
+**Quick References:**
+
+- **[Glossary](docs/reference/GLOSSARY.md)** 📖 150+ term reference
+- **[README](README.md)** 📄 Project overview
 
 ### Ready to Dive Deeper?
 
-4. **[Protocol Specification](PROTOCOL.md)** 📋 Complete SDP specification
-   - Hierarchy (Release → Feature → Workstream)
-   - Quality gates (coverage, mypy, ruff, file size)
-   - Commands (@feature, @design, @build, @review, @deploy)
-   - Multi-agent system architecture
+**By Role:**
 
-5. **[Code Patterns](CODE_PATTERNS.md)** 🔧 Implementation patterns
-   - Clean Architecture layers
-   - Repository, Factory, Adapter patterns
-   - State machines, orchestrators
-   - Anti-patterns to avoid
+- **Team Leads** → See [docs/SITEMAP.md](docs/SITEMAP.md#guides-by-role)
+- **Engineers** → [reference/](docs/reference/) lookup docs
+- **Maintainers** → [internals/](docs/internals/) architecture & extending
 
-6. **[Principles](docs/PRINCIPLES.md)** 🎓 Engineering principles
-   - SOLID (SRP, OCP, LSP, ISP, DIP)
-   - DRY, KISS, YAGNI
-   - TDD (Red → Green → Refactor)
-   - Clean Code practices
+**By Topic:**
 
-7. **[Site Map](docs/SITEMAP.md)** 🗺️ Full documentation index
-   - Complete documentation structure
-   - Find specific guides and references
-   - Navigate by role or topic
+- **[Protocol Specification](PROTOCOL.md)** 📋 Complete SDP specification
+- **[Code Patterns](CODE_PATTERNS.md)** 🔧 Implementation patterns
+- **[Reference Docs](docs/reference/)** 📚 Command & config reference
+- **[Internals](docs/internals/)** 🏗️ Architecture & extending
+- **[Site Map](docs/SITEMAP.md)** 🗺️ Full documentation index
 
 ---
 

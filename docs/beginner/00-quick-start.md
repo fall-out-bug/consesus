@@ -1,429 +1,325 @@
 # SDP Quick Start Tutorial
-**Learn SDP in 15 Minutes - Create Your First Feature**
 
-This hands-on tutorial teaches you the SDP workflow by actually building a small feature. You'll learn by doing, with validation at each step.
+**Time:** 15 minutes
+**Goal:** Create your first feature using SDP workflow
+**Prerequisites:** Python 3.10+, Poetry, Git
 
 ---
 
-## Prerequisites Check (2 minutes)
+## Step 1: Initialize Your Project (2 min)
 
-Let's verify you have everything installed:
+Start by setting up SDP in your project:
 
 ```bash
-# Check Python version (need 3.10+)
-python --version
-# Expected: Python 3.10.x or higher
+# Navigate to your project directory
+cd /path/to/your/project
 
-# Check Poetry (need 1.8+)
-poetry --version
-# Expected: Poetry version 1.8.x or higher
-
-# Check Git
-git --version
-# Expected: git version 2.x.x or higher
-
-# Verify you're in an SDP project
-ls CLAUDE.md PROTOCOL.md
-# Expected: Both files exist
+# Run the interactive setup wizard
+sdp init
 ```
 
-❓ **If anything is missing:**
-- Python: Install from [python.org](https://www.python.org/downloads/)
-- Poetry: `curl -sSL https://install.python-poetry.org | python3 -`
-- Git: Install from [git-scm.com](https://git-scm.com/downloads)
+**You'll be prompted for:**
+- Project name (default: directory name)
+- Description (default: "SDP project")
+- Author (default: "Your Name")
 
-**✅ Checkpoint:** All commands above should succeed.
+**What gets created:**
+```
+docs/
+├── workstreams/
+│   ├── INDEX.md          # Workstream tracker
+│   ├── TEMPLATE.md       # Workstream template
+│   └── backlog/          # Planned workstreams
+├── PROJECT_MAP.md        # Project decisions
+└── drafts/               # Feature specifications
+quality-gate.toml         # Quality rules
+.env.template             # Environment variables
+```
+
+**Verify setup:**
+```bash
+sdp doctor
+# Should show: ✓ All critical checks passed
+```
 
 ---
 
-## Step 1: Create Your First Feature (3 minutes)
+## Step 2: Create Your First Feature (5 min)
 
-Use the `@feature` command to start a new feature. SDP will guide you through requirements gathering.
+Start with **@feature** - the unified entry point:
 
 ```bash
-# Start the feature workflow
 @feature "Add user authentication"
 ```
 
 **What happens:**
-1. SDP asks clarifying questions about authentication
-2. You provide answers (or press Enter for defaults)
-3. SDP generates a feature specification
+1. **Vision Interview** - Claude asks about mission, users, success metrics
+2. **Technical Interview** - Claude explores architecture, tradeoffs
+3. **Documents Created:**
+   - `PRODUCT_VISION.md` - Project manifesto
+   - `docs/drafts/idea-user-auth.md` - Full specification
+   - `docs/intent/user-auth.json` - Machine-readable intent
 
-**Example interaction:**
+**Example conversation:**
 ```
-🤔 What authentication methods do you need? (email, oauth, sso)
-> email
+Claude: What problem does this feature solve?
+You: Users need to log in securely with email/password
 
-🤔 Should users be able to reset passwords? (yes/no)
-> yes
+Claude: Who are the primary users?
+You: Web application users
 
-🤔 Do you need session management? (yes/no)
-> yes
-```
-
-**Expected output:**
-```
-✅ Feature specification created: docs/drafts/feature-user-auth.md
-✅ Workstreams designed: 4 workstreams created
-Next: Run @build WS-001-01 to start implementation
+Claude: Technical approach - sessions or JWT?
+You: JWT tokens for stateless auth
 ```
 
-**✅ Checkpoint:** You should see a new feature file in `docs/drafts/`.
+**Power User Tip:** Skip interviews with flags:
+```bash
+@feature "Add user authentication" --no-interview
+```
 
 ---
 
-## Step 2: Review Workstream Design (2 minutes)
+## Step 3: Design Workstreams (3 min)
 
-SDP automatically breaks your feature into workstreams. Let's review them:
-
-```bash
-# List generated workstreams
-ls docs/workstreams/backlog/
-```
-
-**Expected output:**
-```
-WS-001-01-user-models.md
-WS-001-02-auth-service.md
-WS-001-03-password-reset.md
-WS-001-04-session-management.md
-```
-
-Each workstream includes:
-- 🎯 Goal (what you're building)
-- 📋 Acceptance Criteria (how to know it's done)
-- 🔗 Dependencies (what needs to be done first)
-
-**View a workstream:**
-```bash
-cat docs/workstreams/backlog/WS-001-01-user-models.md
-```
-
-**✅ Checkpoint:** You should see 4 workstream files with clear goals and acceptance criteria.
-
----
-
-## Step 3: Execute Your First Workstream (5 minutes)
-
-Now let's actually build something! Use `@build` to execute a workstream.
+Now break your feature into workstreams:
 
 ```bash
-# Build the first workstream
-@build WS-001-01
+@design idea-user-auth
 ```
 
 **What happens:**
-1. **Red Phase:** SDP writes a failing test
-2. **Green Phase:** SDP writes minimal code to pass
-3. **Refactor Phase:** SDP improves the code
-4. **Quality Gates:** SDP runs tests, linters, complexity checks
+1. Claude explores your codebase
+2. Identifies integration points
+3. Proposes workstream decomposition
+4. Requests approval
 
-**Expected output:**
+**Example output:**
 ```
-🔨 Building WS-001-01: User Models
+Feature F01: User Authentication
+├── WS-F01-01: Domain entities (User, Credential)
+├── WS-F01-02: Application services (AuthService)
+├── WS-F01-03: Infrastructure layer (JWT, hashing)
+└── WS-F01-04: API endpoints (/login, /register)
 
-→ Step 1: Write failing test
-   ✅ Created test: tests/unit/test_user_models.py
-   ❌ Test failed (expected)
-
-→ Step 2: Implement minimal code
-   ✅ Created: src/auth/models.py
-   ✅ Test passed!
-
-→ Step 3: Refactor implementation
-   ✅ Code refactored
-
-→ Step 4: Quality gates
-   ✅ Tests passing (4/4)
-   ✅ Coverage: 85% (≥80%)
-   ✅ Mypy: 0 errors
-   ✅ Ruff: 0 errors
-   ✅ Complexity: CC < 10
-
-✅ Workstream complete!
+Approve this plan? (y/n)
 ```
 
-**Expected files created:**
-```bash
-# Implementation file
-ls src/auth/models.py
-# Output: src/auth/models.py
-
-# Test file
-ls tests/unit/test_user_models.py
-# Output: tests/unit/test_user_models.py
-```
-
-**✅ Checkpoint:** Test file and implementation created, all quality gates pass.
+**Files created:**
+- `docs/workstreams/backlog/WS-F01-01.md`
+- `docs/workstreams/backlog/WS-F01-02.md`
+- `docs/workstreams/backlog/WS-F01-03.md`
+- `docs/workstreams/backlog/WS-F01-04.md`
 
 ---
 
-## Step 4: Review Your Work (2 minutes)
+## Step 4: Execute Workstreams (3 min)
 
-Use `@review` to verify quality before moving on.
+Implement each workstream with **@build**:
 
 ```bash
-# Review the completed workstream
-@review WS-001-01
+@build WS-F01-01
 ```
 
-**Expected output:**
+**What happens (TDD Cycle):**
+
+### Phase 1: Red (Write Failing Test)
 ```
-📊 Review Report for WS-001-01
-
-✅ Code Quality
-   - Lines of code: 45 (<200)
-   - Test coverage: 85% (≥80%)
-   - Type hints: Complete
-   - No tech debt markers
-
-✅ Architecture
-   - Clean layer separation: OK
-   - No circular dependencies
-
-✅ Documentation
-   - Function docstrings: Complete
-   - Module docstring: Present
-
-✅ Tests
-   - All tests passing
-   - Fast marker: Applied
-   - No print statements
-
-🎉 Quality score: 95/100
+→ Writing failing test: tests/unit/test_user.py
+→ Running pytest... FAILED (expected)
+✓ Red phase complete
 ```
 
-**✅ Checkpoint:** All quality checks pass with score ≥80.
+### Phase 2: Green (Implement Minimum Code)
+```
+→ Implementing User entity
+→ Running pytest... PASSED
+✓ Green phase complete
+```
+
+### Phase 3: Refactor (Improve Code)
+```
+→ Refactoring: extract validation logic
+→ Running pytest... PASSED
+✓ Refactor phase complete
+```
+
+### Phase 4: Verify
+```
+→ Checking acceptance criteria
+✓ User entity created
+✓ Email validation works
+✓ Password hashing implemented
+
+→ Running quality gates
+✓ Coverage: 87%
+✓ File size: 45 lines (<200)
+✓ Type hints: 100%
+✓ No architecture violations
+
+✓ WS-F01-01 complete!
+```
+
+**Repeat for each workstream:**
+```bash
+@build WS-F01-02
+@build WS-F01-03
+@build WS-F01-04
+```
+
+**Or use autonomous mode:**
+```bash
+@oneshot F01
+# Executes all workstreams automatically
+```
 
 ---
 
-## Step 5: Build Remaining Workstreams (3 minutes)
+## Step 5: Review Quality (1 min)
 
-Continue building the remaining workstreams.
-
-```bash
-# Build the second workstream
-@build WS-001-02
-
-# Build the third workstream
-@build WS-001-03
-
-# Build the fourth workstream
-@build WS-001-04
-```
-
-**Watch the pattern:**
-- Each `@build` follows the same Red → Green → Refactor cycle
-- Quality gates enforce standards automatically
-- SDP tracks progress in real-time
-
-**Expected output per workstream:**
-```
-✅ Tests passing
-✅ Coverage ≥80%
-✅ No tech debt
-✅ Code complexity OK
-```
-
-**✅ Checkpoint:** All 4 workstreams complete, all tests pass.
-
----
-
-## Step 6: Final Feature Review (1 minute)
-
-After all workstreams complete, review the entire feature.
+Verify your feature meets standards:
 
 ```bash
-# Review the complete feature
 @review F01
 ```
 
-**Expected output:**
+**Checks performed:**
+- ✓ All workstreams completed
+- ✓ Acceptance criteria met
+- ✓ Test coverage ≥80%
+- ✓ Files <200 LOC
+- ✓ Type hints complete
+- ✓ No architecture violations
+- ✓ No TODOs without followup
+
+**Output:**
 ```
-🎉 Feature Review: F01 - User Authentication
+Review Result: APPROVED ✓
 
-✅ Implementation Complete
-   Workstreams: 4/4 completed
-   Total time: 45 minutes
-   Test coverage: 87%
+Workstreams: 4/4 completed
+Coverage: 86% (target: 80%)
+Quality Gates: PASSED
 
-✅ Quality Gates
-   All files <200 LOC: ✓
-   Type hints: ✓
-   No tech debt: ✓
-   Complexity OK: ✓
-
-📦 Ready for integration
-   Run: @deploy F01
+Recommendation: Ready for deployment
 ```
-
-**✅ Checkpoint:** Feature complete, ready for deployment.
 
 ---
 
-## Troubleshooting Common Issues
+## Step 6: Deploy to Production (1 min)
 
-### Issue 1: Test Fails After Implementation
+Deploy your feature:
 
-**Symptom:** Test still fails after code implementation
-
-**Solution:**
 ```bash
-# Check test output
-pytest tests/unit/test_user_models.py -v
+@deploy F01
+```
 
-# Common fixes:
-# 1. Check for typos in function names
-# 2. Verify import statements
-# 3. Check assertion logic
+**What happens:**
+1. Merges feature branch to main
+2. Creates git tag (e.g., v1.0.0)
+3. Runs final validation
+4. Generates release notes
+
+**Output:**
+```
+✓ Merged dev → main
+✓ Created tag v1.0.0
+✓ Generated release notes
+
+Feature F01 deployed successfully!
 ```
 
 ---
 
-### Issue 2: Coverage Below 80%
+## Troubleshooting
 
-**Symptom:** Quality gate fails with "Coverage: 75% (<80%)"
-
-**Solution:**
+### "sdp: command not found"
 ```bash
-# See which lines aren't covered
-pytest tests/unit/test_user_models.py --cov=auth/models --cov-report=term-missing
+# Install SDP
+pip install sdp
 
-# Add tests for missing paths
-# Example: Test error cases, edge cases, all branches
+# Or with Poetry
+poetry add sdp --group dev
 ```
 
----
-
-### Issue 3: Type Hint Errors
-
-**Symptom:** Mypy reports "Missing type annotation"
-
-**Solution:**
+### "sdp doctor shows failures"
 ```bash
-# Check specific errors
-mypy src/auth/models.py --strict
+# Install missing dependencies
+curl -sSL https://install.python-poetry.org | python3 -
 
-# Add type hints:
-def get_user(user_id: int) -> User | None:
-    #     ^^^^^^^    ^^^^^^^^^^^^^^^^
-    #    parameter      return type
+# Initialize git repo
+git init
+
+# Re-run setup
+sdp init --force
 ```
 
----
-
-### Issue 4: Complexity Too High
-
-**Symptom:** Radon reports "CC > 10"
-
-**Solution:**
+### "@feature can't find my codebase"
 ```bash
-# Check complexity
-radon cc src/auth/models.py -a
+# Ensure you're in project root
+pwd  # Should show project directory
 
-# Refactor: Extract helper functions
-def complex_function(x, y, z):
-    # Split into smaller functions
-    result = helper1(x, y)
-    result = helper2(result, z)
-    return result
+# Check for docs/ directory
+ls docs/  # Should exist after sdp init
 ```
 
----
-
-### Issue 5: Import Errors
-
-**Symptom:** "ModuleNotFoundError: No module named 'auth'"
-
-**Solution:**
+### "@build test fails"
 ```bash
-# Verify you're in the right directory
-pwd
-# Should be in project root
+# Run tests manually to see errors
+pytest tests/unit/test_module.py -v
 
-# Install dependencies
-poetry install
+# Check coverage
+pytest --cov=module --cov-report=term-missing
 
-# Check module structure
-ls src/auth/
+# Debug with
+@debug "Test failure in test_user.py"
 ```
 
----
+### "Workstream blocked by dependencies"
+```bash
+# Check INDEX.md for dependencies
+cat docs/workstreams/INDEX.md
 
-## What You Learned
-
-Congratulations! 🎉 You've completed the SDP Quick Start tutorial.
-
-**You now know how to:**
-1. ✅ Create features using `@feature`
-2. ✅ Design workstreams automatically
-3. ✅ Execute workstreams with `@build`
-4. ✅ Validate quality with `@review`
-5. ✅ Troubleshoot common issues
-
-**Key SDP concepts:**
-- **Test-Driven Development:** Tests written before code
-- **Quality Gates:** Automatic validation (coverage, complexity, types)
-- **Clean Architecture:** Enforced layer separation
-- **Small Files:** Everything under 200 LOC
-- **No Tech Debt:** "Fix it now" mentality
+# Complete blocking workstreams first
+@build WS-F01-01  # Must complete before WS-F01-02
+```
 
 ---
 
 ## Next Steps
 
-**Continue learning:**
-- 📖 Read [PROTOCOL.md](../PROTOCOL.md) - Full SDP specification
-- 📖 Read [CLAUDE.md](../CLAUDE.md) - Integration guide
-- 🔧 Try advanced workflows: `@oneshot`, `@design`, `@idea`
+**Explore advanced workflows:**
+- `@idea` - Deep requirements gathering
+- `@design` - Interactive planning
+- `@oneshot` - Autonomous multi-workstream execution
+- `@debug` - Systematic debugging
 
-**Build your own feature:**
-```bash
-@feature "Your feature idea here"
-```
+**Read documentation:**
+- [PROTOCOL.md](../PROTOCOL.md) - Full SDP specification
+- [PRINCIPLES.md](../PRINCIPLES.md) - Core principles
+- [CLAUDE_CODE.md](../guides/CLAUDE_CODE.md) - Claude Code integration
 
-**Get help:**
-- 💬 Join the [SDP Discord](https://discord.gg/sdp)
-- 🐛 [Report issues](https://github.com/fall-out-bug/sdp/issues)
-- 📧 Email: sdp-support@example.com
-
----
-
-## Tutorial Checklist
-
-Use this checklist to track your progress:
-
-- [ ] Prerequisites installed (Python, Poetry, Git)
-- [ ] Created first feature with `@feature`
-- [ ] Reviewed generated workstreams
-- [ ] Built first workstream with `@build`
-- [ ] Reviewed work with `@review`
-- [ ] Built remaining workstreams
-- [ ] Completed final feature review
-- [ ] Troubleshooted at least one issue
-
-**Time spent:** _____ minutes
-
-**What was most helpful?** _________________________________
-
-**What was confusing?** ___________________________________
+**Join the community:**
+- GitHub: [github.com/your-org/sdp](https://github.com/your-org/sdp)
+- Discord: [discord.gg/sdp](https://discord.gg/sdp)
 
 ---
 
-## Feedback
+## Checklist
 
-**How was this tutorial?**
-- Too easy / Just right / Too hard
-- Too fast / Just right / Too slow
-- More examples / Fewer examples
+Complete these steps to finish the tutorial:
 
-**Rate this tutorial:** ⭐⭐⭐⭐⭐ (1-5)
+- [ ] Run `sdp init` successfully
+- [ ] Run `sdp doctor` - all checks pass
+- [ ] Create feature with `@feature`
+- [ ] Design workstreams with `@design`
+- [ ] Execute workstream with `@build`
+- [ ] Review feature with `@review`
+- [ ] Deploy feature with `@deploy`
 
-**Your feedback helps improve SDP!** [Take 1-minute survey](https://forms.gle/sdp-tutorial)
+**Time taken:** _____ minutes
+
+**Feedback?** Open an issue on GitHub!
 
 ---
 
-**🎉 You're ready to use SDP!**
-
-Go build something amazing. 🚀
+**Version:** SDP 0.3.0
+**Last Updated:** 2025-01-29
