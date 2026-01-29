@@ -8,6 +8,10 @@ set -e
 echo "🔍 Pre-commit checks"
 echo "===================="
 
+# Get repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
 # Get list of staged files
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
@@ -21,8 +25,13 @@ echo ""
 echo "Check 0: Branch check"
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
-    echo "⚠️ Warning: Committing directly to $CURRENT_BRANCH"
-    echo "  Consider using a feature branch: git checkout -b feature/{slug}"
+    echo "❌ Committing directly to $CURRENT_BRANCH"
+    echo ""
+    echo "Fix: Create a feature branch first:"
+    echo "  git checkout -b feature/{slug}"
+    echo "  # Make changes and commit"
+    echo "  # Then create PR to merge to main"
+    exit 1
 fi
 echo "✓ Branch: $CURRENT_BRANCH"
 
@@ -103,8 +112,12 @@ if [ -n "$PY_FILES" ]; then
     # Check for pass in except
     EXCEPT_PASS=$(git diff --cached -- $PY_FILES | grep -A1 "^\+.*except" | grep "^\+.*pass$" || true)
     if [ -n "$EXCEPT_PASS" ]; then
-        echo "⚠️ Warning: except: pass found"
-        echo "Consider logging the exception."
+        echo "❌ except: pass found"
+        echo "$EXCEPT_PASS"
+        echo ""
+        echo "Fix: Handle the exception explicitly (log, raise, or return)."
+        echo "See: https://docs.python.org/3/tutorial/errors.html#handling-exceptions"
+        exit 1
     fi
     
     echo "✓ Python checks passed"

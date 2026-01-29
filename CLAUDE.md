@@ -12,10 +12,12 @@ Use **skills** to execute SDP commands:
 @feature "Add user authentication"    # New: unified entry point
 @idea "Add user authentication"       # Or start directly
 @design idea-user-auth                # Plan workstreams
-@build WS-001-01                      # Execute workstream
+@build 00-001-01                      # Execute workstream (PP-FFF-SS format)
 @review F01                           # Quality check
 @deploy F01                           # Deploy to production
 ```
+
+**⚠️ Workstream ID Format:** Use `PP-FFF-SS` (e.g., `00-001-01`), NOT legacy `WS-FFF-SS`
 
 ## Available Skills
 
@@ -24,7 +26,7 @@ Use **skills** to execute SDP commands:
 | `@feature` | **Unified feature development** (progressive disclosure) | `@feature "Add payment processing"` |
 | `@idea` | **Interactive requirements** (AskUserQuestion) | `@idea "Add payment processing"` |
 | `@design` | **Interactive planning** (EnterPlanMode) | `@design idea-payments` |
-| `@build` | Execute workstream (TodoWrite tracking) | `@build WS-001-01` |
+| `@build` | Execute workstream (TodoWrite tracking) | `@build 00-001-01` |
 | `/debug` | **Systematic debugging** (scientific method) | `/debug "Test fails unexpectedly"` |
 | `@review` | Quality check | `@review F01` |
 | `@deploy` | Production deployment | `@deploy F01` |
@@ -346,6 +348,32 @@ Check dependencies in `docs/workstreams/backlog/{WS-ID}.md`
 
 ### Coverage too low
 Run `pytest --cov --cov-report=term-missing` to identify gaps
+
+### Legacy Workstream ID Format
+
+**Problem:** Workstreams using old `WS-FFF-SS` format instead of `PP-FFF-SS`
+
+**Solution:** Use the migration script
+
+```bash
+# Preview changes (safe)
+python scripts/migrate_workstream_ids.py --dry-run
+
+# Migrate SDP workstreams
+python scripts/migrate_workstream_ids.py --project-id 00
+
+# Migrate other projects
+python scripts/migrate_workstream_ids.py --project-id 02 --path ../hw_checker
+```
+
+**What it does:**
+- Updates `ws_id` in frontmatter (`WS-001-01` → `00-001-01`)
+- Adds `project_id` field
+- Renames files to match new format
+- Updates cross-WS dependencies
+- Validates all changes
+
+**See also:** `docs/migration/ws-naming-migration.md`
 
 ## Advanced: Multi-Agent Mode
 

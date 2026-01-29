@@ -337,12 +337,36 @@ Generates:
 - **SS** - Workstream sequence (01-99)
 
 **Examples:**
-- `WS-001-01` - First workstream of first feature
-- `sdp-118.22` - Workstream 22 of SDP-118
+- `00-001-01` - First workstream of SDP feature 001
+- `02-150-01` - First workstream of hw_checker feature 150
 
-**Legacy:**
-- ~~Epic~~ → **Feature**
-- ~~Sprint~~ → Not used
+**⚠️ DEPRECATED:**
+- ~~`WS-FFF-SS`~~ → Use `PP-FFF-SS` format
+- ~~`Epic`~~ → **Feature**
+- ~~`Sprint`~~ → Not used
+
+**Migration:**
+
+For projects with legacy `WS-FFF-SS` format, use the migration script:
+
+```bash
+# Dry run to see what will change
+python scripts/migrate_workstream_ids.py --dry-run
+
+# Migrate SDP workstreams (project 00)
+python scripts/migrate_workstream_ids.py --project-id 00
+
+# Migrate other projects
+python scripts/migrate_workstream_ids.py --project-id 02 --path ../hw_checker
+```
+
+**Migration Features:**
+- ✅ `--dry-run` mode for safe preview
+- ✅ Updates frontmatter (`ws_id` and `project_id`)
+- ✅ Renames files to match new format
+- ✅ Updates cross-WS dependencies
+- ✅ Comprehensive validation and error reporting
+- ✅ Full test coverage (≥80%)
 
 ---
 
