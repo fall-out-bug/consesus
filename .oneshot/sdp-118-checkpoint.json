@@ -19,9 +19,10 @@
     "sdp-118.14",
     "sdp-118.15",
     "sdp-118.16",
-    "sdp-118.17"
+    "sdp-118.17",
+    "sdp-118.18"
   ],
-  "current_ws": "sdp-118.18",
+  "current_ws": "sdp-118.19",
   "execution_order": [
     "sdp-118.26",
     "sdp-118.25",
@@ -53,7 +54,7 @@
   "started_at": "2026-01-28T17:10:41.907869+00:00",
   "metrics": {
     "ws_total": 26,
-    "ws_completed": 17,
+    "ws_completed": 18,
     "total_loc": 10700,
     "estimated_duration_hours": "70-90"
   },
@@ -72,7 +73,7 @@
     },
     "phase4_notifications": {
       "ws": 3,
-      "completed": 2
+      "completed": 3
     },
     "phase5_testing": {
       "ws": 4,
