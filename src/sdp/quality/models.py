@@ -59,6 +59,15 @@ class ErrorHandlingConfig:
 
 
 @dataclass
+class LayerPattern:
+    """Pattern for detecting architectural layers."""
+
+    name: str
+    path_regex: str  # Regex pattern to match file paths
+    module_regex: str | None = None  # Optional regex for import statements
+
+
+@dataclass
 class ArchitectureConfig:
     """Clean architecture boundaries configuration."""
 
@@ -66,12 +75,25 @@ class ArchitectureConfig:
     enforce_layer_separation: bool = True
     allowed_layer_imports: list[str] | None = None
     forbid_violations: list[str] | None = None
+    layer_patterns: list[LayerPattern] | None = None  # Configurable layer detection
 
     def __post_init__(self) -> None:
         if self.allowed_layer_imports is None:
             self.allowed_layer_imports = []
         if self.forbid_violations is None:
-            self.forbid_violations = []
+            # Default clean architecture rules
+            # Domain is innermost - cannot depend on anyone
+            # Application can use domain, but not infrastructure/presentation
+            # Infrastructure can use domain and application, but not presentation
+            self.forbid_violations = [
+                "domain -> application",
+                "domain -> infrastructure",
+                "domain -> presentation",
+                "application -> infrastructure",
+                "application -> presentation",
+                "infrastructure -> presentation",
+            ]
+        # Note: layer_patterns defaults handled in ArchitectureChecker
 
 
 @dataclass

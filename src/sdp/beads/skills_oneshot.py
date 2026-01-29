@@ -11,19 +11,17 @@ Enhanced with workflow efficiency modes (F014):
 - Dry-run mode (preview changes)
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, TYPE_CHECKING
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import os
+from typing import TYPE_CHECKING, List, Optional
 
-from .client import BeadsClient, BeadsStatus
-from .skills_build import WorkstreamExecutor
+from .client import BeadsClient
 from .execution_mode import (
-    ExecutionMode,
     AuditLogger,
     DestructiveOperationDetector,
+    ExecutionMode,
     OneshotResult,
 )
+from .skills_build import WorkstreamExecutor
 
 if TYPE_CHECKING:
     pass
@@ -139,7 +137,7 @@ class MultiAgentExecutor:
                             if not success:
                                 failed_tasks.append(task_id)
 
-                        except Exception as e:
+                        except Exception:
                             failed_tasks.append(task_id)
                             total_executed += 1
 

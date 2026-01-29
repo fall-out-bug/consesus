@@ -7,6 +7,7 @@ sub-tasks with sequential dependencies.
 
 from dataclasses import dataclass, field
 from typing import List, Optional
+
 from .client import BeadsClient
 
 
@@ -64,7 +65,7 @@ class FeatureDecomposer:
             # bd-0001.2: Repository (blocked by bd-0001.1)
             # bd-0001.3: Service (blocked by bd-0001.2)
         """
-        from . import BeadsTaskCreate, BeadsDependency, BeadsDependencyType
+        from . import BeadsDependency, BeadsDependencyType, BeadsTaskCreate
 
         # Use default workstreams if none provided
         if workstreams is None:

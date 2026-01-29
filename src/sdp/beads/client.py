@@ -11,11 +11,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from .models import (
+    BeadsDependency,
+    BeadsStatus,
     BeadsTask,
     BeadsTaskCreate,
-    BeadsStatus,
-    BeadsDependency,
-    BeadsSyncResult,
 )
 
 
@@ -259,7 +258,7 @@ class CLIBeadsClient(BeadsClient):
 
         # Verify Beads is available
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["bd", "--version"],
                 capture_output=True,
                 cwd=self.project_dir,

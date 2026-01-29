@@ -1,7 +1,6 @@
 """Dependency graph for workstream execution planning."""
 
 from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass

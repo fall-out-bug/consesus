@@ -114,72 +114,79 @@ def parse_python_annotations_ast(path: Path) -> list[FlowStep]:
         # Fall back to regex if AST parsing fails
         return parse_python_annotations(path)
 
-    steps = []
+    visitor = _PRDVisitor()
+    visitor.visit(tree)
+    return visitor.steps
 
-    class PRDVisitor(ast.NodeVisitor):
-        """AST visitor that extracts PRD annotations."""
 
-        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-            """Visit function definition and extract decorators."""
-            flow_name = None
-            step_number = None
-            description = None
+class _PRDVisitor(ast.NodeVisitor):
+    """AST visitor that extracts PRD annotations."""
 
-            # Check decorators
-            for decorator in node.decorator_list:
-                # @prd_flow("name")
-                if isinstance(decorator, ast.Call):
-                    if hasattr(decorator.func, 'id') and decorator.func.id == 'prd_flow':
-                        if decorator.args and isinstance(decorator.args[0], ast.Constant):
-                            flow_name = decorator.args[0].value
+    def __init__(self) -> None:
+        self.steps: list[FlowStep] = []
+        self.current_flow: str | None = None
 
-                    # @prd_step(N, "desc")
-                    elif hasattr(decorator.func, 'id') and decorator.func.id == 'prd_step':
-                        if len(decorator.args) >= 2:
-                            if isinstance(decorator.args[0], ast.Constant):
-                                step_number = decorator.args[0].value
-                            if isinstance(decorator.args[1], ast.Constant):
-                                description = decorator.args[1].value
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Visit function definition and extract decorators."""
+        flow_name = None
+        step_number = None
+        description = None
 
-            if flow_name:
-                if step_number is None:
+        # Check decorators
+        for decorator in node.decorator_list:
+            # @prd_flow("name")
+            if isinstance(decorator, ast.Call):
+                if hasattr(decorator.func, 'id') and decorator.func.id == 'prd_flow':
+                    if decorator.args and isinstance(decorator.args[0], ast.Constant):
+                        flow_name = decorator.args[0].value
+
+                # @prd_step(N, "desc")
+                elif hasattr(decorator.func, 'id') and decorator.func.id == 'prd_step':
+                    if len(decorator.args) >= 2:
+                        if isinstance(decorator.args[0], ast.Constant):
+                            step_number = decorator.args[0].value
+                        if isinstance(decorator.args[1], ast.Constant):
+                            description = decorator.args[1].value
+
+        if flow_name:
+            if step_number is None:
+                step_number = 0
+            if description is None:
+                description = node.name
+
+            # Explicit type narrowing for mypy
+            if not isinstance(flow_name, str):
+                flow_name = str(flow_name)
+            if not isinstance(step_number, int):
+                if isinstance(step_number, (int, str)):
+                    step_number = int(step_number)
+                else:
                     step_number = 0
-                if description is None:
-                    description = node.name
+            if not isinstance(description, str):
+                description = str(description)
 
-                # Explicit type narrowing for mypy
-                if not isinstance(flow_name, str):
-                    flow_name = str(flow_name)
-                if not isinstance(step_number, int):
-                    if isinstance(step_number, (int, str)):
-                        step_number = int(step_number)
-                    else:
-                        step_number = 0
-                if not isinstance(description, str):
-                    description = str(description)
+            self.steps.append(FlowStep(
+                flow_name=flow_name,
+                step_number=step_number,
+                description=description,
+                source_file=path,
+                line_number=node.lineno
+            ))
 
-                steps.append(FlowStep(
-                    flow_name=flow_name,
-                    step_number=step_number,
-                    description=description,
-                    source_file=path,
-                    line_number=node.lineno
-                ))
+        self.generic_visit(node)
 
-            self.generic_visit(node)
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Visit async function definition."""
+        # Treat async functions the same as regular functions
+        # Create a fake FunctionDef-like object with same attributes
+        class _FuncDefWrapper:
+            def __init__(self, async_node: ast.AsyncFunctionDef):
+                self.name = async_node.name
+                self.decorator_list = async_node.decorator_list
+                self.lineno = async_node.lineno
 
-        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-            """Visit async function definition."""
-            # Treat async functions the same as regular functions
-            # Create a fake FunctionDef-like object with same attributes
-            class _FuncDefWrapper:
-                def __init__(self, async_node: ast.AsyncFunctionDef):
-                    self.name = async_node.name
-                    self.decorator_list = async_node.decorator_list
-                    self.lineno = async_node.lineno
-
-            wrapper = _FuncDefWrapper(node)
-            self.visit_FunctionDef(wrapper)  # type: ignore[arg-type]
+        wrapper = _FuncDefWrapper(node)
+        self.visit_FunctionDef(wrapper)  # type: ignore[arg-type]
 
     visitor = PRDVisitor()
     visitor.visit(tree)

@@ -12,21 +12,19 @@ Mapping:
 - SDP dependencies (list of WS IDs) ↔ Beads dependencies (type: "blocks")
 """
 
-import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from .client import BeadsClient
 from .models import (
-    BeadsTask,
-    BeadsTaskCreate,
-    BeadsStatus,
-    BeadsPriority,
     BeadsDependency,
     BeadsDependencyType,
+    BeadsPriority,
+    BeadsStatus,
     BeadsSyncResult,
+    BeadsTaskCreate,
 )
 
 # SDP workstream status values
@@ -206,7 +204,7 @@ class BeadsSyncService:
                 if ws_data.get("context"):
                     description += f"**Context:**\n{ws_data['context']}\n\n"
                 if ws_data.get("acceptance_criteria"):
-                    description += f"**Acceptance Criteria:**\n"
+                    description += "**Acceptance Criteria:**\n"
                     for ac in ws_data["acceptance_criteria"]:
                         checked = "✓" if ac.get("checked") else "☐"
                         description += f"{checked} {ac.get('text', '')}\n"

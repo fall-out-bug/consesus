@@ -1,7 +1,7 @@
 """SDP schema validation module."""
 
+from sdp.schema.models import Intent, SuccessCriterion, TechnicalApproach, Tradeoffs
 from sdp.schema.validator import IntentValidator, ValidationError
-from sdp.schema.models import Intent, SuccessCriterion, Tradeoffs, TechnicalApproach
 
 __all__ = [
     "IntentValidator",

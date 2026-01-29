@@ -14,7 +14,7 @@ See F014 code review for discussion: docs/drafts/f014-code-review.md
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 class InterviewRound(Enum):
@@ -36,7 +36,7 @@ class InterviewRound(Enum):
 @dataclass
 class AmbiguityResult:
     """Result of ambiguity detection."""
-    
+
     has_ambiguity: bool
     ambiguous_fields: List[str] = field(default_factory=list)
     confidence: float = 0.0
@@ -45,7 +45,7 @@ class AmbiguityResult:
 
 class AmbiguityDetector:
     """Detect ambiguity in interview answers."""
-    
+
     # Vague answer patterns
     VAGUE_PATTERNS = [
         "not sure",
@@ -58,7 +58,7 @@ class AmbiguityDetector:
         "tbd",
         "?",
     ]
-    
+
     # Conflicting answer patterns
     CONFLICT_INDICATORS = {
         "mission_no_users": ("no users", "no user", "none"),
@@ -67,45 +67,45 @@ class AmbiguityDetector:
 
     def detect_ambiguity(self, answers: Dict[str, str]) -> AmbiguityResult:
         """Detect ambiguity in interview answers.
-        
+
         Args:
             answers: Dictionary of question_id -> answer
-            
+
         Returns:
             AmbiguityResult with detected ambiguities
         """
         ambiguous_fields = []
         confidence = 1.0
-        
+
         for question_id, answer in answers.items():
             # Check for vague patterns
             if self._is_vague(answer):
                 ambiguous_fields.append(question_id)
                 confidence -= 0.3
-            
+
             # Check for conflicting answers
             conflict = self._check_conflicts(question_id, answer, answers)
             if conflict:
                 ambiguous_fields.append(question_id)
                 confidence -= 0.2
-        
+
         # Normalize confidence
         confidence = max(0.0, min(1.0, confidence))
-        
+
         has_ambiguity = len(ambiguous_fields) > 0
-        
+
         return AmbiguityResult(
             has_ambiguity=has_ambiguity,
             ambiguous_fields=ambiguous_fields,
             confidence=confidence,
             details=f"Found ambiguity in {len(ambiguous_fields)} fields" if has_ambiguity else "Clear answers",
         )
-    
+
     def _is_vague(self, answer: str) -> bool:
         """Check if answer contains vague patterns."""
         answer_lower = answer.lower()
         return any(pattern in answer_lower for pattern in self.VAGUE_PATTERNS)
-    
+
     def _check_conflicts(self, question_id: str, answer: str, all_answers: Dict[str, str]) -> bool:
         """Check for conflicting answers."""
         # Simplified conflict detection
@@ -120,11 +120,11 @@ class AmbiguityDetector:
 
 class CriticalQuestions:
     """Critical questions for Round 1 of @idea interview."""
-    
+
     @staticmethod
     def get_round_1_questions() -> List[Dict[str, Any]]:
         """Get critical questions for Round 1.
-        
+
         Returns:
             List of question definitions compatible with AskUserQuestion
         """
@@ -173,19 +173,19 @@ class CriticalQuestions:
                 "multiSelect": False,
             },
         ]
-    
+
     @staticmethod
     def get_round_2_questions(ambiguous_fields: List[str]) -> List[Dict[str, Any]]:
         """Get deep dive questions based on ambiguous fields.
-        
+
         Args:
             ambiguous_fields: List of fields that were ambiguous in Round 1
-            
+
         Returns:
             List of follow-up questions
         """
         questions = []
-        
+
         # Map ambiguous fields to deep dive questions
         field_questions = {
             "problem": [
@@ -224,12 +224,12 @@ class CriticalQuestions:
                 }
             ],
         }
-        
+
         # Add questions for ambiguous fields
         for field in ambiguous_fields:
             if field in field_questions:
                 questions.extend(field_questions[field])
-        
+
         return questions
 
 
@@ -251,17 +251,17 @@ class InterviewResult:
 
 class IdeaInterviewer:
     """Conduct two-round @idea interview with progressive disclosure."""
-    
+
     def __init__(self, beads_client, ambiguity_detector: Optional[AmbiguityDetector] = None):
         """Initialize idea interviewer.
-        
+
         Args:
             beads_client: BeadsClient instance
             ambiguity_detector: Optional ambiguity detector
         """
         self.client = beads_client
         self.detector = ambiguity_detector or AmbiguityDetector()
-    
+
     def conduct_interview(
         self,
         feature_id: str,

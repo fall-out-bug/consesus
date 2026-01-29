@@ -33,6 +33,9 @@ sdp --version
 git clone https://github.com/fall-out-bug/sdp.git
 cd sdp
 pip install -e .
+
+# Run health checks
+sdp doctor
 ```
 
 ### Use as Submodule (Recommended for teams)
@@ -114,6 +117,7 @@ Native task tracking with:
 
 | Command | Purpose | Example |
 |---------|---------|---------|
+| `sdp doctor` | **Health checks** | `sdp doctor` |
 | `@feature` | **Unified feature development** | `@feature "Add user auth"` |
 | `@idea` | Interactive requirements gathering | `@idea "Add user auth"` |
 | `@design` | Plan workstreams | `@design idea-user-auth` |
@@ -125,6 +129,27 @@ Native task tracking with:
 | `@issue` | Debug and route bugs | `@issue "Login fails"` |
 | `@hotfix` | Emergency fix (P0) | `@hotfix "Critical bug"` |
 | `@bugfix` | Quality fix (P1/P2) | `@bugfix "Incorrect totals"` |
+
+### Health Checks
+
+The `sdp doctor` command performs diagnostic checks on your SDP installation:
+
+```bash
+sdp doctor                    # Human-readable output
+sdp doctor --format json      # Machine-readable JSON
+```
+
+**Checks performed:**
+- Python version (>= 3.10) - **Critical**
+- Poetry installation - **Critical**
+- Git hooks configuration - **Critical**
+- Beads CLI (optional)
+- GitHub CLI (optional)
+- Telegram configuration (optional)
+
+**Exit codes:**
+- `0` - All critical checks passed
+- `1` - One or more critical checks failed
 
 ---
 

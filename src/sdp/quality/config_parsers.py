@@ -9,6 +9,7 @@ from sdp.quality.models import (
     DocumentationConfig,
     ErrorHandlingConfig,
     FileSizeConfig,
+    LayerPattern,
     NamingConfig,
     PerformanceConfig,
     SecurityConfig,
@@ -77,11 +78,37 @@ class ConfigSectionParsers:
     def parse_architecture(self) -> ArchitectureConfig:
         """Parse architecture section."""
         data = self._raw_config.get("architecture", {})
+
+        # Parse layer patterns if provided
+        layer_patterns = None
+        layers_data = data.get("layers")
+        if layers_data:
+            layer_patterns = []
+            for layer_name, layer_config in cast(dict[str, Any], layers_data).items():
+                layer_patterns.append(
+                    LayerPattern(
+                        name=layer_name,
+                        path_regex=cast(str, layer_config.get("path_regex", "")),
+                        module_regex=cast(str | None, layer_config.get("module_regex")),
+                    )
+                )
+
+        # Only set forbid_violations if explicitly in config (otherwise None triggers defaults)
+        forbid_violations = None
+        if "forbid_violations" in data:
+            forbid_violations = cast(list[str], data["forbid_violations"])
+
+        # Same for allowed_layer_imports
+        allowed_layer_imports = None
+        if "allowed_layer_imports" in data:
+            allowed_layer_imports = cast(list[str], data["allowed_layer_imports"])
+
         return ArchitectureConfig(
             enabled=cast(bool, data.get("enabled", True)),
             enforce_layer_separation=cast(bool, data.get("enforce_layer_separation", True)),
-            allowed_layer_imports=cast(list[str], data.get("allowed_layer_imports", [])),
-            forbid_violations=cast(list[str], data.get("forbid_violations", [])),
+            allowed_layer_imports=allowed_layer_imports,
+            forbid_violations=forbid_violations,
+            layer_patterns=layer_patterns,
         )
 
     def parse_documentation(self) -> DocumentationConfig | None:

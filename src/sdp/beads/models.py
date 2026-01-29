@@ -5,11 +5,11 @@ Defines the data structures for interacting with Beads issues/tasks.
 Compatible with Beads JSONL format and CLI output.
 """
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
-import json
+from typing import List, Optional
 
 
 class BeadsStatus(str, Enum):

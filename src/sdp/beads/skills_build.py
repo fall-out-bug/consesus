@@ -6,7 +6,8 @@ and update Beads status (OPEN → IN_PROGRESS → CLOSED/BLOCKED).
 """
 
 from dataclasses import dataclass, field
-from typing import List, Callable, Optional
+from typing import Callable, List, Optional
+
 from .client import BeadsClient, BeadsStatus
 
 

@@ -125,23 +125,34 @@ else
     echo "  No Python files staged"
 fi
 
-# Check 4: Clean Architecture (domain imports)
+# Check 4: Clean Architecture (portable Python module)
 echo ""
 echo "Check 4: Clean Architecture"
-DOMAIN_FILES=$(echo "$STAGED_FILES" | grep "domain/.*\.py$" || true)
 
-if [ -n "$DOMAIN_FILES" ]; then
-    BAD_IMPORTS=$(git diff --cached -- $DOMAIN_FILES | grep -E "^\+.*from hw_checker\.(infrastructure|presentation)" || true)
-    if [ -n "$BAD_IMPORTS" ]; then
-        echo "❌ Domain layer importing from infrastructure/presentation:"
-        echo "$BAD_IMPORTS"
-        echo ""
-        echo "Domain layer should not depend on outer layers."
-        exit 1
+# Use Python module for architecture checking (reads from quality-gate.toml)
+ARCH_VIOLATIONS=0
+
+# Find all staged Python files
+PY_FILES=$(echo "$STAGED_FILES" | grep "\.py$" || true)
+
+if [ -n "$PY_FILES" ]; then
+    # Create temp file with list of files
+    TEMP_FILE=$(mktemp)
+    echo "$PY_FILES" > "$TEMP_FILE"
+
+    # Run architecture checker
+    if ! python3 scripts/check_architecture.py --staged 2>&1; then
+        ARCH_VIOLATIONS=1
     fi
-    echo "✓ Clean Architecture respected"
-else
-    echo "  No domain files staged"
+
+    rm -f "$TEMP_FILE"
+fi
+
+if [ $ARCH_VIOLATIONS -eq 1 ]; then
+    echo ""
+    echo "Architecture violations detected."
+    echo "Configure rules in quality-gate.toml [architecture] section."
+    exit 1
 fi
 
 # Check 5: WS file format (if creating new WS)
