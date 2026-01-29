@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import pytest
 
-from scripts.migrate_workstream_ids import (
+from sdp.scripts import (
     WorkstreamFile,
     WorkstreamMigrationError,
     WorkstreamMigrator,
