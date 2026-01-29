@@ -8,13 +8,11 @@ from unittest.mock import Mock, patch
 import pytest
 
 from sdp.init_dependencies import detect_dependencies, show_dependencies
-from sdp.init_files import (
-    collect_metadata,
-    create_structure,
-    generate_quality_gate,
-    create_env_template,
-)
+from sdp.init_metadata import collect_metadata
+from sdp.init_structure import create_structure
+from sdp.init_files import generate_quality_gate, create_env_template
 from sdp.init_validation import install_git_hooks, run_doctor
+from sdp.health_checks.checks import get_health_checks
 
 
 class TestDependencyDetection:
@@ -182,7 +180,7 @@ class TestValidation:
 
     def test_run_doctor_success(self, tmp_path: Path) -> None:
         """Test run_doctor with all checks passing."""
-        with patch("sdp.init_validation.get_health_checks") as mock_checks:
+        with patch("sdp.health_checks.checks.get_health_checks") as mock_checks:
             mock_result = Mock()
             mock_result.status = "success"
             mock_checks.return_value = [mock_result]
@@ -193,16 +191,26 @@ class TestValidation:
         assert result is True
 
     def test_run_doctor_failure(self, tmp_path: Path) -> None:
-        """Test run_doctor with some checks failing."""
-        with patch("sdp.init_validation.get_health_checks") as mock_checks:
-            mock_result_success = Mock(status="success")
-            mock_result_fail = Mock(status="error")
-            mock_checks.return_value = [mock_result_success, mock_result_fail]
+        """Test run_doctor with critical check failing."""
+        with patch("sdp.health_checks.checks.get_health_checks") as mock_checks:
+            # Create checks that consistently return the same result
+            mock_check_success = Mock()
+            mock_check_success.critical = False
+            mock_result_success = Mock(status="success", passed=True)
+            # Use side_effect to return same result on multiple calls
+            mock_check_success.run.side_effect = [mock_result_success, mock_result_success]
+
+            mock_check_fail = Mock()
+            mock_check_fail.critical = True  # Critical check fails
+            mock_result_fail = Mock(status="error", passed=False)
+            mock_check_fail.run.side_effect = [mock_result_fail, mock_result_fail]
+
+            mock_checks.return_value = [mock_check_success, mock_check_fail]
 
             with patch("click.echo"):
                 result = run_doctor(tmp_path)
 
-        assert result is False
+        assert result is False, f"Expected False but got {result}"
 
 
 class TestIntegration:
