@@ -98,7 +98,7 @@ class AmbiguityDetector:
             has_ambiguity=has_ambiguity,
             ambiguous_fields=ambiguous_fields,
             confidence=confidence,
-            details=f"Found ambiguity in {len(ambiguous_fields)} fields" if has_ambiguity else "Clear answers",
+            details=f"Found ambiguity in {len(ambiguous_fields)} fields" if has_ambiguity else "Clear answers",  # noqa: E501
         )
 
     def _is_vague(self, answer: str) -> bool:
@@ -113,7 +113,7 @@ class AmbiguityDetector:
         if "mission" in question_id:
             # Check if mission conflicts with "no users" answer
             users_answer = all_answers.get("users", "")
-            if any(indicator in users_answer.lower() for indicator in self.CONFLICT_INDICATORS["mission_no_users"]):
+            if any(indicator in users_answer.lower() for indicator in self.CONFLICT_INDICATORS["mission_no_users"]):  # noqa: E501
                 return True
         return False
 
@@ -133,10 +133,10 @@ class CriticalQuestions:
                 "question": "What is the primary problem this feature solves?",
                 "header": "Problem",
                 "options": [
-                    {"label": "User pain point", "description": "Addresses frustration or inefficiency"},
-                    {"label": "Business requirement", "description": "Enables new revenue or reduces cost"},
-                    {"label": "Technical debt", "description": "Improves maintainability or performance"},
-                    {"label": "Competitive parity", "description": "Matches competitor capabilities"},
+                    {"label": "User pain point", "description": "Addresses frustration or inefficiency"},  # noqa: E501
+                    {"label": "Business requirement", "description": "Enables new revenue or reduces cost"},  # noqa: E501
+                    {"label": "Technical debt", "description": "Improves maintainability or performance"},  # noqa: E501
+                    {"label": "Competitive parity", "description": "Matches competitor capabilities"},  # noqa: E501
                 ],
                 "multiSelect": False,
             },
@@ -217,7 +217,7 @@ class CriticalQuestions:
                     "header": "Technical Details",
                     "options": [
                         {"label": "ACID transactions", "description": "Strong consistency needed"},
-                        {"label": "Eventually consistent", "description": "High throughput, relaxed consistency"},
+                        {"label": "Eventually consistent", "description": "High throughput, relaxed consistency"},  # noqa: E501
                         {"label": "No persistence", "description": "Ephemeral data only"},
                     ],
                     "multiSelect": False,
@@ -226,9 +226,9 @@ class CriticalQuestions:
         }
 
         # Add questions for ambiguous fields
-        for field in ambiguous_fields:
-            if field in field_questions:
-                questions.extend(field_questions[field])
+        for field_name in ambiguous_fields:
+            if field_name in field_questions:
+                questions.extend(field_questions[field_name])
 
         return questions
 
@@ -252,7 +252,11 @@ class InterviewResult:
 class IdeaInterviewer:
     """Conduct two-round @idea interview with progressive disclosure."""
 
-    def __init__(self, beads_client, ambiguity_detector: Optional[AmbiguityDetector] = None):
+    def __init__(
+        self,
+        beads_client: Any,  # MockBeadsClient or BeadsClient
+        ambiguity_detector: Optional[AmbiguityDetector] = None,
+    ) -> None:
         """Initialize idea interviewer.
 
         Args:

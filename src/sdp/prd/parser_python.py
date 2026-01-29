@@ -84,7 +84,7 @@ def parse_directory(directory: Path, pattern: str = "**/*.py") -> list[FlowStep]
     try:
         for file in directory.glob(pattern):
             # Skip common non-source directories
-            if any(skip in str(file) for skip in ["venv", ".venv", "__pycache__", ".tox", "node_modules", ".git"]):
+            if any(skip in str(file) for skip in ["venv", ".venv", "__pycache__", ".tox", "node_modules", ".git"]):  # noqa: E501
                 continue
 
             if file.is_file():
@@ -132,7 +132,7 @@ class _PRDVisitor(ast.NodeVisitor):
         self.current_flow: str | None = None
         self.source_file = source_file
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
         """Visit function definition and extract decorators."""
         flow_name: str | None = None
         step_number: int | None = None
@@ -140,54 +140,108 @@ class _PRDVisitor(ast.NodeVisitor):
 
         # Check decorators
         for decorator in node.decorator_list:
-            # @prd_flow("name")
-            if isinstance(decorator, ast.Call):
-                if hasattr(decorator.func, 'id') and decorator.func.id == 'prd_flow':
-                    if decorator.args and isinstance(decorator.args[0], ast.Constant):
-                        value = decorator.args[0].value
-                        if isinstance(value, str):
-                            flow_name = value
-
-                # @prd_step(N, "desc")
-                elif hasattr(decorator.func, 'id') and decorator.func.id == 'prd_step':
-                    if len(decorator.args) >= 2:
-                        if isinstance(decorator.args[0], ast.Constant):
-                            step_val = decorator.args[0].value
-                            if isinstance(step_val, int):
-                                step_number = step_val
-                        if isinstance(decorator.args[1], ast.Constant):
-                            desc_val = decorator.args[1].value
-                            if isinstance(desc_val, str):
-                                description = desc_val
+            flow_name, step_number, description = self._extract_decorator_info(
+                decorator, flow_name, step_number, description
+            )
 
         if flow_name:
-            if step_number is None:
-                step_number = 0
-            if description is None:
-                description = node.name
-
-            # Type narrowing for mypy
-            if not isinstance(flow_name, str):
-                flow_name = str(flow_name)
-            if not isinstance(step_number, int):
-                if isinstance(step_number, (int, str)):
-                    step_number = int(step_number)
-                else:
-                    step_number = 0
-            if not isinstance(description, str):
-                description = str(description)
-
-            self.steps.append(FlowStep(
-                flow_name=flow_name,
-                step_number=step_number,
-                description=description,
-                source_file=self.source_file,
-                line_number=node.lineno
-            ))
+            step_number, description = self._finalize_step_info(
+                flow_name, step_number, description, node
+            )
+            self._add_flow_step(flow_name, step_number, description, node)
 
         self.generic_visit(node)
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+    def _extract_decorator_info(
+        self,
+        decorator: ast.expr,
+        flow_name: str | None,
+        step_number: int | None,
+        description: str | None,
+    ) -> tuple[str | None, int | None, str | None]:
+        """Extract flow/step info from a single decorator."""
+        if not isinstance(decorator, ast.Call):
+            return flow_name, step_number, description
+
+        if not hasattr(decorator.func, 'id'):
+            return flow_name, step_number, description
+
+        if decorator.func.id == 'prd_flow':
+            flow_name = self._extract_flow_name(decorator)
+        elif decorator.func.id == 'prd_step':
+            step_number, description = self._extract_step_info(decorator, step_number, description)
+
+        return flow_name, step_number, description
+
+    def _extract_flow_name(self, decorator: ast.Call) -> str | None:
+        """Extract flow name from @prd_flow decorator."""
+        if decorator.args and isinstance(decorator.args[0], ast.Constant):
+            value = decorator.args[0].value
+            if isinstance(value, str):
+                return value
+        return None
+
+    def _extract_step_info(
+        self,
+        decorator: ast.Call,
+        step_number: int | None,
+        description: str | None,
+    ) -> tuple[int | None, str | None]:
+        """Extract step info from @prd_step decorator."""
+        if len(decorator.args) >= 2:
+            if isinstance(decorator.args[0], ast.Constant):
+                step_val = decorator.args[0].value
+                if isinstance(step_val, int):
+                    step_number = step_val
+            if isinstance(decorator.args[1], ast.Constant):
+                desc_val = decorator.args[1].value
+                if isinstance(desc_val, str):
+                    description = desc_val
+        return step_number, description
+
+    def _finalize_step_info(
+        self,
+        flow_name: str | None,
+        step_number: int | None,
+        description: str | None,
+        node: ast.FunctionDef,
+    ) -> tuple[int, str]:
+        """Finalize step info with defaults and type narrowing."""
+        if step_number is None:
+            step_number = 0
+        if description is None:
+            description = node.name
+
+        # Type narrowing for mypy
+        if not isinstance(flow_name, str):
+            flow_name = str(flow_name)
+        if not isinstance(step_number, int):
+            if isinstance(step_number, (int, str)):
+                step_number = int(step_number)
+            else:
+                step_number = 0
+        if not isinstance(description, str):
+            description = str(description)
+
+        return step_number, description
+
+    def _add_flow_step(
+        self,
+        flow_name: str | None,
+        step_number: int,
+        description: str,
+        node: ast.FunctionDef,
+    ) -> None:
+        """Add a flow step to the steps list."""
+        self.steps.append(FlowStep(
+            flow_name=flow_name,
+            step_number=step_number,
+            description=description,
+            source_file=self.source_file,
+            line_number=node.lineno
+        ))
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
         """Visit async function definition."""
         # Treat async functions the same as regular functions
         # Create a fake FunctionDef-like object with same attributes

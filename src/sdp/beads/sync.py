@@ -15,7 +15,7 @@ Mapping:
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from .client import BeadsClient
 from .models import (
@@ -143,7 +143,7 @@ class BeadsSyncService:
     def sync_workstream_to_beads(
         self,
         ws_file: Path,
-        ws_data: dict,
+        ws_data: dict[str, Any],
     ) -> BeadsSyncResult:
         """Sync SDP workstream → Beads task (create or update).
 

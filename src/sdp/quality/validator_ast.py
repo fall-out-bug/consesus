@@ -53,7 +53,7 @@ class ASTHelpers:
             Number of function definitions.
         """
         return sum(
-            1 for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            1 for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))  # noqa: E501
         )
 
     @staticmethod

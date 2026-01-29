@@ -282,7 +282,7 @@ def _check_signatures_complete(interface_code: str) -> ValidationCheck:
             # Simple check: parameters should have colons (type hints)
             param_list = [p.strip() for p in params.split(",")]
             for param in param_list:
-                if param and ":" not in param and param != "self" and param != "*args" and param != "**kwargs":
+                if param and ":" not in param and param != "self" and param != "*args" and param != "**kwargs":  # noqa: E501
                     issues.append(f"Parameter '{param}' in {func_match.group(1)} missing type hint")
 
     if issues:
@@ -421,7 +421,7 @@ def _check_verification_commands(verification_section: str) -> ValidationCheck:
     # Check for commands that can exit 0
     commands = []
     for block in bash_blocks:
-        lines = [line.strip() for line in block.split("\n") if line.strip() and not line.strip().startswith("#")]
+        lines = [line.strip() for line in block.split("\n") if line.strip() and not line.strip().startswith("#")]  # noqa: E501
         commands.extend(lines)
 
     if not commands:
@@ -452,7 +452,6 @@ def _check_verification_commands(verification_section: str) -> ValidationCheck:
 
 def _check_contract_is_read_only(body: str) -> ValidationCheck:
     """Check that contract sections are marked as read-only."""
-    # Look for explicit read-only markers
     read_only_patterns = [
         r"DO\s+NOT\s+MODIFY",
         r"read-only",
@@ -469,29 +468,11 @@ def _check_contract_is_read_only(body: str) -> ValidationCheck:
             message="Contract section not found",
         )
 
-    # Check Interface section
+    # Check Interface and Tests sections for read-only markers
     interface_section = _extract_section(contract_section, "Interface")
-    has_interface_marker = False
-    if interface_section:
-        for pattern in read_only_patterns:
-            if re.search(pattern, interface_section, re.IGNORECASE):
-                has_interface_marker = True
-                break
-
-    # Check Tests section
     tests_section = _extract_section(contract_section, "Tests")
-    has_tests_marker = False
-    if tests_section:
-        for pattern in read_only_patterns:
-            if re.search(pattern, tests_section, re.IGNORECASE):
-                has_tests_marker = True
-                break
 
-    issues: list[str] = []
-    if interface_section and not has_interface_marker:
-        issues.append("Interface section missing read-only marker")
-    if tests_section and not has_tests_marker:
-        issues.append("Tests section missing read-only marker")
+    issues = _collect_read_only_issues(interface_section, tests_section, read_only_patterns)
 
     if issues:
         return ValidationCheck(
@@ -506,6 +487,30 @@ def _check_contract_is_read_only(body: str) -> ValidationCheck:
         passed=True,
         message="Contract sections properly marked as read-only",
     )
+
+
+def _collect_read_only_issues(
+    interface_section: str | None,
+    tests_section: str | None,
+    patterns: list[str],
+) -> list[str]:
+    """Collect issues for missing read-only markers."""
+    issues: list[str] = []
+
+    if interface_section and not _has_read_only_marker(interface_section, patterns):
+        issues.append("Interface section missing read-only marker")
+    if tests_section and not _has_read_only_marker(tests_section, patterns):
+        issues.append("Tests section missing read-only marker")
+
+    return issues
+
+
+def _has_read_only_marker(section: str, patterns: list[str]) -> bool:
+    """Check if section has any read-only marker."""
+    for pattern in patterns:
+        if re.search(pattern, section, re.IGNORECASE):
+            return True
+    return False
 
 
 def _check_scope_tiny(ws: Workstream, body: str) -> ValidationCheck:

@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .client import BeadsClient
+from .models import BeadsPriority
 
 
 @dataclass
@@ -77,7 +78,7 @@ class FeatureDecomposer:
 
         for ws_spec in workstreams:
             # Build dependencies
-            dependencies = []
+            dependencies: list[BeadsDependency] = []
             if prev_ws_id is not None:
                 dependencies.append(
                     BeadsDependency(
@@ -90,7 +91,7 @@ class FeatureDecomposer:
                 BeadsTaskCreate(
                     title=ws_spec.title,
                     parent_id=feature_id,
-                    priority=2,  # MEDIUM
+                    priority=BeadsPriority.MEDIUM,
                     dependencies=dependencies,
                     sdp_metadata={
                         "sequence": ws_spec.sequence,

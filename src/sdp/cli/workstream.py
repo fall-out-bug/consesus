@@ -5,8 +5,8 @@ from pathlib import Path
 
 import click
 
-from sdp.errors import format_error_for_terminal
 from sdp.core import WorkstreamParseError, parse_workstream
+from sdp.errors import format_error_for_terminal
 
 
 @click.group()

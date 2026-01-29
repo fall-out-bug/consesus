@@ -445,8 +445,8 @@ def prd_detect_type(project_path: Path) -> None:
 
 
 # Register extension commands
-from sdp.cli_extension import extension
-from sdp.cli_init import init
+from sdp.cli_extension import extension  # noqa: E402
+from sdp.cli_init import init  # noqa: E402
 
 main.add_command(extension)
 main.add_command(init)

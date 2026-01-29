@@ -8,7 +8,8 @@ and update Beads status (OPEN → IN_PROGRESS → CLOSED/BLOCKED).
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 
-from .client import BeadsClient, BeadsStatus
+from .client import BeadsClient
+from .models import BeadsStatus
 
 
 @dataclass
@@ -75,7 +76,7 @@ class WorkstreamExecutor:
                 self.client.update_task_status(task_id, BeadsStatus.CLOSED)
 
                 # Get newly ready tasks
-                ready_before = set()  # Would track before execution
+                ready_before: set[str] = set()  # Would track before execution
                 ready_now = set(self.client.get_ready_tasks())
                 newly_ready = list(ready_now - ready_before)
 

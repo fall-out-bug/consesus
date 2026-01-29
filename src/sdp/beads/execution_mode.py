@@ -12,7 +12,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 class ExecutionMode(Enum):
@@ -139,7 +139,7 @@ class AuditLogEntry:
     result: str
     deployment_target: Optional[str] = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "timestamp": self.timestamp,
@@ -185,7 +185,7 @@ class AuditLogger:
         import os
 
         # Ensure audit directory exists
-        os.makedirs(os.path.dirname(self.audit_file) if os.path.dirname(self.audit_file) else ".", exist_ok=True)
+        os.makedirs(os.path.dirname(self.audit_file) if os.path.dirname(self.audit_file) else ".", exist_ok=True)  # noqa: E501
 
         # Determine user
         if user is None:
@@ -207,7 +207,7 @@ class AuditLogger:
         with open(self.audit_file, "a") as f:
             f.write(json.dumps(entry.to_dict()) + "\n")
 
-    def read_recent(self, count: int = 10) -> List[dict]:
+    def read_recent(self, count: int = 10) -> List[dict[str, Any]]:
         """Read recent audit log entries.
 
         Args:

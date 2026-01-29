@@ -55,7 +55,7 @@ class MultiAgentExecutor:
         self.audit_logger = audit_logger or AuditLogger()
         self.destructive_detector = DestructiveOperationDetector()
 
-    def execute_feature(
+    def execute_feature(  # noqa: C901
         self,
         feature_id: str,
         mode: ExecutionMode = ExecutionMode.STANDARD,

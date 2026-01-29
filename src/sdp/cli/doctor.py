@@ -108,7 +108,7 @@ def check_workstreams(project_dir: Path) -> bool:
     Returns:
         True if workstreams are valid
     """
-    from sdp.core import parse_workstream, WorkstreamParseError
+    from sdp.core import WorkstreamParseError, parse_workstream
 
     ws_dir = project_dir / "docs" / "workstreams"
     if not ws_dir.is_dir():
@@ -130,11 +130,11 @@ def check_workstreams(project_dir: Path) -> bool:
             parse_workstream(ws_file)
             click.echo(" ✓")
         except WorkstreamParseError as e:
-            click.echo(f" ✗")
+            click.echo(" ✗")
             click.echo(f"    Error: {e}", err=True)
             all_ok = False
         except Exception as e:
-            click.echo(f" ✗")
+            click.echo(" ✗")
             click.echo(f"    Error: {e}", err=True)
             all_ok = False
 

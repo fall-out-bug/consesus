@@ -4,16 +4,17 @@ Beads migration commands.
 Convert existing SDP markdown workstreams to Beads tasks.
 """
 
+from dataclasses import asdict
 from pathlib import Path
 
 import click
 
-from .. import create_beads_client
+from ..beads.client import create_beads_client
 from .sync import BeadsSyncService
 
 
 @click.group()
-def beads():
+def beads() -> None:
     """Beads integration commands."""
     pass
 
@@ -29,7 +30,7 @@ def beads():
     default=True,
     help="Use mock Beads client (default: True)",
 )
-def migrate(workstreams_dir: Path, use_mock: bool):
+def migrate(workstreams_dir: Path, use_mock: bool) -> None:
     """Migrate markdown workstreams to Beads tasks.
 
     Reads all markdown workstream files and converts them to Beads tasks.
@@ -72,7 +73,7 @@ def migrate(workstreams_dir: Path, use_mock: bool):
             ws = parse_workstream(ws_file)
 
             # Convert to Beads
-            result = sync.sync_workstream_to_beads(ws_file, ws.to_dict())
+            result = sync.sync_workstream_to_beads(ws_file, asdict(ws))
 
             if result.success:
                 click.echo(f"  ✅ {ws.ws_id} → {result.beads_id}")
@@ -111,7 +112,7 @@ def migrate(workstreams_dir: Path, use_mock: bool):
     default="table",
     help="Output format",
 )
-def status(format: str):
+def status(format: str) -> None:
     """Show Beads integration status.
 
     Displays information about Beads setup and migration state.

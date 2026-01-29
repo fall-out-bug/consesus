@@ -56,7 +56,7 @@ class BasicQualityChecks:
                     "functions",
                     str(path),
                     None,
-                    f"Too many functions: {function_count} (max: {self._config.file_size.max_functions})",
+                    f"Too many functions: {function_count} (max: {self._config.file_size.max_functions})",  # noqa: E501
                     "warning",
                 )
             )

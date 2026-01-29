@@ -32,7 +32,7 @@ def quality() -> None:
     default=200,
     help="Maximum lines of code per file (default: 200)",
 )
-def quality_check(
+def quality_check(  # noqa: C901
     target: Path,
     threshold: float,
     max_cc: int,

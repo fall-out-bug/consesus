@@ -110,7 +110,7 @@ class QualityGateValidator:
 
         if not dir_path.exists():
             self._violations.append(
-                QualityGateViolation("dir_not_found", str(dir_path), None, "Directory not found", "error")
+                QualityGateViolation("dir_not_found", str(dir_path), None, "Directory not found", "error")  # noqa: E501
             )
             return self._violations
 

@@ -57,10 +57,10 @@ class Intent:
         if data.get("tradeoffs"):
             tradeoffs_dict = cast(dict[str, object], data["tradeoffs"])
             tradeoffs = Tradeoffs(
-                security=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("security")),
-                performance=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("performance")),
-                complexity=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("complexity")),
-                time_to_market=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("time_to_market")),
+                security=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("security")),  # noqa: E501
+                performance=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("performance")),  # noqa: E501
+                complexity=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("complexity")),  # noqa: E501
+                time_to_market=cast(Literal["prioritize", "accept", "reject"] | None, tradeoffs_dict.get("time_to_market")),  # noqa: E501
             )
 
         technical_approach = None
@@ -75,7 +75,7 @@ class Intent:
 
         return cls(
             problem=cast(str, data["problem"]),
-            users=cast(list[Literal["end_users", "admins", "developers", "api_consumers", "operators"]], data["users"]),
+            users=cast(list[Literal["end_users", "admins", "developers", "api_consumers", "operators"]], data["users"]),  # noqa: E501
             success_criteria=success_criteria,
             tradeoffs=tradeoffs,
             technical_approach=technical_approach,

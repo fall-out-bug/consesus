@@ -9,7 +9,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 class BeadsStatus(str, Enum):
@@ -77,9 +77,9 @@ class BeadsTask:
     updated_at: Optional[datetime] = None
 
     # SDP-specific fields (stored in metadata)
-    sdp_metadata: dict = field(default_factory=dict)
+    sdp_metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "id": self.id,
@@ -99,7 +99,7 @@ class BeadsTask:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "BeadsTask":
+    def from_dict(cls, data: dict[str, Any]) -> "BeadsTask":
         """Create from dictionary (JSON deserialization)."""
         dependencies = [
             BeadsDependency(
@@ -160,9 +160,9 @@ class BeadsTaskCreate:
     parent_id: Optional[str] = None
     dependencies: List[BeadsDependency] = field(default_factory=list)
     external_ref: Optional[str] = None
-    sdp_metadata: dict = field(default_factory=dict)
+    sdp_metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for CLI/API call."""
         return {
             "title": self.title,
