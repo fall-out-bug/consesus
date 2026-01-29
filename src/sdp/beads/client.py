@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from .models import (
     BeadsDependency,
+    BeadsDependencyType,
     BeadsStatus,
     BeadsTask,
     BeadsTaskCreate,
@@ -130,12 +131,12 @@ class MockBeadsClient(BeadsClient):
     - CI/CD pipelines
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize mock client with empty task store."""
         self._tasks: dict[str, BeadsTask] = {}
         self._id_counter = 0
 
-    def _generate_id(self) -> str:
+    def _generate_id(self) -> str:  # noqa: ANN202
         """Generate a mock Beads-style ID.
 
         In real Beads, this would be a content-addressed hash.
@@ -220,7 +221,7 @@ class MockBeadsClient(BeadsClient):
                 return  # Already exists
 
         from_task.dependencies.append(
-            BeadsDependency(task_id=to_id, type=dep_type)
+            BeadsDependency(task_id=to_id, type=BeadsDependencyType(dep_type))
         )
 
     def list_tasks(
@@ -369,9 +370,9 @@ class CLIBeadsClient(BeadsClient):
             data = json.loads(result.stdout)
             # bd ready --json returns array directly, not object with "ready_tasks" field
             if isinstance(data, list):
-                return data
+                return [str(item) for item in data]
             else:
-                return data.get("ready_tasks", [])
+                return [str(item) for item in data.get("ready_tasks", [])]
 
         except subprocess.CalledProcessError as e:
             raise BeadsClientError(f"Failed to get ready tasks: {e.stderr}") from e
@@ -441,7 +442,7 @@ class CLIBeadsClient(BeadsClient):
 
 def create_beads_client(
     use_mock: bool = False, project_dir: Optional[Path] = None
-) -> BeadsClient:
+) -> "BeadsClient":
     """Factory function to create appropriate Beads client.
 
     Args:

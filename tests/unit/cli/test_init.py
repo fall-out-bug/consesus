@@ -18,11 +18,11 @@ from sdp.init_dependencies import (
     show_dependencies,
 )
 from sdp.init_files import (
-    collect_metadata,
     create_env_template,
-    create_structure,
     generate_quality_gate,
 )
+from sdp.init_metadata import collect_metadata
+from sdp.init_structure import create_structure
 from sdp.init_validation import install_git_hooks, run_doctor
 
 
@@ -365,7 +365,7 @@ class TestRunDoctor:
 
     @patch("click.echo")
     @patch("sdp.health_checks.get_health_checks")
-    def test_run_doctor_some_fail(self, mock_get_checks: Mock, mock_click: Mock, tmp_path: Path) -> None:
+    def test_run_doctor_some_fail(self, mock_get_checks: Mock, mock_echo: Mock, tmp_path: Path) -> None:
         """Test doctor when some checks fail."""
         from sdp.health_checks import HealthCheckResult
 
@@ -391,7 +391,7 @@ class TestRunDoctor:
 
     @patch("click.echo")
     @patch("sdp.health_checks.get_health_checks")
-    def test_run_doctor_exception(self, mock_get_checks: Mock, mock_click: Mock, tmp_path: Path) -> None:
+    def test_run_doctor_exception(self, mock_get_checks: Mock, mock_echo: Mock, tmp_path: Path) -> None:
         """Test doctor when exception occurs."""
         mock_get_checks.side_effect = Exception("Import error")
 
