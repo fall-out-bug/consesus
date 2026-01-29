@@ -1,4 +1,4 @@
-# Spec-Driven Protocol v0.4.0
+# Spec-Driven Protocol v0.5.0
 
 Workstream-driven development для AI-агентов.
 
@@ -10,12 +10,18 @@ Workstream-driven development для AI-агентов.
 Ты здесь?                          →  Иди сюда
 ─────────────────────────────────────────────────────
 Нужно понять что делать            →  Phase 1: Analyze
-Нужно спланировать WS              →  Phase 2: Plan  
+Нужно спланировать WS              →  Phase 2: Plan
 Нужно выполнить WS                 →  Phase 3: Execute
 Нужно проверить результат          →  Phase 4: Review
 Нужно принять архитектурное решение →  ADR Template
 Нужны примеры кода hw_checker      →  HW_CHECKER_PATTERNS.md
 Непонятно какие правила            →  Guardrails
+─────────────────────────────────────────────────────
+Multi-agent координация           →  Unified Workflow
+Agent spawning/messaging          →  Agent Coordination
+Telegram notifications            →  Notification System
+Beads task tracking               →  Beads Integration
+Feature development               →  @feature skill
 ```
 
 ---
@@ -33,6 +39,297 @@ Workstream-driven development для AI-агентов.
 ```
 
 **Промпты:** `@sdp/prompts/structured/phase-{1,2,3,4}-*.md`
+
+---
+
+## Unified Workflow (AI-Comm + Beads)
+
+**Начиная с v0.4.0**: SDP интегрирует AI-Comm архитектуру для multi-agent координации с Beads для task tracking.
+
+### Компоненты Unified Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Unified Orchestrator                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ Agent Spawner│──│Message Router│──│ Role Manager │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│         │                  │                  │             │
+│         ▼                  ▼                  ▼             │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │              Notification Router                  │     │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │     │
+│  │  │ Console  │  │ Telegram │  │    Mock      │   │     │
+│  │  └──────────┘  └──────────┘  └──────────────┘   │     │
+│  └──────────────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  Beads CLI  │
+                    │ Task Tracker│
+                    └─────────────┘
+```
+
+### 1. Agent Coordination
+
+**Agent Spawning:**
+```python
+from sdp.unified.agent.spawner import AgentSpawner, AgentConfig
+
+spawner = AgentSpawner()
+config = AgentConfig(
+    name="builder",
+    prompt="You are a build agent...",
+)
+agent_id = spawner.spawn_agent(config)
+```
+
+**Inter-Agent Messaging:**
+```python
+from sdp.unified.agent.router import SendMessageRouter, Message
+
+router = SendMessageRouter()
+message = Message(
+    sender="orchestrator",
+    content="Execute WS-060-01",
+    recipient=agent_id,
+)
+result = router.send_message(message)
+```
+
+**Role Management:**
+```python
+from sdp.unified.agent.role_loader import RoleLoader
+from sdp.unified.agent.role_state import RoleStateManager
+
+# Load role from .agents/{role}.md
+loader = RoleLoader()
+role = loader.load_role("planner")
+
+# Activate role
+state_mgr = RoleStateManager()
+state_mgr.activate_role("planner")
+
+# Check active roles
+active = state_mgr.list_active()  # ["planner", "builder"]
+```
+
+### 2. Notification System
+
+**Configuration:**
+```bash
+# .env
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
+
+**Sending Notifications:**
+```python
+from sdp.unified.notifications.telegram import TelegramConfig, TelegramNotifier
+from sdp.unified.notifications.provider import Notification, NotificationType
+
+# Setup
+config = TelegramConfig(
+    bot_token=os.getenv("TELEGRAM_BOT_TOKEN"),
+    chat_id=os.getenv("TELEGRAM_CHAT_ID"),
+)
+notifier = TelegramNotifier(config=config)
+
+# Send notification
+notification = Notification(
+    type=NotificationType.SUCCESS,
+    message="Feature F24 completed successfully",
+)
+notifier.send(notification)
+```
+
+**Notification Types:**
+- `INFO` - ℹ️ Informational messages
+- `SUCCESS` - ✅ Successful operations
+- `WARNING` - ⚠️ Warnings
+- `ERROR` - 🚨 Errors and failures
+
+**Mock Provider (для тестов):**
+```python
+from sdp.unified.notifications.mock import MockNotificationProvider
+
+mock = MockNotificationProvider()
+mock.send(notification)
+assert mock.count() == 1
+```
+
+### 3. Beads Integration
+
+**Task Tracking:**
+```python
+from sdp.beads import create_beads_client
+from sdp.beads.models import BeadsTaskCreate, BeadsStatus
+
+# Create client (mock for CI, real for dev)
+client = create_beads_client(use_mock=True)
+
+# Create feature task
+feature = client.create_task(BeadsTaskCreate(
+    title="User Authentication",
+    description="Add OAuth2 login flow",
+    priority=BeadsPriority.HIGH,
+))
+
+# Decompose into workstreams
+ws1 = client.create_task(BeadsTaskCreate(
+    title="Domain model",
+    parent_id=feature.id,
+))
+ws2 = client.create_task(BeadsTaskCreate(
+    title="Database schema",
+    parent_id=feature.id,
+))
+
+# Add dependency
+client.add_dependency(ws2.id, ws1.id, dep_type="blocks")
+
+# Update status
+client.update_task_status(ws1.id, BeadsStatus.CLOSED)
+
+# Get ready tasks (ws2 becomes ready after ws1 completes)
+ready = client.get_ready_tasks()  # [ws2.id]
+```
+
+**Checkpoint System:**
+```python
+from sdp.unified.orchestrator.checkpoint import CheckpointFileManager
+from sdp.unified.orchestrator.agent_extension import CheckpointExtension
+
+# Save checkpoint
+checkpoint_mgr = CheckpointFileManager()
+extension = CheckpointExtension(agent=orchestrator)
+checkpoint_mgr.save(
+    feature_id="sdp-118",
+    agent_id=agent.id,
+    completed_ws=["sdp-118.1", "sdp-118.2"],
+    checkpoint_ext=extension,
+)
+
+# Resume from checkpoint
+checkpoint = checkpoint_mgr.load("sdp-118")
+if checkpoint:
+    resumed = checkpoint_mgr.resume(agent, checkpoint)
+```
+
+### 4. Feature Development Flow
+
+**Unified Entry Point (@feature skill):**
+```bash
+# 1. Gather requirements (interactive)
+@feature "Add user authentication"
+# → Deep interviewing via AskUserQuestion
+# → Creates docs/intent/sdp-XXX.json
+# → Creates docs/drafts/beads-sdp-XXX.md
+
+# 2. Plan workstreams (interactive)
+@design beads-sdp-XXX
+# → EnterPlanMode for codebase exploration
+# → Interactive planning via AskUserQuestion
+# → Creates WS-XXX.01, WS-XXX.02, ...
+# → Generates execution graph
+
+# 3. Execute workstreams
+@build WS-XXX.01
+# → TodoWrite progress tracking
+# → TDD cycle (Red → Green → Refactor)
+
+# Or autonomous execution:
+@oneshot sdp-XXX
+# → Executes all WS in dependency order
+# → Background execution support
+# → Checkpoint save/restore
+
+# 4. Quality review
+@review sdp-XXX
+# → Validates all quality gates
+# → Returns APPROVED/CHANGES_REQUESTED
+
+# 5. Deploy
+@deploy sdp-XXX
+# → Generates deployment configs
+# → Creates PR with changelog
+```
+
+### 5. Quality Gates (Unified)
+
+**Все прежние gates + новые:**
+
+```bash
+# Agent tests (309+ tests)
+pytest tests/unified/ -v
+
+# Beads integration
+pytest tests/unified/test_e2e/test_beads_client.py
+
+# Telegram E2E (requires credentials)
+export TELEGRAM_BOT_TOKEN="..."
+export TELEGRAM_CHAT_ID="..."
+pytest tests/unified/test_e2e/test_telegram_e2e.py::TestRealTelegramIntegration
+```
+
+### 6. Examples
+
+**Multi-Agent Feature Execution:**
+```python
+# 1. Orchestrator spawns specialized agents
+spawner = AgentSpawner()
+planner_id = spawner.spawn_agent(AgentConfig(name="planner", ...))
+builder_id = spawner.spawn_agent(AgentConfig(name="builder", ...))
+
+# 2. Send messages
+router.send_message(Message(
+    sender="orchestrator",
+    content="Plan feature F24",
+    recipient=planner_id,
+))
+
+# 3. Receive notifications
+notifier.send(Notification(
+    type=NotificationType.INFO,
+    message="Planner completed: 5 workstreams created",
+))
+
+# 4. Track in Beads
+client = create_beads_client(use_mock=True)
+feature = client.create_task(BeadsTaskCreate(title="F24", ...))
+# ... decompose into WS, execute, etc.
+```
+
+**Bug Report Workflow:**
+```python
+from sdp.unified.agent.bug_report import BugReportFlow, BugSeverity
+
+# Create bug report
+bug_flow = BugReportFlow()
+bug = bug_flow.create_report(
+    title="Login fails on Firefox",
+    description="OAuth2 token not stored",
+    severity=BugSeverity.P1,
+    workstream_id="WS-060-01",
+)
+
+# Check blocking
+if "WS-060-01" in bug_flow.get_blocking_workstreams():
+    notifier.send(Notification(
+        type=NotificationType.ERROR,
+        message="WS-060-01 blocked by P1 bug",
+    ))
+
+# Mark resolved
+bug_flow.update_status(bug.id, BugStatus.RESOLVED)
+```
+
+**Дополнительная документация:**
+- `src/sdp/unified/agent/README.md` - Agent system details
+- `src/sdp/unified/notifications/README.md` - Notification system
+- `src/sdp/beads/README.md` - Beads integration
+- `docs/drafts/beads-sdp-118.md` - Unified workflow implementation
 
 ---
 
