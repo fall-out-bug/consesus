@@ -80,3 +80,7 @@ Thumbs.db
 artifacts/
 archive/
 .oneshot
+
+# Temporary status files
+*_STATUS.md
+*_PROGRESS.md
