@@ -2,9 +2,11 @@
 """Check that Python files do not exceed size limits.
 
 This script ensures all Python files in src/ are under 200 LOC
-to maintain AI-readiness and code quality.
+to maintain AI-readability and code quality.
 """
 
+import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -30,14 +32,14 @@ def count_loc(file_path: Path) -> int:
     return loc
 
 
-def check_file_sizes(max_loc: int = 200) -> bool:
+def check_file_sizes(max_loc: int = 200) -> dict[str, list[dict[str, int | str]]]:
     """Check all Python files in src/ for size violations.
 
     Args:
         max_loc: Maximum allowed lines of code per file
 
     Returns:
-        True if all files pass, False otherwise
+        Dictionary with count and violations list
     """
     src_path = Path('src/sdp')
     violations = []
@@ -47,22 +49,45 @@ def check_file_sizes(max_loc: int = 200) -> bool:
 
         if loc > max_loc:
             violations.append({
-                'file': py_file,
-                'loc': loc,
-                'limit': max_loc
+                'file': str(py_file),
+                'lines': loc,
+                'max': max_loc
             })
 
-    if violations:
-        print(f"❌ Found {len(violations)} file(s) exceeding {max_loc} LOC limit:", file=sys.stderr)
-        for v in sorted(violations, key=lambda x: x['loc'], reverse=True):
-            print(f"  {v['file']}: {v['loc']} LOC (limit: {v['limit']})", file=sys.stderr)
-        return False
-
-    print(f"✅ All files under {max_loc} LOC")
-    return True
+    return {
+        'count': len(violations),
+        'violations': sorted(violations, key=lambda x: x['lines'], reverse=True)
+    }
 
 
 if __name__ == '__main__':
-    if not check_file_sizes():
-        sys.exit(1)
-    sys.exit(0)
+    parser = argparse.ArgumentParser(
+        description='Check Python file sizes against LOC limits'
+    )
+    parser.add_argument(
+        '--json',
+        action='store_true',
+        help='Output results as JSON'
+    )
+    parser.add_argument(
+        '--max-loc',
+        type=int,
+        default=200,
+        help='Maximum lines of code per file (default: 200)'
+    )
+    args = parser.parse_args()
+
+    result = check_file_sizes(max_loc=args.max_loc)
+
+    if args.json:
+        print(json.dumps(result, indent=2))
+    else:
+        if result['count'] > 0:
+            print(f"❌ Found {result['count']} file(s) exceeding {args.max_loc} LOC limit:", file=sys.stderr)
+            for v in result['violations']:
+                print(f"  {v['file']}: {v['lines']} LOC", file=sys.stderr)
+            sys.exit(1)
+        else:
+            print(f"✅ All files under {args.max_loc} LOC")
+
+    sys.exit(1 if result['count'] > 0 else 0)
