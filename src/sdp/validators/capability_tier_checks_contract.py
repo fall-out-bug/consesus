@@ -5,11 +5,11 @@ Provides validation functions for contract sections and verification commands.
 
 import re
 
+from sdp.validators.capability_tier_models import ValidationCheck
 
-def _check_verification_commands(verification_section: str) -> "ValidationCheck":
+
+def _check_verification_commands(verification_section: str) -> ValidationCheck:
     """Check verification section has concrete commands."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Look for bash code blocks
     bash_blocks = re.findall(r"```bash\n(.*?)```", verification_section, re.DOTALL)
 
@@ -47,10 +47,8 @@ def _check_verification_commands(verification_section: str) -> "ValidationCheck"
     )
 
 
-def _check_contract_is_read_only(body: str) -> "ValidationCheck":
+def _check_contract_is_read_only(body: str) -> ValidationCheck:
     """Check contract appears to be a specification (not implementation)."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Look for Contract section
     contract_match = re.search(r"#+\s*Contract", body, re.IGNORECASE)
     if not contract_match:
@@ -93,10 +91,8 @@ def _check_contract_is_read_only(body: str) -> "ValidationCheck":
     )
 
 
-def _check_no_vague_language(body: str) -> "ValidationCheck":
+def _check_no_vague_language(body: str) -> ValidationCheck:
     """Check workstream uses specific, actionable language."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     vague_patterns = [
         r"\b(appropriate|suitable|reasonable|proper|correct)\b",
         r"\b(etc|etcetera|and so forth)\b",

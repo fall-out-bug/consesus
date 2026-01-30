@@ -101,12 +101,19 @@ class BeadsTask:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "BeadsTask":
         """Create from dictionary (JSON deserialization)."""
-        dependencies = [
-            BeadsDependency(
-                task_id=d["task_id"], type=BeadsDependencyType(d["type"])
-            )
-            for d in data.get("dependencies", [])
-        ]
+        dependencies = []
+        for d in data.get("dependencies", []):
+            if not isinstance(d, dict):
+                continue
+            dep_task_id = d.get("task_id") or d.get("id")
+            dep_type = d.get("type")
+            if dep_task_id and dep_type:
+                dependencies.append(
+                    BeadsDependency(
+                        task_id=dep_task_id,
+                        type=BeadsDependencyType(dep_type),
+                    )
+                )
 
         sdp_metadata = data.get("metadata", {}).get("sdp", {})
 

@@ -4,14 +4,14 @@ Validates contract requirements for T2 (Implementer) and T3 (Autocomplete) tiers
 """
 
 from sdp.core.workstream import Workstream
-from sdp.validators.capability_tier_models import CapabilityTier
+from sdp.validators.capability_tier_models import CapabilityTier, ValidationCheck
 
 
 def validate_t2_t3(
     ws: Workstream,
     body: str,
     tier: CapabilityTier,
-) -> list["ValidationCheck"]:
+) -> list[ValidationCheck]:
     """Validate T2/T3 specific requirements.
 
     Args:
@@ -24,15 +24,17 @@ def validate_t2_t3(
     """
     from sdp.validators.capability_tier_checks import (
         _check_contract_is_read_only,
+        _check_no_vague_language,
         _check_placeholders_present,
         _check_scope_tiny,
         _check_signatures_complete,
         _check_tests_complete,
         _check_verification_commands,
-        _check_no_vague_language,
     )
-    from sdp.validators.capability_tier_models import ValidationCheck
-    from sdp.validators.capability_tier_extractors import _extract_code_block, _extract_section
+    from sdp.validators.capability_tier_extractors import (
+        _extract_code_block,
+        _extract_section,
+    )
 
     checks: list[ValidationCheck] = []
 

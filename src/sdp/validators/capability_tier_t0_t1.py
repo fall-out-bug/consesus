@@ -4,13 +4,13 @@ Validates architectural gate requirements for T0 (Architect) and T1 (Integrator)
 """
 
 import re
+
 from sdp.core.workstream import Workstream
+from sdp.validators.capability_tier_models import ValidationCheck
 
 
-def _check_no_time_estimates(body: str) -> "ValidationCheck":
+def _check_no_time_estimates(body: str) -> ValidationCheck:
     """Check workstream contains no time estimates."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     time_patterns = [
         r"\d+\s*(hour|hr|minute|min|day|week|s)",
         r"\d+:\d+",  # HH:MM format
@@ -37,10 +37,8 @@ def _check_no_time_estimates(body: str) -> "ValidationCheck":
     )
 
 
-def _check_no_vague_language(body: str) -> "ValidationCheck":
+def _check_no_vague_language(body: str) -> ValidationCheck:
     """Check workstream uses specific, actionable language."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     vague_patterns = [
         r"\b(appropriate|suitable|reasonable|proper|correct)\b",
         r"\b(etc|etcetera|and so forth)\b",
@@ -69,9 +67,8 @@ def _check_no_vague_language(body: str) -> "ValidationCheck":
     )
 
 
-def _check_architecture_section_present(body: str) -> "ValidationCheck":
+def _check_architecture_section_present(body: str) -> ValidationCheck:
     """Check architecture section exists and has content."""
-    from sdp.validators.capability_tier_models import ValidationCheck
     from sdp.validators.capability_tier_extractors import _extract_section
 
     arch_section = _extract_section(body, "Architecture")
@@ -90,10 +87,8 @@ def _check_architecture_section_present(body: str) -> "ValidationCheck":
     )
 
 
-def _check_design_decisions_documented(body: str) -> "ValidationCheck":
+def _check_design_decisions_documented(body: str) -> ValidationCheck:
     """Check design decisions are documented with rationale."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Look for decision patterns like "Decision:", "Rationale:", "Alternative:"
     decision_patterns = [
         r"#+\s*Decision",

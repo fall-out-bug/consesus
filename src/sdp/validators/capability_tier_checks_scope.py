@@ -3,12 +3,11 @@
 Provides validation functions for workstream size and scope estimates.
 """
 
+from sdp.validators.capability_tier_models import ValidationCheck
 
 
-def _check_scope_tiny(ws, body: str) -> "ValidationCheck":
+def _check_scope_tiny(ws, body: str) -> ValidationCheck:
     """Check T3 workstream has tiny scope (< 50 LOC estimate)."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Check workstream size
     if ws.size.value in ("LARGE", "XLARGE"):
         return ValidationCheck(

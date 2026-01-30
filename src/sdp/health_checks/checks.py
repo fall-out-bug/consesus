@@ -102,7 +102,6 @@ class BeadsCLICheck(HealthCheck):
 
     def run(self) -> HealthCheckResult:
         """Check Beads CLI installation with version and Go detection."""
-        import subprocess
 
         # Check if Go is installed
         go_path = shutil.which("go")
@@ -123,8 +122,12 @@ class BeadsCLICheck(HealthCheck):
         # Build remediation message
         remediation_steps = []
         if not go_installed:
-            remediation_steps.append("1. Install Go: brew install go (macOS) or apt install golang-go (Linux)")
-        remediation_steps.append("2. Install Beads: go install github.com/steveyegge/beads/cmd/bd@latest")
+            remediation_steps.append(
+                "1. Install Go: brew install go (macOS) or apt install golang-go (Linux)"
+            )
+        remediation_steps.append(
+            "2. Install Beads: go install github.com/steveyegge/beads/cmd/bd@latest"
+        )
         remediation_steps.append("3. Add to PATH: export PATH=$PATH:$(go env GOPATH)/bin")
         remediation_steps.append("4. Verify: bd --version")
         remediation_steps.append("")

@@ -25,6 +25,14 @@ try:
 except ImportError:
     _doctor_available = False
 
+# Import trace command
+_trace_available: bool = False
+try:
+    from sdp.cli.trace import trace
+    _trace_available = True
+except ImportError:
+    trace = None
+
 # Import command groups
 try:
     from sdp.cli.workstream import workstream
@@ -101,6 +109,10 @@ if _doctor_available:
 
 # Add workstream commands
 main.add_command(workstream)
+
+# Add trace commands
+if _trace_available and trace:
+    main.add_command(trace)
 
 # Add tier commands (tier group includes metrics and promote-check)
 if tier:

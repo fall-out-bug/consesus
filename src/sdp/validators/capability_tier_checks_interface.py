@@ -5,11 +5,11 @@ Provides validation functions for interface signatures and test completeness.
 
 import re
 
+from sdp.validators.capability_tier_models import ValidationCheck
 
-def _check_signatures_complete(interface_code: str) -> "ValidationCheck":
+
+def _check_signatures_complete(interface_code: str) -> ValidationCheck:
     """Check interface code has complete function signatures (no pass)."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Look for functions with only "pass" or "..." as body
     incomplete_pattern = r"def\s+\w+\([^)]*\):\s*\n\s+(pass|\.\.\.)"
 
@@ -28,10 +28,8 @@ def _check_signatures_complete(interface_code: str) -> "ValidationCheck":
     )
 
 
-def _check_tests_complete(tests_code: str) -> "ValidationCheck":
+def _check_tests_complete(tests_code: str) -> ValidationCheck:
     """Check tests are concrete (no TODO/FIXME/skip)."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     issues = []
 
     # Check for TODO/FIXME
@@ -62,10 +60,8 @@ def _check_tests_complete(tests_code: str) -> "ValidationCheck":
     )
 
 
-def _check_placeholders_present(interface_code: str) -> "ValidationCheck":
+def _check_placeholders_present(interface_code: str) -> ValidationCheck:
     """Check interface uses NotImplementedError placeholders."""
-    from sdp.validators.capability_tier_models import ValidationCheck
-
     # Count functions
     func_count = len(re.findall(r"def\s+\w+", interface_code))
 
