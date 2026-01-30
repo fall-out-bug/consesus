@@ -20,6 +20,8 @@ SDP is for you if:
 
 **New to SDP?** See [START_HERE.md](START_HERE.md) for beginner guides!
 
+**Upgrading from an earlier version?** See [Migration Guide](docs/migration/breaking-changes.md) for breaking changes!
+
 ---
 
 ## Quick Start
