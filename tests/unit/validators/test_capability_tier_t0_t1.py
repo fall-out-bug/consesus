@@ -157,6 +157,8 @@ class TestValidateT0T1Gates:
         ws = Workstream(
             ws_id="WS-000-01",
             feature="F00",
+            status=WorkstreamStatus.BACKLOG,
+            size=WorkstreamSize.SMALL,
             title="Test WS",
             goal="Test goal",
             context="",
@@ -222,6 +224,8 @@ class TestValidateT0T1Gates:
         ws = Workstream(
             ws_id="WS-000-01",
             feature="F00",
+            status=WorkstreamStatus.BACKLOG,
+            size=WorkstreamSize.SMALL,
             title="Test WS",
             goal="Test goal",
             context="context & problem statement",  # Lowercase

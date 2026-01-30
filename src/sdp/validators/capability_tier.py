@@ -8,7 +8,6 @@ import re
 from pathlib import Path
 
 from sdp.core.workstream import WorkstreamParseError, parse_workstream
-
 from sdp.validators.capability_tier_models import CapabilityTier, ValidationCheck, ValidationResult
 from sdp.validators.capability_tier_t0_t1 import validate_t0_t1_gates
 from sdp.validators.capability_tier_t2_t3 import validate_t2_t3
@@ -24,10 +23,16 @@ def validate_workstream_tier(ws_path: Path, tier: str) -> ValidationResult:
     Returns:
         ValidationResult with passed/failed checks
     """
+    if tier != tier.upper():
+        raise ValueError(f"Invalid tier: {tier}. Must be uppercase (T0, T1, T2, T3)")
+
     try:
-        tier_enum = CapabilityTier(tier.upper())
+        tier_enum = CapabilityTier(tier)
     except ValueError as e:
         raise ValueError(f"Invalid tier: {tier}. Must be one of T0, T1, T2, T3") from e
+
+    if not ws_path.exists():
+        raise WorkstreamParseError(f"File not found: {ws_path}")
 
     try:
         ws = parse_workstream(ws_path)
