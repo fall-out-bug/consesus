@@ -11,11 +11,9 @@ from sdp.quality.models import (
     QualityGateConfig,
     TypeHintsConfig,
 )
-from sdp.quality.validator import QualityGateValidator
 
 __all__ = [
     "QualityGateConfigLoader",
-    "QualityGateValidator",
     "QualityGateConfig",
     "CoverageConfig",
     "ComplexityConfig",
