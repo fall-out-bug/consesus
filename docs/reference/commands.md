@@ -96,7 +96,7 @@ Complete reference for all SDP CLI commands and skills.
 
 **Example:**
 ```bash
-@build WS-001-01
+@build 00-001-01
 ```
 
 **See:** [.claude/skills/build/SKILL.md](../../.claude/skills/build/SKILL.md)

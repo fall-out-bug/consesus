@@ -28,7 +28,7 @@ Comprehensive code review for features or workstreams with **Two-Stage Review Pr
 ### Load Master Prompt
 
 ```bash
-cat sdp/prompts/commands/codereview.md
+cat .claude/skills/codereview.md
 ```
 
 **This file contains:**
@@ -44,7 +44,7 @@ cat sdp/prompts/commands/codereview.md
 
 ### Execute Instructions
 
-Follow `sdp/prompts/commands/codereview.md`:
+Follow `.claude/skills/codereview.md`:
 
 1. Find all WS in scope
 2. For each WS (Two-Stage Review):

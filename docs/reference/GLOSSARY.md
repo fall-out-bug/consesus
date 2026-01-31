@@ -59,7 +59,7 @@ This glossary provides canonical definitions for all SDP (Spec-Driven Protocol) 
 - ≥ 80% test coverage
 
 **Examples:**
-- `WS-001-01`: First workstream of first feature
+- `00-001-01`: First workstream of first feature
 - `00-012-03`: Third workstream of feature 012 in project 00
 
 **Legacy Names:** ~~Epic~~, ~~Sprint~~, ~~Task~~
@@ -143,7 +143,7 @@ ready = client.get_ready_tasks()
 |-------|-------|------|---------|
 | **Release** | Product milestone | 10-30 Features | R1: Submissions E2E |
 | **Feature** | Major feature | 5-30 Workstreams | F24: Unified Workflow |
-| **Workstream** | Atomic task | SMALL/MEDIUM/LARGE | WS-060: Domain Model |
+| **Workstream** | Atomic task | SMALL/MEDIUM/LARGE | 00-060: Domain Model |
 
 **Rules:**
 - Workstreams belong to exactly one Feature
@@ -172,6 +172,7 @@ ready = client.get_ready_tasks()
 **Prefix Variants:**
 - `WS-PP-FFF-SS` - Full prefix (canonical)
 - `PP-FFF-SS` - Short prefix (acceptable)
+- `00-001-01` - Current format (PP-FFF-SS)
 - `WS-001-01` - Legacy format (deprecated)
 
 **Validation:**
@@ -250,7 +251,8 @@ r'^\d{2}-\d{3}-\d{2}$'
 
 | Format | Example | Usage | Status |
 |--------|---------|-------|--------|
-| `WS-PP-FFF-SS` | `WS-001-01` | Canonical workstream ID | ✅ Preferred |
+| `PP-FFF-SS` | `00-001-01` | Canonical workstream ID | ✅ Preferred |
+| `WS-PP-FFF-SS` | `WS-001-01` | Legacy format | ⚠️ Deprecated |
 | `PP-FFF-SS` | `01-001-01` | Short workstream ID | ✅ Acceptable |
 | `beads-sdp-XXX` | `beads-sdp-118` | Legacy feature/workstream | ⚠️ Deprecated |
 | `F-FFF` | `F24` | Short feature ID | ✅ Acceptable |
@@ -279,7 +281,7 @@ r'^\d{2}-\d{3}-\d{2}$'
 **Examples:**
 - `@feature "Add user authentication"`
 - `@design idea-user-auth`
-- `@build WS-001-01`
+- `@build 00-001-01`
 - `@review F01`
 - `@deploy F01`
 
@@ -1411,7 +1413,7 @@ task = Task("Execute feature F01", subagent_type="orchestrator")
 **Usage:**
 ```bash
 @oneshot F01 --resume abc123xyz
-# Resumes from last checkpoint (WS-001-03)
+# Resumes from last checkpoint (00-001-03)
 ```
 
 **See Also:** @oneshot, Task Tool, Agent

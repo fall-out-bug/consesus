@@ -46,7 +46,7 @@ sdp guard check {file}      # Verify allowed
 
 ## Documentation
 
-- [PROTOCOL.md](PROTOCOL.md) — Full specification
+- [PROTOCOL.md](docs/PROTOCOL.md) — Full specification
 - [Skills](.claude/skills/) — Command details
 - [Quality Gates](docs/reference/quality-gates.md)
 

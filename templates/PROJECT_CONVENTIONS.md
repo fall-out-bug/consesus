@@ -248,9 +248,9 @@ def get_user(user_id):
 
 **DO:**
 ```
-✅ feat(auth): WS-001-01 - add user registration
-✅ fix(api): WS-002-03 - handle timeout in payment API
-✅ test(domain): WS-001-02 - add validation tests
+✅ feat(auth): 00-001-01 - add user registration
+✅ fix(api): 00-002-03 - handle timeout in payment API
+✅ test(domain): 00-001-02 - add validation tests
 ```
 
 **DON'T:**

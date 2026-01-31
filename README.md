@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)](tests/)
 
 ---
 
@@ -67,7 +67,7 @@ Complete workflow in 30 seconds:
 @design beads-comments
 
 # 3. Execute one workstream
-@build WS-COMMENTS-01
+@build 00-COMMENTS-01
 
 # Or execute all autonomously
 @oneshot beads-comments
@@ -75,7 +75,7 @@ Complete workflow in 30 seconds:
 
 **What happens:**
 - AI interviews you about requirements, users, success metrics
-- Creates workstreams with dependencies (WS-01 → WS-02 → WS-03)
+- Creates workstreams with dependencies (00-001-01 → 00-001-02 → 00-001-03)
 - Executes with TDD (Red → Green → Refactor)
 - Validates quality gates (≥80% coverage, mypy --strict, ruff)
 - Tracks progress in Beads CLI
@@ -106,14 +106,14 @@ Every workstream passes:
 ### Beads Integration
 Native task tracking with:
 - Hash-based task IDs (bd-0001, bd-0001.1, etc.)
-- Dependency DAG (WS-02 blocked by WS-01)
+- Dependency DAG (00-001-02 blocked by 00-001-01)
 - Ready task detection (`bd ready` shows executable tasks)
 - JSONL storage for Git versioning
 
 ### Progressive Disclosure
 `@feature` skill uses 5-minute interview to understand requirements before planning. No premature design, ask questions as you go.
 
-*See [PROTOCOL.md](PROTOCOL.md) for full feature list.*
+*See [PROTOCOL.md](docs/PROTOCOL.md) for full feature list.*
 
 ---
 
@@ -125,7 +125,7 @@ Native task tracking with:
 | `@feature` | **Unified feature development** | `@feature "Add user auth"` |
 | `@idea` | Interactive requirements gathering | `@idea "Add user auth"` |
 | `@design` | Plan workstreams | `@design idea-user-auth` |
-| `@build` | Execute single workstream | `@build WS-001-01` |
+| `@build` | Execute single workstream | `@build 00-001-01` |
 | `@debug` | **Systematic debugging** | `@debug "Test fails"` |
 | `@oneshot` | Autonomous feature execution | `@oneshot F001` |
 | `@review` | Quality check | `@review F001` |
@@ -174,11 +174,11 @@ Release (product milestone)
 
 ```
 Feature F24: User Authentication
-├─ WS-AUTH-01: Domain model (450 LOC, MEDIUM)
-├─ WS-AUTH-02: Database schema (300 LOC, MEDIUM)
-├─ WS-AUTH-03: Repository layer (500 LOC, MEDIUM)
-├─ WS-AUTH-04: Service layer (600 LOC, MEDIUM)
-└─ WS-AUTH-05: API endpoints (400 LOC, MEDIUM)
+├─ 00-024-01: Domain model (450 LOC, MEDIUM)
+├─ 00-024-02: Database schema (300 LOC, MEDIUM)
+├─ 00-024-03: Repository layer (500 LOC, MEDIUM)
+├─ 00-024-04: Service layer (600 LOC, MEDIUM)
+└─ 00-024-05: API endpoints (400 LOC, MEDIUM)
 ```
 
 ---
@@ -242,8 +242,8 @@ sdp/
 - [docs/internals/contributing.md](docs/internals/contributing.md) - Contributing
 
 ### Core Documentation
-- [PROTOCOL.md](PROTOCOL.md) - Complete specification
-- [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns
+- [PROTOCOL.md](docs/PROTOCOL.md) - Complete specification
+- [CODE_PATTERNS.md](docs/reference/CODE_PATTERNS.md) - Implementation patterns
 - [CLAUDE.md](CLAUDE.md) - Claude Code integration
 - [docs/SITEMAP.md](docs/SITEMAP.md) - Full documentation index
 
@@ -261,7 +261,7 @@ sdp/
 
 ## Development Status
 
-**Current Version:** v0.5.0 (Unified Workflow)
+**Current Version:** v0.6.0 (Unified Workflow)
 
 **Implemented:**
 - ✅ Multi-agent coordination (spawning, messaging, roles)

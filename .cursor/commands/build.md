@@ -2,7 +2,7 @@
 
 When calling `/build {WS-ID}`:
 
-1. Load full prompt: `@prompts/commands/build.md`
+1. Load skill: `@.claude/skills/build/SKILL.md`
 2. Run pre-build hook: `hooks/pre-build.sh {WS-ID}`
 3. Read WS plan
 4. Execute steps using TDD

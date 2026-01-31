@@ -4,7 +4,7 @@
 
 When calling `/oneshot F{XX}` in Cursor:
 
-1. Load full prompt: `@prompts/commands/oneshot.md`
+1. Load full prompt: `@.claude/skills/oneshot.md`
 2. Follow TodoWrite tracking (create todo list at start)
 3. Create PR and wait for approval
 4. Execute all feature WS autonomously (inline, no Task tool)

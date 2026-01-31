@@ -82,13 +82,11 @@ try:
 except ImportError:
     skill = None
 
-# Import extension commands
-_extension_available: bool = False
+status: click.Command | None = None
 try:
-    from sdp.cli_extension import extension  # noqa: E402
-    _extension_available = True
+    from sdp.cli.status.command import status
 except ImportError:
-    _extension_available = False
+    status = None
 
 _init_available: bool = False
 try:
@@ -159,9 +157,9 @@ if prd_validate:
 if skill:
     main.add_command(skill)
 
-# Add extension commands
-if _extension_available:
-    main.add_command(extension)
+# Add status command
+if status:
+    main.add_command(status)
 
 # Add init command
 if _init_available:

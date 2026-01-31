@@ -7,7 +7,7 @@ agent: planner
 
 При вызове `/idea {description}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/idea.md`
+1. Загрузи полный промпт: `@.claude/skills/idea.md`
 2. Выполни Mandatory Initial Dialogue
 3. Создай draft в `tools/hw_checker/docs/drafts/idea-{slug}.md`
 4. Выведи summary для пользователя

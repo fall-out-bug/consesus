@@ -7,7 +7,7 @@ agent: planner
 
 При вызове `/issue "description"`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/issue.md`
+1. Загрузи полный промпт: `@.claude/skills/issue.md`
 2. Systematic debugging (5 phases):
    - Symptom analysis
    - Hypothesis formation

@@ -11,7 +11,7 @@ Interactive setup wizard for SDP projects.
 ## When to Use
 
 - Setting up SDP in a new project
-- Reconfiguring SDP in existing project
+- Reconfiguring existing project
 - Verifying SDP installation
 
 ## Workflow
@@ -19,11 +19,11 @@ Interactive setup wizard for SDP projects.
 ### Step 1: Collect Project Metadata
 
 Prompt for:
-- **Project name**: Default from directory name
-- **Description**: Brief project description
-- **Author**: Project author/maintainer
+- **Project name** (default: directory name)
+- **Description**
+- **Author**
 
-### Step 2: Detect Optional Dependencies
+### Step 2: Detect Dependencies
 
 Auto-detect:
 - Beads CLI (task tracking)
@@ -32,7 +32,6 @@ Auto-detect:
 
 ### Step 3: Create Directory Structure
 
-Create standard directories:
 ```
 docs/
 ├── workstreams/
@@ -46,20 +45,15 @@ sdp.local/
 
 ### Step 4: Generate Quality Gate Config
 
-Create `quality-gate.toml` with:
-- Coverage settings (80% minimum)
-- Complexity limits (CC < 10)
-- File size limits (200 LOC)
-- Type hint requirements
-- Error handling rules
-- Architecture constraints
+Create `quality-gate.toml`:
+- Coverage: 80% minimum
+- Complexity: CC < 10
+- File size: 200 LOC max
+- Type hints required
 
 ### Step 5: Create .env Template
 
-Generate `.env.template` with placeholders for detected dependencies:
-- Telegram bot token/chat ID
-- GitHub token/repo
-- Beads API URL
+Generate `.env.template` with placeholders for detected dependencies.
 
 ### Step 6: Install Git Hooks
 
@@ -72,31 +66,24 @@ Execute `sdp doctor` to validate setup.
 ## Usage
 
 ```bash
-# Interactive setup (prompts for values)
-sdp init
-
-# Use defaults
-sdp init --non-interactive
-
-# Target specific directory
-sdp init --path /path/to/project
-
-# Overwrite existing files
-sdp init --force
+sdp init                    # Interactive
+sdp init --non-interactive  # Use defaults
+sdp init --path /project    # Target directory
+sdp init --force            # Overwrite existing
 ```
 
 ## Output
 
-- `docs/PROJECT_MAP.md` — Project decision log
-- `docs/workstreams/INDEX.md` — Workstream index
-- `docs/workstreams/TEMPLATE.md` — Workstream template
-- `quality-gate.toml` — Quality gate configuration
-- `.env.template` — Environment variable template
-- `.git/hooks/pre-commit` — Git hook (if git repo)
+- `docs/PROJECT_MAP.md`
+- `docs/workstreams/INDEX.md`
+- `docs/workstreams/TEMPLATE.md`
+- `quality-gate.toml`
+- `.env.template`
+- `.git/hooks/pre-commit`
 
 ## Next Steps
 
 After setup:
-1. Edit `docs/PROJECT_MAP.md` with project info
-2. Run `sdp extension list` to see available extensions
-3. Start with `/idea "your first feature"`
+1. Edit `docs/PROJECT_MAP.md`
+2. Copy `.env.template` to `.env`
+3. Run `@idea "your first feature"`

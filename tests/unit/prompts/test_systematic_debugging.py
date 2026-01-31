@@ -11,7 +11,7 @@ class TestSystematicDebuggingPrompt:
     @pytest.fixture
     def prompt_path(self) -> Path:
         """Path to the systematic debugging prompt file."""
-        return Path("prompts/skills/systematic-debugging.md")
+        return Path("docs/reference/systematic-debugging.md")
 
     @pytest.fixture
     def prompt_content(self, prompt_path: Path) -> str:

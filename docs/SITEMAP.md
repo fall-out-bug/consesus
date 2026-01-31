@@ -90,7 +90,7 @@ Complete navigation guide for all SDP documentation.
 | Document | Location | Purpose |
 |----------|----------|---------|
 | **Tutorial** | `docs/TUTORIAL.md` | Learn by doing |
-| **Glossary** | `docs/GLOSSARY.md` | Terminology reference |
+| **Glossary** | `docs/reference/GLOSSARY.md` | Terminology reference |
 | **Code Patterns** | `CODE_PATTERNS.md` | Implementation patterns |
 | **Principles** | `docs/PRINCIPLES.md` | Quality standards |
 | **Protocol** | `PROTOCOL.md` | Complete reference |
@@ -256,7 +256,7 @@ Complete navigation guide for all SDP documentation.
 
 | Document | Location | Description |
 |----------|----------|-------------|
-| **Glossary** | `docs/GLOSSARY.md` | 150+ SDP terms defined |
+| **Glossary** | `docs/reference/GLOSSARY.md` | 150+ SDP terms defined |
 | **Model Mapping** | `docs/model-mapping.md` | AI model recommendations |
 | **Quality Gate Schema** | `docs/quality-gate-schema.md` | Quality configuration format |
 

@@ -7,7 +7,7 @@ agent: builder
 
 При вызове `/build {WS-ID}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/build.md`
+1. Загрузи полный промпт: `@.claude/skills/build.md`
 2. Запусти pre-build hook: `sdp/hooks/pre-build.sh {WS-ID}`
 3. Прочитай WS план
 4. Выполни шаги по TDD
