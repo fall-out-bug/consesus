@@ -111,7 +111,7 @@ SDP errors are organized into categories for easier troubleshooting:
 
 ### WorkstreamValidationError
 
-**Symptom:** `Workstream 'WS-001-01' validation failed with 3 error(s)`
+**Symptom:** `Workstream '00-001-01' validation failed with 3 error(s)`
 
 **Causes:**
 - Missing required sections
@@ -122,7 +122,7 @@ SDP errors are organized into categories for easier troubleshooting:
 
 1. Review validation errors:
    ```bash
-   sdp core validate-ws docs/workstreams/backlog/WS-001-01.md
+   sdp core validate-ws docs/workstreams/backlog/00-001-01.md
    ```
 
 2. Check required sections:
@@ -133,7 +133,7 @@ SDP errors are organized into categories for easier troubleshooting:
 3. Verify frontmatter format:
    ```yaml
    ---
-   ws_id: WS-001-01
+   ws_id: 00-001-01
    feature: F01
    title: "Workstream Title"
    status: backlog
@@ -152,7 +152,7 @@ SDP errors are organized into categories for easier troubleshooting:
 
 ### DependencyNotFoundError
 
-**Symptom:** `Dependency 'WS-001-01' not found for workstream 'WS-001-02'`
+**Symptom:** `Dependency '00-001-01' not found for workstream '00-001-02'`
 
 **Causes:**
 - Dependency workstream doesn't exist
@@ -163,7 +163,7 @@ SDP errors are organized into categories for easier troubleshooting:
 
 1. Check INDEX.md for dependency status:
    ```bash
-   grep "WS-001-01" docs/workstreams/INDEX.md
+   grep "00-001-01" docs/workstreams/INDEX.md
    ```
 
 2. Verify dependency exists:

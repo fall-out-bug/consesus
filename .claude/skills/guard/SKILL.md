@@ -53,3 +53,27 @@ result = guard.check_edit(file_path)
 if not result.allowed:
     raise PermissionError(result.reason)
 ```
+
+## Example Output
+
+```bash
+$ sdp guard activate 00-032-01
+✓ Activated guard for WS 00-032-01
+Scope files:
+  - src/sdp/guard/skill.py
+  - src/sdp/guard/state.py
+  - tests/unit/test_guard.py
+
+$ sdp guard check src/sdp/guard/skill.py
+✓ ALLOWED: File within WS scope
+
+$ sdp guard check src/sdp/core/parser.py
+✗ BLOCKED: File not in scope
+  Active WS: 00-032-01
+  Scope: src/sdp/guard/*.py, tests/unit/test_guard.py
+
+$ sdp guard status
+Active WS: 00-032-01
+Scope files: 3
+Status: ENFORCING
+```

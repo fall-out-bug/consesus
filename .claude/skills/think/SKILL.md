@@ -140,3 +140,85 @@ For straightforward problems, skip parallel agents:
 - All angles explored (single mode)
 - Tradeoffs are explicit
 - Recommendation is clear with rationale
+
+## Example: Parallel Expert Output
+
+```
+User: @idea "Add real-time notifications to dashboard"
+
+@idea agent: This requires deeper analysis. Calling /think...
+
+→ Spawning 4 expert agents in parallel:
+  • @architect - System design analysis
+  • @security - Threat modeling
+  • @performance - Scalability concerns
+  • @ux - User experience implications
+
+[All agents run simultaneously]
+
+ARCHITECT AGENT:
+→ Analyzing system design...
+Key considerations:
+- WebSocket vs Server-Sent Events (SSE) tradeoff
+- Need pub/sub pattern for multi-server support
+- Risk: tight coupling to existing API structure
+- Pattern: Event-driven architecture with message broker
+Recommendation: Redis pub/sub with WebSocket fallback
+
+SECURITY AGENT:
+→ Analyzing threats...
+Threat analysis:
+- WebSocket connections are stateful, need auth per connection
+- Risk: token replay attacks if not properly secured
+- Need rate limiting to prevent DOS via connection spam
+- CORS policy must whitelist specific origins only
+Recommendation: JWT tokens with short expiry, per-connection auth
+
+PERFORMANCE AGENT:
+→ Analyzing scalability...
+Performance concerns:
+- Each WebSocket connection holds memory (~50KB)
+- 10K concurrent users = ~500MB memory overhead
+- Redis pub/sub adds ~5ms latency per message
+- Need connection pooling strategy
+Recommendation: Horizontal scaling with sticky sessions
+
+UX AGENT:
+→ Analyzing user experience...
+UX implications:
+- Real-time updates improve perceived performance
+- Risk: notification fatigue if too frequent
+- Need clear visual indicators for new notifications
+- Offline state handling critical for mobile users
+Recommendation: Batched updates (max 1/second), clear UI states
+
+## Synthesis
+
+Combining all expert perspectives:
+
+**Technical Approach:**
+- Use WebSocket with SSE fallback (progressive enhancement)
+- Redis pub/sub for server-to-server messaging
+- JWT auth per connection with 5-min expiry
+
+**Architecture:**
+```
+Browser ← WebSocket → API Server ← Redis Pub/Sub → Other API Servers
+```
+
+**Key Tradeoffs:**
+- Complexity (+) vs Real-time UX (+++)
+- Memory overhead (~500MB for 10K users) vs User engagement (high)
+- Added Redis dependency vs Simplified scaling
+
+**Recommendation:** 
+Proceed with real-time notifications using WebSocket + Redis pub/sub.
+Benefits (user engagement, perceived performance) outweigh costs (complexity, memory).
+
+**Open Questions:**
+1. What notification types are highest priority? (affects batching strategy)
+2. Do we need notification history? (affects storage requirements)
+3. Mobile app integration planned? (affects fallback strategy)
+
+@idea agent: Let me ask you about these open questions...
+```

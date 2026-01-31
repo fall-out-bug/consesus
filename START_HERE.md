@@ -33,7 +33,7 @@ pip install -e .
 @design idea-user-auth
 
 # 4. Execute
-@build WS-001-01
+@build 00-001-01
 
 # Or execute all autonomously
 @oneshot F001
@@ -112,7 +112,7 @@ pip install -e .
 **Goal:** Use SDP daily for feature development
 
 1. [docs/TUTORIAL.md](docs/TUTORIAL.md) - Learn by doing (15 min)
-2. [docs/GLOSSARY.md](docs/GLOSSARY.md) - Reference as needed (ongoing)
+2. [docs/reference/GLOSSARY.md](docs/reference/GLOSSARY.md) - Reference as needed (ongoing)
 3. [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns (20 min)
 4. [docs/PRINCIPLES.md](docs/PRINCIPLES.md) - Quality standards (30 min)
 5. [PROTOCOL.md](PROTOCOL.md) - Complete reference (as needed)
@@ -152,7 +152,7 @@ pip install -e .
 @issue "Bug description"
 # Routes to @hotfix (P0) or @bugfix (P1/P2)
 ```
-→ See: [PROTOCOL.md](PROTOCOL.md#quick-reference), [docs/GLOSSARY.md](docs/GLOSSARY.md#severity-classification)
+→ See: [PROTOCOL.md](PROTOCOL.md#quick-reference), [docs/reference/GLOSSARY.md](docs/reference/GLOSSARY.md#severity-classification)
 
 **...debug a failing test**
 ```bash
@@ -173,7 +173,7 @@ pip install -e .
 → See: [PROTOCOL.md](PROTOCOL.md#deployment), [docs/github-integration/SETUP.md](docs/github-integration/SETUP.md)
 
 **...understand terminology**
-→ See: [docs/GLOSSARY.md](docs/GLOSSARY.md) (150+ terms)
+→ See: [docs/reference/GLOSSARY.md](docs/reference/GLOSSARY.md) (150+ terms)
 
 **...find specific documentation**
 → See: [docs/SITEMAP.md](docs/SITEMAP.md) (full index)
@@ -189,7 +189,7 @@ pip install -e .
 | **PROTOCOL.md** | Full specification | Deep dive into SDP workflow |
 | **CODE_PATTERNS.md** | Implementation patterns | Writing code with SDP |
 | **CLAUDE.md** | Claude Code integration | Using SDP with Claude Code |
-| **docs/GLOSSARY.md** | 150+ term reference | Looking up unfamiliar terms |
+| **docs/reference/GLOSSARY.md** | 150+ term reference | Looking up unfamiliar terms |
 | **docs/SITEMAP.md** | Documentation index | Finding specific docs |
 | **docs/TUTORIAL.md** | 15-minute hands-on | Learning by doing |
 | **docs/PRINCIPLES.md** | Engineering principles | Understanding quality standards |
@@ -238,7 +238,7 @@ Every workstream must pass:
 |---------|---------|---------|
 | `@feature` | Create feature | `@feature "Add user auth"` |
 | `@design` | Plan workstreams | `@design idea-user-auth` |
-| `@build` | Execute workstream | `@build WS-001-01` |
+| `@build` | Execute workstream | `@build 00-001-01` |
 | `@review` | Quality check | `@review F001` |
 | `@deploy` | Deploy to production | `@deploy F001` |
 | `@oneshot` | Autonomous execution | `@oneshot F001` |
@@ -251,14 +251,14 @@ Every workstream must pass:
 
 ### Stuck? Try These:
 
-1. **[Glossary](docs/GLOSSARY.md)** - Look up unfamiliar terms
+1. **[Glossary](docs/reference/GLOSSARY.md)** - Look up unfamiliar terms
 2. **[Site Map](docs/SITEMAP.md)** - Find relevant documentation
 3. **[Runbooks](docs/runbooks/)** - Step-by-step guides for common tasks
 4. **[GitHub Issues](https://github.com/fall-out-bug/sdp/issues)** - Report bugs or request features
 
 ### Quick Questions:
 
-**"What does {term} mean?"** → [docs/GLOSSARY.md](docs/GLOSSARY.md)
+**"What does {term} mean?"** → [docs/reference/GLOSSARY.md](docs/reference/GLOSSARY.md)
 
 **"How do I {action}?"** → [docs/TUTORIAL.md](docs/TUTORIAL.md) or [docs/SITEMAP.md](docs/SITEMAP.md)
 
@@ -272,14 +272,14 @@ Every workstream must pass:
 
 1. ✅ **Read** [15-Minute Tutorial](docs/TUTORIAL.md) (15 min)
 2. ✅ **Try** creating your first feature with `@feature`
-3. ✅ **Reference** [Glossary](docs/GLOSSARY.md) as needed
+3. ✅ **Reference** [Glossary](docs/reference/GLOSSARY.md) as needed
 4. ✅ **Deep dive** into [PROTOCOL.md](PROTOCOL.md) when ready
 
 **Welcome to workstream-driven development! 🚀**
 
 ---
 
-**Version:** SDP v0.5.0
+**Version:** SDP v0.6.0
 **Updated:** 2026-01-29
 **Maintained by:** SDP Protocol Team
 
@@ -287,7 +287,7 @@ Every workstream must pass:
 
 **Quick Links:**
 - [Tutorial](docs/TUTORIAL.md) - Learn by doing
-- [Glossary](docs/GLOSSARY.md) - 150+ terms
+- [Glossary](docs/reference/GLOSSARY.md) - 150+ terms
 - [Site Map](docs/SITEMAP.md) - Full documentation index
 - [Protocol](PROTOCOL.md) - Complete specification
 - [GitHub](https://github.com/fall-out-bug/sdp) - Source code

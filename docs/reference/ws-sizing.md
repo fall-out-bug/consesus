@@ -25,7 +25,7 @@ Proper workstream sizing ensures AI agents can execute them successfully in one 
 
 **Example:**
 ```
-WS-001-01: Add email validation
+00-001-01: Add email validation
 Files:
   - src/validators.py (+50 lines)
   - tests/unit/test_validators.py (+100 lines)
@@ -51,7 +51,7 @@ Total: ~150 LOC
 
 **Example:**
 ```
-WS-001-02: User repository layer
+00-001-02: User repository layer
 Files:
   - src/infrastructure/repositories/user_repository.py (+200 lines)
   - src/application/ports/user_repository.py (+50 lines)
@@ -72,7 +72,7 @@ Total: ~750 LOC
 
 **Before (LARGE - 2000 LOC):**
 ```
-WS-001-01: Complete authentication system
+00-001-01: Complete authentication system
   - Domain entities
   - Repository layer
   - Service layer
@@ -81,10 +81,10 @@ WS-001-01: Complete authentication system
 
 **After (split into 4 MEDIUM):**
 ```
-WS-001-01: Domain entities (400 LOC)
-WS-001-02: Repository layer (700 LOC)
-WS-001-03: Service layer (600 LOC)
-WS-001-04: API endpoints (300 LOC)
+00-001-01: Domain entities (400 LOC)
+00-001-02: Repository layer (700 LOC)
+00-001-03: Service layer (600 LOC)
+00-001-04: API endpoints (300 LOC)
 ```
 
 ## Estimation Techniques
@@ -126,9 +126,9 @@ Total: 500 LOC → MEDIUM
 Track actual vs estimated LOC for calibration:
 
 ```
-WS-001-01: Estimated 400 LOC, Actual 550 LOC (+37%)
-WS-001-02: Estimated 600 LOC, Actual 650 LOC (+8%)
-WS-001-03: Estimated 300 LOC, Actual 280 LOC (-7%)
+00-001-01: Estimated 400 LOC, Actual 550 LOC (+37%)
+00-001-02: Estimated 600 LOC, Actual 650 LOC (+8%)
+00-001-03: Estimated 300 LOC, Actual 280 LOC (-7%)
 ```
 
 Average error: +13% → Apply correction factor
@@ -180,10 +180,10 @@ Split complex feature across architectural layers:
 Original: Authentication system (2000 LOC)
 
 Split:
-  WS-01: Domain layer (400 LOC)
-  WS-02: Repository layer (600 LOC)
-  WS-03: Service layer (700 LOC)
-  WS-04: API layer (300 LOC)
+  00-001-01: Domain layer (400 LOC)
+  00-001-02: Repository layer (600 LOC)
+  00-001-03: Service layer (700 LOC)
+  00-001-04: API layer (300 LOC)
 ```
 
 ### By Functionality
@@ -194,10 +194,10 @@ Split feature by functional components:
 Original: User management (2500 LOC)
 
 Split:
-  WS-01: User CRUD (800 LOC)
-  WS-02: User validation (500 LOC)
-  WS-03: User authentication (700 LOC)
-  WS-04: User authorization (500 LOC)
+  00-002-01: User CRUD (800 LOC)
+  00-002-02: User validation (500 LOC)
+  00-002-03: User authentication (700 LOC)
+  00-002-04: User authorization (500 LOC)
 ```
 
 ### By Integration
@@ -208,10 +208,10 @@ Split by integration boundaries:
 Original: Payment processing (3000 LOC)
 
 Split:
-  WS-01: Payment domain (600 LOC)
-  WS-02: Stripe integration (800 LOC)
-  WS-03: Payment service (900 LOC)
-  WS-04: Payment API (700 LOC)
+  00-003-01: Payment domain (600 LOC)
+  00-003-02: Stripe integration (800 LOC)
+  00-003-03: Payment service (900 LOC)
+  00-003-04: Payment API (700 LOC)
 ```
 
 ## Scope Files and Sizing
@@ -265,21 +265,21 @@ When creating workstream, verify:
 ### Well-Sized Workstreams
 
 ```
-✅ WS-001-01: Create User entity (300 LOC)
-✅ WS-001-02: User repository (750 LOC)
-✅ WS-001-03: User service (600 LOC)
+✅ 00-001-01: Create User entity (300 LOC)
+✅ 00-001-02: User repository (750 LOC)
+✅ 00-001-03: User service (600 LOC)
 ```
 
 ### Poorly-Sized Workstreams
 
 ```
-❌ WS-001-01: Complete user system (2500 LOC)
+❌ 00-001-01: Complete user system (2500 LOC)
    → Split into 4-5 workstreams
 
-❌ WS-001-02: Add helper function (50 LOC)
+❌ 00-001-02: Add helper function (50 LOC)
    → Too small, merge with related WS
 
-❌ WS-001-03: Refactor everything (5000 LOC)
+❌ 00-001-03: Refactor everything (5000 LOC)
    → Split into 8-10 workstreams
 ```
 

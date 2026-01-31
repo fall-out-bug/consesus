@@ -100,7 +100,7 @@ Skills are defined in `.claude/skills/{name}/SKILL.md`
 # If WS created manually: sdp beads migrate docs/workstreams/backlog/ --real
 
 # 3. Execute each workstream
-@build WS-001-01
+@build 00-001-01
 # Claude shows TodoWrite progress tracking:
 #   [in_progress] Pre-build validation
 #   [pending] Write failing test (Red)
@@ -108,7 +108,7 @@ Skills are defined in `.claude/skills/{name}/SKILL.md`
 #   [pending] Refactor implementation
 #   ... (updates in real-time)
 
-@build WS-001-02
+@build 00-001-02
 # ... or use autonomous mode:
 @oneshot F01
 
@@ -124,7 +124,7 @@ Skills are defined in `.claude/skills/{name}/SKILL.md`
 When using `@build`, Claude Code automatically tracks progress using TodoWrite:
 
 ```markdown
-User: @build WS-060-01
+User: @build 00-060-01
 
 Claude:
 → Creating todo list...
@@ -176,10 +176,10 @@ Orchestrator Agent:
 
 → Creating todo list...
   ✓ [in_progress] Wait for PR approval
-  • [pending] Execute WS-001-01: Domain entities
-  • [pending] Execute WS-001-02: Application services
-  • [pending] Execute WS-001-03: Infrastructure layer
-  • [pending] Execute WS-001-04: API endpoints
+ • [pending] Execute 00-001-01: Domain entities
+ • [pending] Execute 00-001-02: Application services
+ • [pending] Execute 00-001-03: Infrastructure layer
+ • [pending] Execute 00-001-04: API endpoints
   • [pending] Run final review
   • [pending] Generate UAT guide
 
@@ -190,18 +190,18 @@ Orchestrator Agent:
 
 → PR approved!
   ✓ [completed] Wait for PR approval
-  ✓ [in_progress] Execute WS-001-01: Domain entities
+ ✓ [in_progress] Execute 00-001-01: Domain entities
 
-→ Executing WS-001-01...
-  (internal @build TodoWrite tracking for this WS)
-→ WS-001-01 complete (45m, 85% coverage)
-  ✓ [completed] Execute WS-001-01: Domain entities
-  ✓ [in_progress] Execute WS-001-02: Application services
+→ Executing 00-001-01...
+ (internal @build TodoWrite tracking for this WS)
+→ 00-001-01 complete (45m, 85% coverage)
+ ✓ [completed] Execute 00-001-01: Domain entities
+ ✓ [in_progress] Execute 00-001-02: Application services
 
-→ Executing WS-001-02...
-→ WS-001-02 complete (1h 10m, 82% coverage)
-  ✓ [completed] Execute WS-001-02: Application services
-  ✓ [in_progress] Execute WS-001-03: Infrastructure layer
+→ Executing 00-001-02...
+→ 00-001-02 complete (1h 10m, 82% coverage)
+ ✓ [completed] Execute 00-001-02: Application services
+ ✓ [in_progress] Execute 00-001-03: Infrastructure layer
 
 ... (continues for all WS)
 

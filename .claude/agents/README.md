@@ -495,5 +495,5 @@ assert state_mgr.is_active("my-role")
 
 ---
 
-**Version:** SDP v0.5.0
+**Version:** SDP v0.6.0
 **Updated:** 2026-01-29

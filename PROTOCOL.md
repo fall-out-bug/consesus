@@ -141,7 +141,7 @@ from sdp.unified.agent.router import SendMessageRouter, Message
 router = SendMessageRouter()
 router.send_message(Message(
     sender="orchestrator",
-    content="Execute WS-060-01",
+    content="Execute 00-060-01",
     recipient=builder,
 ))
 ```
@@ -491,7 +491,7 @@ pytest --cov=src/ --cov-report=term-missing
 
 ## Version
 
-**SDP v0.5.0** - Unified Workflow (AI-Comm + Beads)
+**SDP v0.6.0** - Unified Workflow (AI-Comm + Beads)
 
 Updated: 2026-01-29
 
