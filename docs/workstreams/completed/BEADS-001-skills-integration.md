@@ -1,11 +1,11 @@
 # BEADS-001: Skills Integration
 
 > **Epic:** Beads Integration
-> **Status:** backlog
+> **Status:** completed
 > **Size:** LARGE
 > **Priority:** P0 (Blocks all Beads work)
 > **Note:** BEADS-001 build complete. All 5 skills integrate with Beads. Skill integration tests added (WS 00-033-02).
-> **Review (2026-01-30):** APPROVED — [report](../../reports/2026-01-30-BEADS-001-review.md)
+> **Review (2026-01-30):** APPROVED — [report](../reports/2026-01-30-BEADS-001-review.md)
 > **Feature:** F032 (SDP Protocol Enforcement)
 
 ---
@@ -14,8 +14,8 @@
 
 | Item | Type | Status |
 |------|------|--------|
-| [001-beads-review-failing-tests](../../issues/001-beads-review-failing-tests.md) | Issue | ✅ Resolved |
-| [00-033-02](../completed/00-033-02-add-skill-integration-tests.md) | WS | ✅ Completed |
+| [001-beads-review-failing-tests](../issues/001-beads-review-failing-tests.md) | Issue | ✅ Resolved |
+| [00-033-02](00-033-02-add-skill-integration-tests.md) | WS | ✅ Completed |
 
 ---
 
