@@ -51,6 +51,30 @@ python -m sdp.hooks.pre_commit
 
 ---
 
+## [0.6.1] - 2026-01-31
+
+### Added - Feature F031: Migrate Core Exceptions to SDPError
+
+- **00-031-01:** Core exceptions inherit from SDPError with ErrorCategory, remediation, docs_url
+
+**Что нового:**
+- WorkstreamParseError, CircularDependencyError, MissingDependencyError → SDPError
+- ModelMappingError, ContractViolationError, HumanEscalationError → SDPError
+- format_terminal() and format_json() on SDPError base
+- Actionable error messages with remediation steps
+
+**Использование:**
+
+```bash
+# Exceptions now include structured output
+from sdp.core.workstream import WorkstreamParseError
+error = WorkstreamParseError("Invalid ws_id")
+print(error.format_terminal())  # Terminal output with remediation
+print(error.format_json())      # JSON for CI/CD
+```
+
+---
+
 ## [0.6.0] - 2026-01-31
 
 ### Added - Feature F030: Test Coverage Expansion
