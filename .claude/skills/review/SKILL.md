@@ -167,6 +167,25 @@ No middle ground. No "approved with notes."
 - Failing tests, errors → **Bug** → @issue → /bugfix
 - Missing tests (AC), new capability → **Planned** → WS under same feature
 
+**6.6 Post-Review Checklist (MANDATORY)**
+
+Before closing review, verify ALL items tracked:
+
+```markdown
+## Post-Review Tracking Verification
+
+- [ ] All bugs have Issue created (docs/issues/)
+- [ ] All planned work has WS created (docs/workstreams/backlog/)
+- [ ] No "deferred" items without tracking link
+- [ ] Review report updated with tracking links
+- [ ] Feature overview updated with new WS (if any)
+```
+
+**Rule:** "Deferred" without tracking link = protocol violation. Every finding must have either:
+- Issue link (for bugs)
+- WS link (for planned work)
+- Explicit "out of scope" with justification
+
 ## Quality Gates
 
 See [Quality Gates Reference](../../docs/reference/quality-gates.md)
