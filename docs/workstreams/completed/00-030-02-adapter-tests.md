@@ -1,7 +1,7 @@
 ---
 ws_id: 00-030-02
 feature: F030
-status: backlog
+status: completed
 size: MEDIUM
 project_id: 00
 github_issue: null

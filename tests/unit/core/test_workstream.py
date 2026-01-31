@@ -1,0 +1,150 @@
+"""Tests for workstream parsing and validation."""
+
+import pytest
+from pathlib import Path
+
+from sdp.core.workstream import (
+    WorkstreamID,
+    WorkstreamStatus,
+    WorkstreamSize,
+    Workstream,
+    WorkstreamParseError,
+    parse_workstream,
+)
+
+
+class TestWorkstreamID:
+    """Test WorkstreamID parsing."""
+
+    def test_parse_pp_fff_ss_format(self) -> None:
+        """Verify parsing PP-FFF-SS format."""
+        ws_id = WorkstreamID.parse("00-001-01")
+
+        assert ws_id.project_id == 0
+        assert ws_id.feature_id == 1
+        assert ws_id.sequence == 1
+        assert str(ws_id) == "00-001-01"
+
+    def test_parse_legacy_ws_format(self) -> None:
+        """Verify parsing legacy WS-FFF-SS format."""
+        ws_id = WorkstreamID.parse("WS-500-01")
+
+        assert ws_id.project_id == 0
+        assert ws_id.feature_id == 500
+        assert ws_id.sequence == 1
+        assert str(ws_id) == "00-500-01"
+
+    def test_parse_raises_invalid_format(self) -> None:
+        """Verify parse raises for invalid format."""
+        with pytest.raises(ValueError, match="Invalid WS ID format"):
+            WorkstreamID.parse("invalid")
+
+    def test_is_sdp_property(self) -> None:
+        """Verify is_sdp for project 00."""
+        ws_id = WorkstreamID.parse("00-001-01")
+        assert ws_id.is_sdp is True
+
+    def test_validate_project_id(self) -> None:
+        """Verify validate_project_id accepts valid IDs."""
+        ws_id = WorkstreamID.parse("00-001-01")
+        ws_id.validate_project_id()
+
+    def test_validate_project_id_raises_invalid(self) -> None:
+        """Verify validate_project_id raises for invalid ID."""
+        ws_id = WorkstreamID(project_id=99, feature_id=1, sequence=1)
+
+        with pytest.raises(ValueError, match="Invalid project_id"):
+            ws_id.validate_project_id()
+
+
+class TestWorkstreamStatus:
+    """Test WorkstreamStatus enum."""
+
+    def test_status_values(self) -> None:
+        """Verify status enum values."""
+        assert WorkstreamStatus.BACKLOG.value == "backlog"
+        assert WorkstreamStatus.ACTIVE.value == "active"
+        assert WorkstreamStatus.COMPLETED.value == "completed"
+        assert WorkstreamStatus.BLOCKED.value == "blocked"
+
+
+class TestWorkstreamSize:
+    """Test WorkstreamSize enum."""
+
+    def test_size_values(self) -> None:
+        """Verify size enum values."""
+        assert WorkstreamSize.SMALL.value == "SMALL"
+        assert WorkstreamSize.MEDIUM.value == "MEDIUM"
+        assert WorkstreamSize.LARGE.value == "LARGE"
+
+
+class TestParseWorkstream:
+    """Test workstream file parsing."""
+
+    def test_parse_valid_workstream(self, tmp_path: Path) -> None:
+        """Verify parser extracts all fields correctly."""
+        ws_file = tmp_path / "00-001-01.md"
+        ws_file.write_text("""---
+ws_id: 00-001-01
+feature: F001
+status: backlog
+size: SMALL
+project_id: 00
+---
+
+## WS-00-001-01: Test Workstream
+
+### Goal
+
+Test goal
+
+### Context
+
+Test context
+""")
+
+        ws = parse_workstream(ws_file)
+
+        assert ws.ws_id == "00-001-01"
+        assert ws.feature == "F001"
+        assert ws.status == WorkstreamStatus.BACKLOG
+        assert ws.size == WorkstreamSize.SMALL
+        assert "Test goal" in ws.goal
+        assert ws.file_path == ws_file
+
+    def test_parse_raises_no_frontmatter(self, tmp_path: Path) -> None:
+        """Verify parser raises when no frontmatter."""
+        ws_file = tmp_path / "bad.md"
+        ws_file.write_text("No frontmatter here")
+
+        with pytest.raises(WorkstreamParseError, match="No frontmatter"):
+            parse_workstream(ws_file)
+
+    def test_parse_raises_invalid_ws_id(self, tmp_path: Path) -> None:
+        """Verify parser raises for invalid ws_id format."""
+        ws_file = tmp_path / "bad.md"
+        ws_file.write_text("""---
+ws_id: invalid-id
+feature: F001
+status: backlog
+size: SMALL
+---
+
+## Bad
+""")
+
+        with pytest.raises(WorkstreamParseError, match="Invalid ws_id"):
+            parse_workstream(ws_file)
+
+    def test_parse_raises_missing_required_fields(self, tmp_path: Path) -> None:
+        """Verify parser raises for missing required fields."""
+        ws_file = tmp_path / "bad.md"
+        ws_file.write_text("""---
+ws_id: 00-001-01
+---
+
+## Bad
+""")
+
+        with pytest.raises(WorkstreamParseError, match="Missing required"):
+            parse_workstream(ws_file)

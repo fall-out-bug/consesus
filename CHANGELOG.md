@@ -51,30 +51,28 @@ python -m sdp.hooks.pre_commit
 
 ---
 
-## [0.6.0] - 2026-XX-XX
+## [0.6.0] - 2026-01-31
 
-### Breaking Changes
+### Added - Feature F030: Test Coverage Expansion
 
-- **prompts/commands/ deprecated** — All command prompts moved to `.claude/skills/`
-  - Migration: Use skills directly (`@build`, `@review`, etc.)
-  - See: `docs/migration/prompts-to-skills.md`
+- **00-030-01:** GitHub Integration Tests — client 85%, retry 93%, sync 52%
+- **00-030-02:** Adapter Tests — base 86%, claude 86%, opencode 93%
+- **00-030-03:** Core Functionality Tests — workstream 84%, builder 81%, model 80%
 
-### Added
+**Что нового:**
+- 72 новых unit-тестов для GitHub, adapters, core
+- Все тесты используют mocks (без реальных API-вызовов)
+- mypy --strict для всех тестовых файлов
 
-- Guard skill for pre-edit enforcement
-- Skill template standard (≤100 lines)
-- Traceability check in review
-- `sdp skill validate` command for skill validation
-- `sdp skill check-all` for batch validation
-- ADR-007: Skill Length Limit
+**Использование:**
 
-### Changed
+```bash
+# Запуск тестов F030
+uv run pytest tests/unit/adapters/ tests/unit/core/ tests/unit/github/ -v
 
-- Build skill reduced from 141 to 88 lines
-- Review skill reduced from 242 to 113 lines
-- Design skill reduced from 591 to 98 lines
-- Detailed specifications moved to `docs/reference/`
-- Skills now reference external docs instead of inline content
+# Проверка типов
+uv run mypy tests/unit/adapters/ tests/unit/core/ tests/unit/github/ --strict
+```
 
 ## [0.4.0] - 2026-01-27
 
