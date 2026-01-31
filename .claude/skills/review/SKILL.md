@@ -8,236 +8,95 @@ tools: Read, Shell, Grep
 
 Review feature by validating workstreams against quality gates and traceability.
 
-## Invocation (BEADS-001)
+## Invocation
 
-Accepts **both** formats:
+```bash
+@review F01       # Feature ID (markdown workflow)
+@review sdp-xxx   # Beads task ID
+```
 
-- `@review F01` — Feature ID (markdown workflow)
-- `@review sdp-xxx` — Beads task ID (parent feature)
-
-## Quick Reference
+## Workflow Summary
 
 | Step | Action | Gate |
 |------|--------|------|
-| 0 | Resolve workstreams | beads_id → bd list, or markdown ls |
-| 1 | List WS | All WS found |
-| 2 | Traceability | All ACs have tests |
-| 3 | Quality gates | All checks pass |
-| 4 | Goal check | All ACs achieved |
+| 1 | List workstreams | All WS found |
+| 2 | Check traceability | All ACs have tests |
+| 3 | Run quality gates | All checks pass |
+| 4 | Verify goals | All ACs achieved |
 | 5 | Verdict | APPROVED or CHANGES_REQUESTED |
-| **6** | **Post-review actions** | **MANDATORY if CHANGES_REQUESTED** |
-| 7 | Completion gate | All findings tracked |
+| 6 | Post-review (if needed) | Track all findings |
 
-**⚠️ CRITICAL:** Review is NOT complete until Step 7 checklist passes. Do NOT stop after Step 5.
-
-## Workflow
-
-### Step 0: Resolve Workstreams (when Beads enabled)
-
-**Beads workflow** (bd installed, `.beads/` exists):
-```bash
-# Get sub-tasks (workstreams) under feature
-bd list --parent {feature-id} --json
-# Resolve beads_id → ws_id via .beads-sdp-mapping.jsonl for trace check
-```
-
-**Markdown workflow:**
-```bash
-ls docs/workstreams/completed/{feature-id}-*.md
-```
-
-### Step 1: List Workstreams
+## Step 1-2: List & Check Traceability
 
 ```bash
-# Beads: bd list --parent {beads_id}
-bd list --parent {feature-id}
-```
+# List workstreams
+bd list --parent {feature-id}  # Beads
+ls docs/workstreams/completed/{feature-id}-*.md  # Markdown
 
-Or for markdown workflow:
-
-```bash
-ls docs/workstreams/completed/{feature-id}-*.md
-```
-
-### Step 2: Check Traceability
-
-For each workstream, verify all ACs have mapped tests using the traceability CLI:
-
-```bash
-# ws_id from mapping (beads_id → sdp_id) or from markdown filename
+# Check traceability
 sdp trace check {WS-ID}
 ```
 
-The command will:
-- Extract all ACs from the workstream
-- Check for test mappings
-- Display traceability table
-- Exit 1 if any AC is unmapped
+**Gate:** 100% AC coverage (all ACs have mapped tests).
 
-Example output:
-
-```
-Traceability Report: 00-032-01
-==================================================
-| AC | Description | Test | Status |
-|----|-------------|------|--------|
-| AC1 | User can login | `test_user_login` | ✅ |
-| AC2 | User can logout | - | ❌ |
-
-Coverage: 50% (1/2 ACs mapped)
-Status: ❌ INCOMPLETE (1 unmapped)
-```
-
-**Gate:** All ACs must have mapped tests (100% coverage).
-
-If traceability check fails (exit code 1) → **CHANGES_REQUESTED**
-
-**Auto-detection:** If mappings are missing, try auto-detection first:
+## Step 3: Quality Gates
 
 ```bash
-sdp trace auto {WS-ID} --apply
+pytest tests/ -v                    # All tests pass
+pytest --cov=src --cov-fail-under=80  # Coverage ≥80%
+mypy src/ --strict                  # Type checking
+ruff check src/                     # Linting
+grep -r "except:" src/ | grep "pass"  # No except:pass
 ```
 
-This will automatically detect mappings from:
-- Test docstrings (e.g., `"""Tests AC1"""`)
-- Test function names (e.g., `test_ac1_user_login`)
-- Keyword matching between AC descriptions and test names
+## Step 4: Goal Achievement
 
-### Step 3: Quality Gates
-
-```bash
-# All tests pass
-pytest tests/ -v
-
-# Coverage ≥80%
-pytest --cov=src --cov-fail-under=80
-
-# Type checking
-mypy src/ --strict
-
-# Linting
-ruff check src/
-
-# No except:pass
-grep -r "except:" src/ | grep "pass"
-
-# Files <200 LOC
-find src/ -name "*.py" -exec sh -c 'lines=$(wc -l < "$1"); [ $lines -gt 200 ] && echo "$1: $lines lines"' _ {} \;
-```
-
-### Step 4: Goal Achievement
-
-For each WS, verify:
+For each WS verify:
 - [ ] All ACs have passing tests
 - [ ] Implementation matches description
 - [ ] No TODO/FIXME in code
 
-### Step 5: Verdict
+## Step 5: Verdict
 
-**APPROVED** if:
-- All ACs traceable to tests
-- All tests pass
-- All quality gates pass
-
-**CHANGES_REQUESTED** if any fails.
+**APPROVED** — All gates pass, all ACs traceable  
+**CHANGES_REQUESTED** — Any failure
 
 No middle ground. No "approved with notes."
 
----
+## Step 6: Post-Review (when CHANGES_REQUESTED)
 
-**⚠️ STOP — If CHANGES_REQUESTED, you MUST complete Step 6 before finishing.**
-
----
-
-### Step 6: Post-Review Actions (when CHANGES_REQUESTED)
-
-**⚠️ This step is MANDATORY when verdict is CHANGES_REQUESTED.**
-
-**6.1 Record verdict**
-- Save report to `docs/reports/{YYYY-MM-DD}-{reviewed-id}-review.md`
-- Include: verdict, AC status, quality gates, required actions
-
-**6.2 Update reviewed item**
-- Add to frontmatter: `review_verdict: CHANGES_REQUESTED`, `review_report: ../../reports/{date}-{id}-review.md`
-- Add link to report in body
-
-**6.3 Route findings — do NOT create new feature**
+**⚠️ MANDATORY when verdict is CHANGES_REQUESTED**
 
 | Finding type | Action | Output |
 |--------------|--------|--------|
-| **Bugs** (failing tests, mypy/ruff, runtime errors) | @issue | `docs/issues/{ID}-{slug}.md` → route to /bugfix |
-| **Planned work** (missing AC, new tests) | Add WS to **same feature** | `docs/workstreams/backlog/` with existing feature ID |
-| **Pre-existing tech debt** | @issue for triage | docs/issues/ or backlog |
+| **Bugs** | @issue | `docs/issues/` → /bugfix |
+| **Planned work** | Add WS to **same feature** | `docs/workstreams/backlog/` |
+| **Tech debt** | @issue for triage | Backlog |
 
-**6.4 Feature ID rule**
-- **Never create new feature** for review follow-up
-- Use `feature:` from reviewed workstreams or epic's parent
-- Epic (e.g. BEADS-001) → use parent feature (e.g. F032), not F033
+**Rules:**
+- Never create new feature for review follow-up
+- Every finding must have Issue or WS link
+- "Deferred" without tracking = protocol violation
 
-**6.5 Issue vs Workstream**
-- Failing tests, errors → **Bug** → @issue → /bugfix
-- Missing tests (AC), new capability → **Planned** → WS under same feature
-
-**6.6 Post-Review Checklist (MANDATORY)**
-
-Before closing review, verify ALL items tracked:
+### Completion Checklist
 
 ```markdown
-## Post-Review Tracking Verification
-
-- [ ] All bugs have Issue created (docs/issues/)
-- [ ] All planned work has WS created (docs/workstreams/backlog/)
-- [ ] No "deferred" items without tracking link
-- [ ] Review report updated with tracking links
-- [ ] Feature overview updated with new WS (if any)
-```
-
-**Rule:** "Deferred" without tracking link = protocol violation. Every finding must have either:
-- Issue link (for bugs)
-- WS link (for planned work)
-- Explicit "out of scope" with justification
-
----
-
-### Step 7: Completion Gate (MANDATORY)
-
-**⚠️ Review is NOT complete until this checklist passes.**
-
-Before responding to user, verify:
-
-```markdown
-## Review Completion Checklist
-
-- [ ] Verdict recorded (APPROVED or CHANGES_REQUESTED)
+- [ ] Verdict recorded
 - [ ] Report saved to docs/reports/
-
-If CHANGES_REQUESTED:
-- [ ] All bugs → Issue created (docs/issues/)
-- [ ] All planned work → WS created (docs/workstreams/backlog/)
-- [ ] Review report has tracking links
-- [ ] WS files updated with blocking links
+- [ ] All bugs → Issue created
+- [ ] All planned work → WS created
 - [ ] No "deferred" without tracking
 ```
 
-**If any item unchecked → DO NOT finish review. Complete missing items first.**
-
----
-
-## Quality Gates
-
-See [Quality Gates Reference](../../docs/reference/quality-gates.md)
-
 ## Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| Missing trace | AC has no test | Add test for AC |
-| Coverage <80% | Insufficient tests | Add more tests |
-| Goal not met | AC not working | Fix implementation |
+| Error | Fix |
+|-------|-----|
+| Missing trace | Add test for AC |
+| Coverage <80% | Add more tests |
+| Goal not met | Fix implementation |
 
 ## See Also
 
-- [Post-Review Fix Plan](../../docs/plans/2026-01-30-review-skill-post-review-fix.md) — Issue vs WS, feature ID rule
-- [@issue skill](../issue/SKILL.md) — Bugs → docs/issues/ → /bugfix
-- [Full Review Spec](../../docs/reference/review-spec.md)
+- [@issue skill](../issue/SKILL.md)
 - [Traceability Guide](../../docs/reference/traceability.md)
