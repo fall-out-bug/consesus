@@ -331,8 +331,8 @@ git commit --allow-empty -m "test: verify pre-commit hook"
 - **Files Changed:** 17
 - **Lines Added:** ~1,200
 - **Lines Removed:** ~700
-- **Test Coverage:** 66% (new hook modules)
-- **Tests Passed:** 982
+- **Test Coverage:** 88% (new hook modules)
+- **Tests Passed:** 993
 - **Tests Failed:** 0
 
 ### Deviations from Plan
