@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from sdp.hooks.common import find_project_root, find_workstream_dir
+
 
 def _repo_root() -> Path:
     """Get repository root."""
@@ -18,7 +20,7 @@ def _repo_root() -> Path:
 
 
 def _project_root(repo_root: Path) -> tuple[Path, str]:
-    """Return (work_dir, src_prefix). Prefer tools/hw_checker if exists."""
+    """Return (work_dir, src_prefix). Project-agnostic: SDP or hw_checker."""
     hw = repo_root / "tools" / "hw_checker"
     if hw.exists():
         return hw, "src/hw_checker"
@@ -152,18 +154,21 @@ def main() -> int:  # noqa: C901
 
     # Check 9: Execution Report
     print("\nCheck 9: Execution Report")
-    ws_dirs = [
-        repo_root / "docs" / "workstreams",
-        repo_root / "tools" / "hw_checker" / "docs" / "workstreams",
-    ]
-    ws_file: Path | None = None
-    for d in ws_dirs:
-        if d.exists():
-            for path in d.rglob(f"{ws_id}*.md"):
-                ws_file = path
-                break
-        if ws_file:
-            break
+    try:
+        project_root = find_project_root(repo_root)
+        ws_dir = find_workstream_dir(project_root)
+        ws_file = next(ws_dir.rglob(f"{ws_id}*.md"), None)
+    except RuntimeError:
+        ws_dirs = [
+            repo_root / "docs" / "workstreams",
+            repo_root / "tools" / "hw_checker" / "docs" / "workstreams",
+        ]
+        ws_file = None
+        for d in ws_dirs:
+            if d.exists():
+                ws_file = next(d.rglob(f"{ws_id}*.md"), None)
+                if ws_file:
+                    break
     if ws_file and ws_file.exists():
         content = ws_file.read_text()
         if "Execution Report" in content or "### Execution Report" in content:

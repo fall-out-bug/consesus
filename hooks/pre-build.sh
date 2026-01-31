@@ -15,25 +15,27 @@ fi
 echo "🔍 Pre-build checks for $WS_ID"
 echo "================================"
 
-# Find WS file (support both SDP and hw_checker layouts)
+# Find WS file (project-agnostic: auto-detect workstream dir)
 REPO_ROOT=$(git rev-parse --show-toplevel)
-WS_FILE=""
 WS_DIR=""
-for CANDIDATE in "docs/workstreams" "tools/hw_checker/docs/workstreams"; do
-    FULL_DIR="$REPO_ROOT/$CANDIDATE"
-    if [ -d "$FULL_DIR" ]; then
-        FOUND=$(find "$FULL_DIR" -name "${WS_ID}-*.md" 2>/dev/null | head -1)
-        if [ -n "$FOUND" ]; then
-            WS_FILE="$FOUND"
-            WS_DIR="$CANDIDATE"
-            break
-        fi
-    fi
-done
+if [ -n "$SDP_WORKSTREAM_DIR" ] && [ -d "$REPO_ROOT/$SDP_WORKSTREAM_DIR" ]; then
+    WS_DIR="$SDP_WORKSTREAM_DIR"
+elif [ -d "$REPO_ROOT/docs/workstreams" ]; then
+    WS_DIR="docs/workstreams"
+elif [ -d "$REPO_ROOT/workstreams" ]; then
+    WS_DIR="workstreams"
+elif [ -d "$REPO_ROOT/tools/hw_checker/docs/workstreams" ]; then
+    WS_DIR="tools/hw_checker/docs/workstreams"
+fi
+
+WS_FILE=""
+if [ -n "$WS_DIR" ]; then
+    WS_FILE=$(find "$REPO_ROOT/$WS_DIR" -name "${WS_ID}-*.md" 2>/dev/null | head -1)
+fi
 
 if [ -z "$WS_FILE" ]; then
     echo "❌ WS file not found: ${WS_ID}-*.md"
-    echo "   Searched in: docs/workstreams, tools/hw_checker/docs/workstreams"
+    echo "   Searched in: docs/workstreams, workstreams, SDP_WORKSTREAM_DIR"
     exit 1
 fi
 

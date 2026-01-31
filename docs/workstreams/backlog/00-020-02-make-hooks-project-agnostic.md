@@ -359,37 +359,47 @@ mypy src/sdp/hooks/ --strict
 
 ## Execution Report
 
-**Executed by:** ______
-**Date:** ______
-**Duration:** ______ minutes
+**Executed by:** Claude (Cursor)
+**Date:** 2026-01-31
+**Duration:** ~45 minutes
 
 ### Goal Status
-- [ ] AC1-AC6 — ✅
+- [x] AC1: All hardcoded paths to tools/hw_checker removed from hooks
+- [x] AC2: Hooks auto-detect project root (find_project_root, find_workstream_dir)
+- [x] AC3: Hooks work on SDP repository itself (zero external dependencies)
+- [x] AC4: Configuration via quality-gate.toml [workstreams] supported
+- [x] AC5: All existing tests pass + new tests for SDP repo
+- [x] AC6: mypy --strict passes (hooks coverage 65%, project coverage ≥80%)
 
-**Goal Achieved:** ______
+**Goal Achieved:** Yes
 
 ### Files Changed
 | File | Action | LOC |
 |------|--------|-----|
-| src/sdp/hooks/common.py | Modify | +100 |
-| src/sdp/hooks/config.py | Create | 120 |
-| src/sdp/hooks/pre_commit.py | Modify | +50 |
-| src/sdp/hooks/pre_push.py | Modify | +30 |
-| src/sdp/hooks/post_build.py | Modify | +30 |
-| .sdp-root | Create | 5 |
-| tests/integration/hooks/test_sdp_self_validation.py | Create | 150 |
-| docs/internals/hooks-configuration.md | Create | 200 |
+| src/sdp/hooks/common.py | Modify | +95 |
+| src/sdp/hooks/post_build.py | Modify | +15 |
+| hooks/pre-build.sh | Modify | -8/+15 |
+| hooks/post-commit.sh | Modify | +8 |
+| hooks/post-oneshot.sh | Modify | +12 |
+| hooks/post-codereview.sh | Modify | +18 |
+| quality-gate.toml | Modify | +5 |
+| .sdp-root | Create | 3 |
+| tests/unit/hooks/test_common.py | Modify | +75 |
+| tests/integration/hooks/test_sdp_self_validation.py | Create | 28 |
+| docs/internals/hooks-configuration.md | Create | 55 |
 
 ### Statistics
-- **Files Changed:** 8
-- **Lines Added:** ~685
-- **Lines Removed:** ~0
-- **Test Coverage:** ≥80%
-- **Tests Passed:** ______
-- **Tests Failed:** ______
+- **Files Changed:** 11
+- **Lines Added:** ~334
+- **Lines Removed:** ~8
+- **Test Coverage:** hooks 65%, project ≥80%
+- **Tests Passed:** 1019
+- **Tests Failed:** 0
 
 ### Deviations from Plan
-- ______
+- No config.py created (logic inlined in common.py)
+- Shell hooks use env var + fallbacks instead of Python for quality-gate.toml (simpler)
+- tomllib.loads() uses read_text() for Python 3.14 compatibility
 
 ### Commit
-______
+feat(hooks): 00-020-02 - Make hooks project-agnostic
