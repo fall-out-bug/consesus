@@ -285,7 +285,7 @@ uv run mypy tests/unit/adapters/ tests/unit/core/ tests/unit/github/ --strict
 - Implicit state management (replaced by `status.json`)
 
 ### Migration
-See [PROTOCOL.md](PROTOCOL.md) for migration instructions from v1.2.
+See [PROTOCOL.md](docs/PROTOCOL.md) for migration instructions from v1.2.
 
 ## [1.2.0] - 2024-12-29
 

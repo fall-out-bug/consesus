@@ -63,7 +63,7 @@ Skills are defined in `.claude/skills/{name}/SKILL.md`
 
 1. **Read core docs:**
    - [README.md](README.md) — Overview and quick start
-   - [PROTOCOL.md](PROTOCOL.md) — Full SDP specification
+   - [PROTOCOL.md](docs/PROTOCOL.md) — Full SDP specification
    - [RULES_COMMON.md](RULES_COMMON.md) — Common rules
 
 2. **Understand key concepts:**
@@ -411,10 +411,10 @@ See `.claude/settings.json` for:
 
 | Resource | Purpose |
 |----------|---------|
-| [PROTOCOL.md](PROTOCOL.md) | Full specification |
+| [PROTOCOL.md](docs/PROTOCOL.md) | Full specification |
 | [docs/PRINCIPLES.md](docs/PRINCIPLES.md) | Core principles |
-| [CODE_PATTERNS.md](CODE_PATTERNS.md) | Code patterns |
-| [MODELS.md](MODELS.md) | Model recommendations |
+| [CODE_PATTERNS.md](docs/reference/CODE_PATTERNS.md) | Code patterns |
+| [MODELS.md](docs/reference/MODELS.md) | Model recommendations |
 | [prompts/commands/](prompts/commands/) | Skill instructions |
 
 ---

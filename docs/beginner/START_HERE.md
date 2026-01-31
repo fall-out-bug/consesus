@@ -84,8 +84,8 @@ pip install -e .
 
 **By Topic:**
 
-- **[Protocol Specification](PROTOCOL.md)** 📋 Complete SDP specification
-- **[Code Patterns](CODE_PATTERNS.md)** 🔧 Implementation patterns
+- **[Protocol Specification](../PROTOCOL.md)** 📋 Complete SDP specification
+- **[Code Patterns](../reference/CODE_PATTERNS.md)** 🔧 Implementation patterns
 - **[Reference Docs](docs/reference/)** 📚 Command & config reference
 - **[Internals](docs/internals/)** 🏗️ Architecture & extending
 - **[Site Map](docs/SITEMAP.md)** 🗺️ Full documentation index
@@ -101,7 +101,7 @@ pip install -e .
 1. [README](README.md) - Project overview (5 min)
 2. [docs/overview-for-leads.md](docs/overview-for-leads.md) - Executive summary (10 min)
 3. [docs/TUTORIAL.md](docs/TUTORIAL.md) - Hands-on intro (15 min)
-4. [PROTOCOL.md](PROTOCOL.md) - Full specification (30 min)
+4. [PROTOCOL.md](../PROTOCOL.md) - Full specification (30 min)
 
 **Outcome:** Know what SDP does, how it works, when to use it
 
@@ -113,9 +113,9 @@ pip install -e .
 
 1. [docs/TUTORIAL.md](docs/TUTORIAL.md) - Learn by doing (15 min)
 2. [docs/reference/GLOSSARY.md](docs/reference/GLOSSARY.md) - Reference as needed (ongoing)
-3. [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns (20 min)
+3. [CODE_PATTERNS.md](../reference/CODE_PATTERNS.md) - Implementation patterns (20 min)
 4. [docs/PRINCIPLES.md](docs/PRINCIPLES.md) - Quality standards (30 min)
-5. [PROTOCOL.md](PROTOCOL.md) - Complete reference (as needed)
+5. [PROTOCOL.md](../PROTOCOL.md) - Complete reference (as needed)
 
 **Outcome:** Ready to use @feature, @design, @build, @review, @deploy
 
@@ -264,7 +264,7 @@ Every workstream must pass:
 
 **"Where is {topic} documented?"** → [docs/SITEMAP.md](docs/SITEMAP.md)
 
-**"Why does SDP {action}?"** → [PROTOCOL.md](PROTOCOL.md) or [docs/PRINCIPLES.md](docs/PRINCIPLES.md)
+**"Why does SDP {action}?"** → [PROTOCOL.md](../PROTOCOL.md) or [docs/PRINCIPLES.md](docs/PRINCIPLES.md)
 
 ---
 
@@ -273,7 +273,7 @@ Every workstream must pass:
 1. ✅ **Read** [15-Minute Tutorial](docs/TUTORIAL.md) (15 min)
 2. ✅ **Try** creating your first feature with `@feature`
 3. ✅ **Reference** [Glossary](docs/reference/GLOSSARY.md) as needed
-4. ✅ **Deep dive** into [PROTOCOL.md](PROTOCOL.md) when ready
+4. ✅ **Deep dive** into [PROTOCOL.md](../PROTOCOL.md) when ready
 
 **Welcome to workstream-driven development! 🚀**
 
@@ -289,5 +289,5 @@ Every workstream must pass:
 - [Tutorial](docs/TUTORIAL.md) - Learn by doing
 - [Glossary](docs/reference/GLOSSARY.md) - 150+ terms
 - [Site Map](docs/SITEMAP.md) - Full documentation index
-- [Protocol](PROTOCOL.md) - Complete specification
+- [Protocol](../PROTOCOL.md) - Complete specification
 - [GitHub](https://github.com/fall-out-bug/sdp) - Source code

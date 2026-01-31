@@ -113,7 +113,7 @@ Native task tracking with:
 ### Progressive Disclosure
 `@feature` skill uses 5-minute interview to understand requirements before planning. No premature design, ask questions as you go.
 
-*See [PROTOCOL.md](PROTOCOL.md) for full feature list.*
+*See [PROTOCOL.md](docs/PROTOCOL.md) for full feature list.*
 
 ---
 
@@ -242,8 +242,8 @@ sdp/
 - [docs/internals/contributing.md](docs/internals/contributing.md) - Contributing
 
 ### Core Documentation
-- [PROTOCOL.md](PROTOCOL.md) - Complete specification
-- [CODE_PATTERNS.md](CODE_PATTERNS.md) - Implementation patterns
+- [PROTOCOL.md](docs/PROTOCOL.md) - Complete specification
+- [CODE_PATTERNS.md](docs/reference/CODE_PATTERNS.md) - Implementation patterns
 - [CLAUDE.md](CLAUDE.md) - Claude Code integration
 - [docs/SITEMAP.md](docs/SITEMAP.md) - Full documentation index
 

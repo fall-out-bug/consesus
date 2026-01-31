@@ -11,7 +11,7 @@ class TestTwoStageReviewProtocol:
     @pytest.fixture
     def protocol_path(self) -> Path:
         """Path to the two-stage review protocol file."""
-        return Path("prompts/skills/two-stage-review.md")
+        return Path("docs/reference/two-stage-review.md")
 
     @pytest.fixture
     def protocol_content(self, protocol_path: Path) -> str:

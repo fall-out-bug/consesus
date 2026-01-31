@@ -11,7 +11,7 @@ class TestTestingAntipatterns:
     @pytest.fixture
     def prompt_path(self) -> Path:
         """Path to the testing anti-patterns prompt file."""
-        return Path("prompts/skills/testing-antipatterns.md")
+        return Path("docs/reference/testing-antipatterns.md")
 
     @pytest.fixture
     def prompt_content(self, prompt_path: Path) -> str:
