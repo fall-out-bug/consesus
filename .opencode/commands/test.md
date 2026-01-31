@@ -21,7 +21,7 @@ Generate or approve tests as contract for workstream implementation. T0 tier onl
 ### Load Master Prompt
 
 ```bash
-cat sdp/prompts/commands/test.md
+cat .claude/skills/test.md
 ```
 
 **This file contains:**
@@ -33,7 +33,7 @@ cat sdp/prompts/commands/test.md
 
 ### Execute Instructions
 
-Follow `sdp/prompts/commands/test.md`:
+Follow `.claude/skills/test.md`:
 
 **Step 1: Read Context**
 ```bash
@@ -95,7 +95,7 @@ This command enforces **T0 tier only**:
 
 ## Master Prompt Location
 
-📄 **sdp/prompts/commands/test.md` (12,767 bytes)
+📄 **.claude/skills/test.md` (12,767 bytes)
 
 **Why reference?**
 - Complete contract-driven methodology

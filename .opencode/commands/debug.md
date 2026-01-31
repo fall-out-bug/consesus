@@ -20,7 +20,7 @@ Execute systematic debugging workflow for bug analysis and resolution.
 ### Load Debugging Workflow
 
 ```bash
-cat sdp/prompts/commands/issue.md
+cat .claude/skills/issue.md
 ```
 
 **Section 4.0: Systematic Debugging Workflow contains:**
@@ -32,7 +32,7 @@ cat sdp/prompts/commands/issue.md
 
 ### Execute Instructions
 
-Follow **Section 4.0 Systematic Debugging Workflow** from `sdp/prompts/commands/issue.md`:
+Follow **Section 4.0 Systematic Debugging Workflow** from `.claude/skills/issue.md`:
 
 **Phase 1: Symptom Documentation**
 - Document observed behavior precisely
@@ -82,7 +82,7 @@ Track debugging attempts:
 
 ## Master Prompt Location
 
-📄 **sdp/prompts/commands/issue.md` → Section 4.0 (Systematic Debugging Workflow)
+📄 **.claude/skills/issue.md` → Section 4.0 (Systematic Debugging Workflow)
 
 **Why reference?**
 - Complete 5-phase debugging methodology

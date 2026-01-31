@@ -7,7 +7,7 @@ agent: planner
 
 При вызове `/design {slug}`:
 
-1. Загрузи полный промпт: `@sdp/prompts/commands/design.md`
+1. Загрузи полный промпт: `@.claude/skills/design.md`
 2. Прочитай PROJECT_MAP.md и INDEX.md
 3. Прочитай draft: `tools/hw_checker/docs/drafts/idea-{slug}.md`
 4. Создай все WS файлы в `workstreams/backlog/`

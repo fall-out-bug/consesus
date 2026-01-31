@@ -2,7 +2,7 @@
 
 When calling `/issue "description"`:
 
-1. Load full prompt: `@prompts/commands/issue.md`
+1. Load full prompt: `@.claude/skills/issue.md`
 2. Systematic debugging (5 phases):
    - Symptom analysis
    - Hypothesis formation

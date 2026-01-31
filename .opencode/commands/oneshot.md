@@ -8,7 +8,7 @@ model: inherit
 
 When called with `/oneshot {feature-id}`:
 
-1. Load full prompt: `@sdp/prompts/commands/oneshot.md`
+1. Load full prompt: `@.claude/skills/oneshot.md`
 2. Follow autonomous execution algorithm (PR approval, checkpoint/resume)
 3. Execute all WS by dependencies
 4. Generate Execution Report
