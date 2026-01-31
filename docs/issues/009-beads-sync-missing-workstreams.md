@@ -1,9 +1,9 @@
 # 009: Workstreams not synced to Beads
 
 **Source:** /issue (2026-01-31)  
-**Status:** Open  
+**Status:** Fixed  
 **Priority:** P3 (LOW)  
-**Route:** Process improvement
+**Route:** /bugfix (applied)
 
 ## Problem
 
@@ -73,6 +73,13 @@ bd sync
 - **P3 LOW** — workaround exists (manual `bd sync`)
 - Doesn't block development
 - Process/tooling gap, not a bug
+
+## Resolution (2026-01-31)
+
+- **Migration:** Ran `sdp beads migrate docs/workstreams/backlog/ --real` and `docs/workstreams/completed/ --real` (71+5 success)
+- **Guard fix:** Added `resolve_ws_id_to_beads_id()` — guard activate now accepts ws_id (00-020-03) and resolves via `.beads-sdp-mapping.jsonl`
+- **Docs:** Updated `docs/runbooks/beads-migration.md` with Beads-first workflow; added note to CLAUDE.md
+- Branch: `bugfix/009-beads-sync-missing-workstreams`
 
 ## Related
 
